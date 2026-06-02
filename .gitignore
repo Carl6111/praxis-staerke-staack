@@ -1,5 +1,46 @@
+# System
 .DS_Store
-.env
-*.env
+Thumbs.db
+
+# Dependencies
 node_modules/
+
+# Environment & Secrets — NIEMALS committen
+.env
+.env.local
+.env.development
+.env.production
+.env.staging
+*.env
+.env.*
+
+# API Keys & Credentials
+secrets.json
+credentials.json
+tokens.json
+service-account.json
+*-service-account.json
+config.secret.js
+config.secret.json
+*.secret.*
+
+# Certificates & Keys
+*.pem
+*.key
+*.p12
+*.pfx
+*.cert
+*.crt
+id_rsa
+id_ed25519
+
+# Build & Deploy
 .vercel
+dist/
+build/
+.next/
+out/
+
+# Logs
+*.log
+npm-debug.log*
