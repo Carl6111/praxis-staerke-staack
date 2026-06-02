@@ -47,6 +47,11 @@
     .footer-mini p { font-size: 13px; color: rgba(244,240,229,0.3); }
     .footer-mini a { font-size: 13px; color: rgba(244,240,229,0.4); text-decoration: none; margin-left: 20px; }
     .footer-mini a:hover { color: var(--accent); }
+    @media(max-width:768px) {
+      .nav-mobile a { padding: 10px 0; min-height: 44px; display: flex; align-items: center; }
+      .footer-mini { padding: 20px; flex-direction: column; text-align: center; }
+      .footer-mini a { margin-left: 0; margin-top: 8px; }
+    }
   </style>
 </head>
 <body>

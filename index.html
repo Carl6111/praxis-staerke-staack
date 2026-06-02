@@ -699,6 +699,65 @@
       padding: 8px 16px; border-radius: 8px;
       font-size: 12px; color: var(--accent); display: inline-block; margin-top: 8px;
     }
+
+    /* ── MOBILE ──────────────────────────────────── */
+    @media(max-width:768px) {
+      section { padding: 64px 0; }
+      .nav-mobile a { padding: 10px 0; min-height: 44px; display: flex; align-items: center; }
+
+      /* Hero: fix iOS fixed + reduce padding */
+      .hero-video { position: absolute; height: 100%; }
+      .video-overlay { position: absolute; height: 100%; }
+      .hero-content { padding: 0 20px calc(var(--nav-h) + 48px); }
+      .hero-title { font-size: clamp(36px,9vw,54px); }
+      .hero-sub { font-size: 15px; margin-bottom: 28px; }
+      .hero-scroll { display: none; }
+      .hero-actions { flex-direction: column; width: 100%; }
+      .btn-primary, .btn-ghost {
+        width: 100%; text-align: center; min-height: 52px;
+        display: flex; align-items: center; justify-content: center;
+      }
+
+      /* Emergency strip */
+      .emergency-strip { flex-direction: column; gap: 6px; padding: 12px 20px; font-size: 12px; }
+
+      /* Stats */
+      .stats-inner { padding: 40px 20px; }
+      .stat-num { font-size: 48px; }
+
+      /* Team banner */
+      .team-banner-overlay { padding: 0 20px; }
+      .team-banner-overlay h3 { font-size: 26px; }
+
+      /* Room section */
+      .room-section { height: auto; min-height: 300px; }
+      .room-section-overlay { align-items: flex-end; }
+      .room-section-text { padding: 24px 20px !important; max-width: 100%; }
+
+      /* CTA buttons */
+      .cta-actions { flex-direction: column; align-items: stretch; }
+      .btn-accent, .btn-outline-light {
+        text-align: center; min-height: 52px;
+        display: flex; align-items: center; justify-content: center;
+      }
+
+      /* Footer */
+      .footer-bottom { flex-direction: column; text-align: center; }
+      .footer-legal { justify-content: center; }
+      .footer { padding: 48px 0 0; }
+    }
+
+    /* Disable 3D flip on touch devices */
+    @media(hover:none) {
+      .team-card:hover .team-card-inner { transform: none; }
+    }
+
+    @media(max-width:480px) {
+      .hero-title { font-size: clamp(32px,9vw,44px); }
+      .hero-badge { font-size: 9px; letter-spacing: 0.12em; padding: 5px 12px; }
+      .welcome-quote { font-size: 22px; }
+      .team-banner { height: 200px; }
+    }
   </style>
 </head>
 <body>
@@ -717,8 +776,8 @@
   <div class="scroll-progress" id="scrollProgress"></div>
 
   <!-- VIDEO BACKGROUND (fixed, always visible) -->
-  <video class="hero-video" autoplay muted loop playsinline preload="metadata">
-    <source src="praxis1.mp4" type="video/mp4">
+  <video class="hero-video" id="heroVideo" autoplay muted loop playsinline preload="metadata">
+    <source src="praxis1.mp4" type="video/mp4" id="heroVideoSrc">
   </video>
   <div class="video-overlay"></div>
 
@@ -1081,6 +1140,25 @@
       if (e.isIntersecting) roomTextEl.classList.add('visible');
     }, {threshold: 0.3});
     roomObs.observe(roomTextEl);
+
+    // MOBILE VIDEO SWAP (vertical video for portrait screens)
+    (function() {
+      const video = document.getElementById('heroVideo');
+      const src = document.getElementById('heroVideoSrc');
+      if (!video || !src) return;
+      const mq = window.matchMedia('(max-width: 768px) and (orientation: portrait)');
+      function swap(e) {
+        const newSrc = e.matches ? 'praxis1-mobile.mp4' : 'praxis1.mp4';
+        if (src.getAttribute('src') !== newSrc) {
+          src.setAttribute('src', newSrc);
+          video.load();
+          video.play().catch(() => {});
+        }
+        video.style.objectPosition = e.matches ? 'center top' : 'center';
+      }
+      mq.addEventListener('change', swap);
+      swap(mq);
+    })();
 
     // 3D CARD TILT
     document.querySelectorAll('.service-card').forEach(card => {
