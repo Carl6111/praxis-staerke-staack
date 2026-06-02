@@ -702,20 +702,18 @@
     }
 
     /* ── MOBILE VIDEO SWITCH ─────────────────────── */
-    .hero-video--mobile { opacity: 0; }
     @media(max-width:768px) and (orientation:portrait) {
       .hero-video { object-position: center top; }
-      .hero-video--desktop { opacity: 0; }
-      .hero-video--mobile { opacity: 1; }
     }
 
     /* ── LANDSCAPE MOBILE ────────────────────────── */
     @media(max-width:1024px) and (orientation:landscape) {
-      .hero { align-items: center; }
-      .hero-content { padding-top: calc(var(--nav-h) + 16px); padding-bottom: 32px; }
-      .hero-title { font-size: clamp(26px,5vw,48px); margin-bottom: 14px; }
-      .hero-sub { font-size: 14px; margin-bottom: 20px; max-width: 360px; }
-      .hero-actions { gap: 12px; }
+      .hero { align-items: flex-start; }
+      .hero-content { padding-top: calc(var(--nav-h) + 60px); padding-bottom: 24px; padding-left: 20px; padding-right: 20px; }
+      .hero-title { font-size: clamp(22px,5vw,40px); margin-bottom: 8px; }
+      .hero-sub { font-size: 13px; margin-bottom: 14px; max-width: 360px; }
+      .hero-actions { flex-direction: row; width: auto; gap: 10px; }
+      .btn-primary, .btn-ghost { width: auto; min-height: auto; padding: 10px 20px; font-size: 13px; }
     }
     @media(max-width:768px) {
       section { padding: 64px 0; }
@@ -789,12 +787,19 @@
   <div class="scroll-progress" id="scrollProgress"></div>
 
   <!-- VIDEO BACKGROUND -->
-  <video class="hero-video hero-video--desktop" autoplay muted loop playsinline preload="metadata">
-    <source src="praxis1.mp4" type="video/mp4">
+  <video id="heroVideo" class="hero-video" muted loop playsinline preload="auto">
+    <source id="heroSrc" src="" type="video/mp4">
   </video>
-  <video class="hero-video hero-video--mobile" autoplay muted loop playsinline preload="metadata">
-    <source src="praxis1-mobile.mp4" type="video/mp4">
-  </video>
+  <script>
+    (function(){
+      var v = document.getElementById('heroVideo');
+      var s = document.getElementById('heroSrc');
+      s.src = (window.innerWidth <= 768 && window.innerHeight > window.innerWidth)
+        ? 'praxis1-mobile.mp4' : 'praxis1.mp4';
+      v.load();
+      v.play().catch(function(){});
+    })();
+  </script>
   <div class="video-overlay"></div>
 
   <!-- NAV -->
@@ -1064,8 +1069,8 @@
             <li><a href="index.html">Start</a></li>
             <li><a href="leistungen.html">Leistungen</a></li>
             <li><a href="team.html">Unser Team</a></li>
-            <li><a href="aktuelles.html">Aktuelles</a>
-        <a href="kontakt.html">Kontakt</a></li>
+            <li><a href="aktuelles.html">Aktuelles</a></li>
+            <li><a href="kontakt.html">Kontakt</a></li>
           </ul>
         </div>
         <div class="footer-col">
@@ -1158,24 +1163,21 @@
     roomObs.observe(roomTextEl);
 
 
-    // VIDEO SYNC — nur das sichtbare Video spielt (iOS erlaubt nur 1 autoplay)
-    (function() {
-      const mq = window.matchMedia('(max-width:768px) and (orientation:portrait)');
-      const vDesktop = document.querySelector('.hero-video--desktop');
-      const vMobile  = document.querySelector('.hero-video--mobile');
-      function syncVideos() {
-        if (mq.matches) {
-          vDesktop.pause();
-          vMobile.play().catch(function(){});
-        } else {
-          vMobile.pause();
-          vDesktop.play().catch(function(){});
-        }
-      }
-      syncVideos();
-      mq.addEventListener('change', syncVideos);
-      window.addEventListener('orientationchange', function(){ setTimeout(syncVideos, 150); });
-    })();
+    // VIDEO ORIENTATION SWITCH
+    var _vidLoading = false;
+    window.addEventListener('orientationchange', function() {
+      if (_vidLoading) return;
+      _vidLoading = true;
+      setTimeout(function() {
+        var v = document.getElementById('heroVideo');
+        var s = document.getElementById('heroSrc');
+        var isPortrait = window.innerWidth < window.innerHeight;
+        s.src = isPortrait ? 'praxis1-mobile.mp4' : 'praxis1.mp4';
+        v.load();
+        v.play().catch(function(){});
+        _vidLoading = false;
+      }, 300);
+    });
 
     // 3D CARD TILT
     document.querySelectorAll('.service-card').forEach(card => {
