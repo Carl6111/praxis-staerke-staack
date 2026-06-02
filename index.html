@@ -701,9 +701,12 @@
       font-size: 12px; color: var(--accent); display: inline-block; margin-top: 8px;
     }
 
-    /* ── MOBILE ──────────────────────────────────── */
+    /* ── MOBILE VIDEO SWITCH ─────────────────────── */
+    .hero-video--mobile { opacity: 0; }
     @media(max-width:768px) and (orientation:portrait) {
       .hero-video { object-position: center top; }
+      .hero-video--desktop { opacity: 0; }
+      .hero-video--mobile { opacity: 1; }
     }
     @media(max-width:768px) {
       section { padding: 64px 0; }
@@ -779,16 +782,13 @@
   <!-- SCROLL PROGRESS -->
   <div class="scroll-progress" id="scrollProgress"></div>
 
-  <!-- VIDEO BACKGROUND (fixed, always visible) -->
-  <video class="hero-video" id="heroVideo" autoplay muted loop playsinline preload="metadata">
-    <source src="praxis1.mp4" type="video/mp4" id="heroVideoSrc">
+  <!-- VIDEO BACKGROUND -->
+  <video class="hero-video hero-video--desktop" autoplay muted loop playsinline preload="metadata">
+    <source src="praxis1.mp4" type="video/mp4">
   </video>
-  <script>
-    (function(){
-      if(window.matchMedia('(max-width:768px) and (orientation:portrait)').matches)
-        document.getElementById('heroVideoSrc').setAttribute('src','praxis1-mobile.mp4');
-    })();
-  </script>
+  <video class="hero-video hero-video--mobile" autoplay muted loop playsinline preload="metadata">
+    <source src="praxis1-mobile.mp4" type="video/mp4">
+  </video>
   <div class="video-overlay"></div>
 
   <!-- NAV -->
@@ -1151,36 +1151,6 @@
     }, {threshold: 0.3});
     roomObs.observe(roomTextEl);
 
-    // MOBILE VIDEO SWAP — only fires on orientation change, not on initial load
-    (function() {
-      const video = document.getElementById('heroVideo');
-      const src = document.getElementById('heroVideoSrc');
-      if (!video || !src) return;
-      const mq = window.matchMedia('(max-width:768px) and (orientation:portrait)');
-
-      mq.addEventListener('change', function(e) {
-        const portrait = e.matches;
-        const newSrc = portrait ? 'praxis1-mobile.mp4' : 'praxis1.mp4';
-        if (src.getAttribute('src') === newSrc) return;
-
-        video.style.opacity = '0';
-        setTimeout(function() {
-          src.setAttribute('src', newSrc);
-          video.load();
-          var fallback = setTimeout(function() {
-            video.style.opacity = '1';
-            video.removeEventListener('canplay', onReady);
-          }, 900);
-          function onReady() {
-            clearTimeout(fallback);
-            video.play().catch(function(){});
-            video.style.opacity = '1';
-            video.removeEventListener('canplay', onReady);
-          }
-          video.addEventListener('canplay', onReady);
-        }, 350);
-      });
-    })();
 
     // 3D CARD TILT
     document.querySelectorAll('.service-card').forEach(card => {
