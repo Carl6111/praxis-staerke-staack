@@ -702,8 +702,11 @@
     }
 
     /* ── MOBILE VIDEO SWITCH ─────────────────────── */
+    .hero-video--mobile { opacity: 0; pointer-events: none; }
     @media(max-width:768px) and (orientation:portrait) {
       .hero-video { object-position: center top; }
+      .hero-video--desktop { opacity: 0; pointer-events: none; }
+      .hero-video--mobile { opacity: 1; }
     }
 
     /* ── LANDSCAPE MOBILE ────────────────────────── */
@@ -787,19 +790,12 @@
   <div class="scroll-progress" id="scrollProgress"></div>
 
   <!-- VIDEO BACKGROUND -->
-  <video id="heroVideo" class="hero-video" muted loop playsinline preload="auto">
-    <source id="heroSrc" src="" type="video/mp4">
+  <video class="hero-video hero-video--desktop" autoplay muted loop playsinline preload="auto">
+    <source src="praxis1.mp4" type="video/mp4">
   </video>
-  <script>
-    (function(){
-      var v = document.getElementById('heroVideo');
-      var s = document.getElementById('heroSrc');
-      s.src = (window.innerWidth <= 768 && window.innerHeight > window.innerWidth)
-        ? 'praxis1-mobile.mp4' : 'praxis1.mp4';
-      v.load();
-      v.play().catch(function(){});
-    })();
-  </script>
+  <video class="hero-video hero-video--mobile" autoplay muted loop playsinline preload="auto">
+    <source src="praxis1-mobile.mp4" type="video/mp4">
+  </video>
   <div class="video-overlay"></div>
 
   <!-- NAV -->
@@ -1029,7 +1025,6 @@
       <div class="room-section-text" id="roomText">
         <h2>Modernste Ausstattung. <em>Menschliche Wärme.</em></h2>
         <p>Unsere Praxis verbindet zeitgemäße Medizintechnik mit einem Ambiente, in dem Sie sich wohlfühlen. Weil gute Medizin auch Vertrauen braucht.</p>
-        <a href="kontakt.html" class="btn-accent">Termin anfragen</a>
       </div>
     </div>
   </div>
@@ -1163,19 +1158,14 @@
     roomObs.observe(roomTextEl);
 
 
-    // VIDEO ORIENTATION SWITCH
-    var _vidLoading = false;
+    // VIDEO ORIENTATION SWITCH — nur play() wenn Video pausiert nach Rotation
     window.addEventListener('orientationchange', function() {
-      if (_vidLoading) return;
-      _vidLoading = true;
       setTimeout(function() {
-        var v = document.getElementById('heroVideo');
-        var s = document.getElementById('heroSrc');
         var isPortrait = window.innerWidth < window.innerHeight;
-        s.src = isPortrait ? 'praxis1-mobile.mp4' : 'praxis1.mp4';
-        v.load();
-        v.play().catch(function(){});
-        _vidLoading = false;
+        var target = isPortrait
+          ? document.querySelector('.hero-video--mobile')
+          : document.querySelector('.hero-video--desktop');
+        if (target && target.paused) target.play().catch(function(){});
       }, 300);
     });
 
