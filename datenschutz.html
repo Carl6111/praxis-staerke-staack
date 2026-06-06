@@ -59,6 +59,8 @@
       .footer-mini a { margin-left: 0; margin-top: 8px; }
     }
   </style>
+  <!-- TODO: Umami URL + UUID eintragen nach Railway-Setup -->
+  <script defer src="https://UMAMI_URL/script.js" data-website-id="WEBSITE_UUID"></script>
 </head>
 <body>
   <nav class="nav" aria-label="Hauptnavigation">
@@ -131,6 +133,12 @@
     <p>Diese Website verwendet Google Fonts (Anbieter: Google LLC, 1600 Amphitheatre Parkway, Mountain View, CA 94043, USA). Beim Laden der Seite wird eine Verbindung zu Servern von Google aufgebaut, wodurch Ihre IP-Adresse an Google übertragen wird. Dies dient ausschließlich der einheitlichen Darstellung von Schriftarten.</p>
     <p>Rechtsgrundlage für die Verarbeitung ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der konsistenten Darstellung der Website). Google LLC ist unter dem EU-US Data Privacy Framework zertifiziert, das ein angemessenes Datenschutzniveau gewährleistet (Art. 45 DSGVO). Weitere Informationen: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google Datenschutzerklärung</a>.</p>
 
+    <h3 id="analyse">Webanalyse — Umami</h3>
+    <p>Diese Website nutzt Umami, eine datenschutzfreundliche Open-Source-Analyselösung, die wir selbst betreiben. Umami speichert keine Cookies, keine IP-Adressen und keine personenbezogenen Daten. Es werden ausschließlich aggregierte, anonyme Besucherstatistiken erfasst (z. B. Seitenaufrufe, Verweildauer, Herkunftsland).</p>
+    <p>Die Umami-Instanz wird auf der Infrastruktur von Railway Corporation gehostet — demselben Anbieter, der auch unseren Backend-Server betreibt. Da wir Umami selbst betreiben, sind wir alleiniger Verantwortlicher; ein separater Auftragsverarbeitungsvertrag mit einem Drittanbieter-Analysedienst ist nicht erforderlich.</p>
+    <p>Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Verbesserung unseres Webangebots). Da keine personenbezogenen Daten verarbeitet werden, ist eine Einwilligung gemäß TTDSG § 25 nicht erforderlich.</p>
+    <p>Der Hinweisbalken am unteren Bildschirmrand informiert über diese Statistikerfassung. Die Bestätigung ("Verstanden") wird ausschließlich als lokaler Schlüssel im Browser-Speicher (localStorage) hinterlegt — kein Cookie, kein personenbezogenes Datum. Weitere Informationen: <a href="https://umami.is/privacy" target="_blank" rel="noopener noreferrer">umami.is/privacy</a>.</p>
+
     <h2 id="kontaktformular">3. Kontaktformular</h2>
     <p>Wenn Sie das Kontaktformular auf dieser Website nutzen, werden die von Ihnen eingegebenen Daten (Vorname, Nachname, E-Mail-Adresse, Telefonnummer, Anliegen und Nachricht) zur Bearbeitung Ihrer Anfrage verarbeitet und verschlüsselt in einer Datenbank gespeichert.</p>
     <p>Rechtsgrundlage für die Verarbeitung ist Art. 6 Abs. 1 lit. a DSGVO (Ihre ausdrückliche Einwilligung über die Datenschutz-Checkbox im Formular) sowie Art. 6 Abs. 1 lit. b DSGVO (Durchführung vorvertraglicher Maßnahmen).</p>
@@ -175,7 +183,7 @@
     </p>
 
     <hr>
-    <p style="font-size:13px; color:var(--text-dim);">Diese Datenschutzerklärung wurde erstellt gemäß DSGVO. Letzte Aktualisierung: 03.06.2026</p>
+    <p style="font-size:13px; color:var(--text-dim);">Diese Datenschutzerklärung wurde erstellt gemäß DSGVO. Letzte Aktualisierung: 06.06.2026</p>
   </div>
 
   <div class="footer-mini">
@@ -186,5 +194,30 @@
       <a href="index.html">Startseite</a>
     </div>
   </div>
+<div id="privacy-bar">
+  <style>
+    #privacy-bar{position:fixed;bottom:0;left:0;right:0;background:var(--primary,#0f2d1c);color:rgba(244,240,229,0.85);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;z-index:9999;transform:translateY(100%);opacity:0;transition:transform 0.4s cubic-bezier(0.16,1,0.3,1),opacity 0.4s;}
+    #privacy-bar.pb-visible{transform:translateY(0);opacity:1;}
+    @media(prefers-reduced-motion:reduce){#privacy-bar{transition:opacity 0.2s;transform:translateY(0);}}
+    #privacy-bar a{color:rgba(184,132,58,0.9);text-decoration:none;}
+    #privacy-bar a:hover{text-decoration:underline;}
+    #pb-dismiss{background:rgba(244,240,229,0.15);border:1px solid rgba(244,240,229,0.25);color:rgba(244,240,229,0.9);padding:6px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit;white-space:nowrap;flex-shrink:0;}
+    #pb-dismiss:hover{background:rgba(244,240,229,0.25);}
+    @media(max-width:600px){#privacy-bar{flex-direction:column;align-items:flex-start;padding:14px 20px;gap:12px;}}
+  </style>
+  <span>Diese Website erhebt anonyme Besucherstatistiken — cookiefrei &amp; DSGVO-konform. <a href="datenschutz.html">Mehr erfahren</a></span>
+  <button id="pb-dismiss">Verstanden</button>
+</div>
+<script>
+  (function(){
+    if(localStorage.getItem('privacy-ack'))return;
+    var b=document.getElementById('privacy-bar');
+    requestAnimationFrame(function(){requestAnimationFrame(function(){b.classList.add('pb-visible');});});
+    document.getElementById('pb-dismiss').addEventListener('click',function(){
+      b.classList.remove('pb-visible');
+      localStorage.setItem('privacy-ack','1');
+    });
+  })();
+</script>
 </body>
 </html>

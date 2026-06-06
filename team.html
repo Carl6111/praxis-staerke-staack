@@ -245,6 +245,8 @@
       .page-hero h1 { font-size: clamp(28px,8vw,40px); }
     }
   </style>
+  <!-- TODO: Umami URL + UUID eintragen nach Railway-Setup -->
+  <script defer src="https://UMAMI_URL/script.js" data-website-id="WEBSITE_UUID"></script>
 </head>
 <body>
   <nav class="nav" aria-label="Hauptnavigation">
@@ -466,5 +468,30 @@
     }, {threshold:0.1});
     document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
   </script>
+<div id="privacy-bar">
+  <style>
+    #privacy-bar{position:fixed;bottom:0;left:0;right:0;background:var(--primary,#0f2d1c);color:rgba(244,240,229,0.85);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;z-index:9999;transform:translateY(100%);opacity:0;transition:transform 0.4s cubic-bezier(0.16,1,0.3,1),opacity 0.4s;}
+    #privacy-bar.pb-visible{transform:translateY(0);opacity:1;}
+    @media(prefers-reduced-motion:reduce){#privacy-bar{transition:opacity 0.2s;transform:translateY(0);}}
+    #privacy-bar a{color:rgba(184,132,58,0.9);text-decoration:none;}
+    #privacy-bar a:hover{text-decoration:underline;}
+    #pb-dismiss{background:rgba(244,240,229,0.15);border:1px solid rgba(244,240,229,0.25);color:rgba(244,240,229,0.9);padding:6px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit;white-space:nowrap;flex-shrink:0;}
+    #pb-dismiss:hover{background:rgba(244,240,229,0.25);}
+    @media(max-width:600px){#privacy-bar{flex-direction:column;align-items:flex-start;padding:14px 20px;gap:12px;}}
+  </style>
+  <span>Diese Website erhebt anonyme Besucherstatistiken — cookiefrei &amp; DSGVO-konform. <a href="datenschutz.html">Mehr erfahren</a></span>
+  <button id="pb-dismiss">Verstanden</button>
+</div>
+<script>
+  (function(){
+    if(localStorage.getItem('privacy-ack'))return;
+    var b=document.getElementById('privacy-bar');
+    requestAnimationFrame(function(){requestAnimationFrame(function(){b.classList.add('pb-visible');});});
+    document.getElementById('pb-dismiss').addEventListener('click',function(){
+      b.classList.remove('pb-visible');
+      localStorage.setItem('privacy-ack','1');
+    });
+  })();
+</script>
 </body>
 </html>
