@@ -157,6 +157,10 @@
     let adminKey = '';
     let refreshTimer = null;
 
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
     function pageLabel(p) {
       const map = {'/':'Startseite','/index.html':'Startseite','/leistungen.html':'Leistungen','/team.html':'Team','/aktuelles.html':'Aktuelles','/kontakt.html':'Kontakt','/impressum.html':'Impressum','/datenschutz.html':'Datenschutz'};
       return map[p] || p;
@@ -186,12 +190,12 @@
         const tbody = document.getElementById('topPagesBody');
         tbody.innerHTML = data.topPages.length === 0
           ? '<tr><td colspan="2" class="empty">Noch keine Daten.</td></tr>'
-          : data.topPages.map(r => `<tr><td class="page">${pageLabel(r.page)}</td><td class="count">${r.count}</td></tr>`).join('');
+          : data.topPages.map(r => `<tr><td class="page">${esc(pageLabel(r.page))}</td><td class="count">${esc(r.count)}</td></tr>`).join('');
 
         const rbody = document.getElementById('recentBody');
         rbody.innerHTML = data.recent.length === 0
           ? '<tr><td colspan="3" class="empty">Noch keine Daten.</td></tr>'
-          : data.recent.map(r => `<tr><td class="page">${pageLabel(r.page)}</td><td>${formatReferrer(r.referrer)}</td><td class="time">${formatTime(r.created_at)}</td></tr>`).join('');
+          : data.recent.map(r => `<tr><td class="page">${esc(pageLabel(r.page))}</td><td>${esc(formatReferrer(r.referrer))}</td><td class="time">${esc(formatTime(r.created_at))}</td></tr>`).join('');
 
         document.getElementById('refreshInfo').textContent = 'Letzte Aktualisierung: ' + new Date().toLocaleTimeString('de-DE') + ' — aktualisiert alle 30 Sek.';
         document.getElementById('loadingState').style.display = 'none';
