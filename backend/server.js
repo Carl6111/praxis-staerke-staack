@@ -47,7 +47,8 @@ const adminLimiter = rateLimit({
 
 const statsLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
+  max: 120,
+  message: { error: 'Zu viele Anfragen.' },
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -185,7 +186,7 @@ app.post('/api/track', trackLimiter, async (req, res) => {
   res.json({ ok: true });
 });
 
-app.get('/api/stats', statsLimiter, async (req, res) => {
+app.get('/api/stats', adminLimiter, statsLimiter, async (req, res) => {
   if (!isValidAdminKey(req.headers['x-admin-key'])) {
     return res.status(401).json({ success: false });
   }
