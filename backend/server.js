@@ -63,9 +63,11 @@ const trackLimiter = rateLimit({
 const ALLOWED_POST_TYPES = ['neuigkeit', 'urlaub', 'info'];
 
 function isValidAdminKey(key) {
-  const expected = process.env.ADMIN_KEY;
-  if (!key || !expected || key.length !== expected.length) return false;
-  return crypto.timingSafeEqual(Buffer.from(key), Buffer.from(expected));
+  const expected = process.env.ADMIN_KEY || '';
+  if (!expected) return false;
+  const ha = crypto.createHmac('sha256', 'praxis-key-check').update(key || '').digest();
+  const hb = crypto.createHmac('sha256', 'praxis-key-check').update(expected).digest();
+  return crypto.timingSafeEqual(ha, hb);
 }
 
 app.get('/api/posts', async (req, res) => {
@@ -174,7 +176,6 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
     return res.status(500).json({ error: 'Interner Fehler. Bitte versuche es später erneut.' });
   }
 
-  console.log('Contact form submitted');
   res.json({ success: true });
 });
 

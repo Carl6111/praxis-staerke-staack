@@ -248,6 +248,7 @@
         });
         if (res.ok) {
           adminKey = val;
+          sessionStorage.setItem('ak', val);
           document.getElementById('keyInput').value = '';
           document.getElementById('loginError').style.display = 'none';
           document.getElementById('loginScreen').style.display = 'none';
@@ -278,9 +279,18 @@
 
     document.getElementById('btnLogout').addEventListener('click', () => {
       adminKey = '';
+      sessionStorage.removeItem('ak');
       document.getElementById('adminLayout').classList.remove('visible');
       document.getElementById('loginScreen').style.display = 'flex';
     });
+
+    const savedKey = sessionStorage.getItem('ak');
+    if (savedKey) {
+      adminKey = savedKey;
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('adminLayout').classList.add('visible');
+      loadPosts();
+    }
 
     // ── LOAD POSTS ────────────────────────────────────────────────────────────
     async function loadPosts() {
