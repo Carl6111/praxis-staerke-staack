@@ -17,8 +17,14 @@ app.set('trust proxy', 1);
 app.use(helmet());
 app.use(express.json());
 
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGIN || 'http://localhost:5500')
+  .split(',').map(o => o.trim());
+
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGIN || 'http://localhost:5500',
+  origin: (origin, cb) => {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+    cb(new Error('Not allowed by CORS'));
+  },
   methods: ['GET', 'POST', 'DELETE'],
   allowedHeaders: ['Content-Type', 'X-Admin-Key'],
 }));
