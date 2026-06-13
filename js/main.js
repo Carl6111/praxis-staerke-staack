@@ -24,6 +24,16 @@
     });
   }
 
+  /* ---------- Flip-Karten: mobil per Tap drehen (PC bleibt Hover) ---------- */
+  if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    document.querySelectorAll('.flipcard').forEach(function (card) {
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', function () {
+        card.classList.toggle('is-flipped');
+      });
+    });
+  }
+
   /* ---------- Scroll progress ---------- */
   var progress = document.querySelector('.scroll-progress');
   if (progress) {

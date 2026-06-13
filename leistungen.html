@@ -80,7 +80,7 @@
       <div class="container">
         <p class="eyebrow reveal">Unser Angebot</p>
         <h1 class="reveal" style="--reveal-delay:80ms">Unsere <em>Leistungen</em> für Sie</h1>
-        <p class="lead reveal" style="--reveal-delay:160ms">Von der Vorsorge bis zur Akutversorgung — wir bieten das vollständige Spektrum der hausärztlichen Medizin.</p>
+        <p class="lead reveal" style="--reveal-delay:160ms">Wir versorgen Sie hausärztlich, von der Vorsorge bis zur Behandlung akuter Beschwerden.</p>
       </div>
       <span class="page-hero__index" aria-hidden="true">11</span>
     </section>
@@ -91,7 +91,7 @@
         <div class="section-head reveal">
           <p class="eyebrow">Medizinisches Spektrum</p>
           <h2 style="margin-top:1.25rem">Alles aus <em>einer Hand</em></h2>
-          <p class="lead" style="margin-top:1.25rem">Als Ihre Hausarztpraxis sind wir erste Anlaufstelle — egal ob Routine, Vorsorge oder akute Erkrankung. Wir koordinieren Ihre gesamte medizinische Versorgung.</p>
+          <p class="lead" style="margin-top:1.25rem">Als Ihre Hausarztpraxis sind wir die <span class="hl">erste Anlaufstelle</span>, ob bei Routineuntersuchungen, Vorsorge oder akuten Beschwerden. Wenn nötig, überweisen wir Sie an Fachärzte und behalten den Überblick.</p>
         </div>
 
         <div class="svc-grid">
@@ -109,7 +109,7 @@
           </article>
           <article class="svc-card reveal" style="--reveal-delay:120ms">
             <span class="svc-card__num" aria-hidden="true">03</span>
-            <h3>DMP — Disease-Management-Programme</h3>
+            <h3>DMP: Disease-Management-Programme</h3>
             <p>Strukturierte Begleitprogramme für chronisch Kranke, z.&nbsp;B. DMP Diabetes mellitus Typ 2 und DMP Koronare Herzkrankheit.</p>
             <div class="svc-card__tags"><span class="tag">Chronisch</span><span class="tag">Kassenleistung</span></div>
           </article>
@@ -122,7 +122,7 @@
           <article class="svc-card reveal">
             <span class="svc-card__num" aria-hidden="true">05</span>
             <h3>Psychosomatische Grundversorgung</h3>
-            <p>Begleitung bei psychosomatischen Beschwerden, Burnout, Erschöpfung und leichten Depressionen — niedrigschwellig und ohne lange Wartezeiten.</p>
+            <p>Begleitung bei psychosomatischen Beschwerden, Burnout, Erschöpfung und leichten Depressionen. Niedrigschwellig und ohne lange Wartezeiten.</p>
             <div class="svc-card__tags"><span class="tag">Kassenleistung</span><span class="tag">Begleitung</span></div>
           </article>
           <article class="svc-card reveal" style="--reveal-delay:60ms">
@@ -169,6 +169,13 @@
         </div>
       </div>
     </section>
+
+    <!-- EKG-Linie zeichnet sich beim Scrollen -->
+    <div class="ekg-divider" aria-hidden="true">
+      <svg viewBox="0 0 1200 100" preserveAspectRatio="none" focusable="false">
+        <path class="ekg-divider__path" d="M0 50 H320 l20 -16 16 30 14 -52 18 66 12 -28 16 0 H700 l14 -10 12 18 10 -30 14 38 10 -16 12 0 H1200"/>
+      </svg>
+    </div>
 
     <section class="section" style="background:var(--surface-2);border-top:1px solid var(--line)">
       <div class="container">
@@ -271,7 +278,7 @@
   </footer>
 
   <div class="privacy-bar" id="privacy-bar" role="status">
-    <p>Diese Website erhebt anonyme Besucherstatistiken — cookiefrei &amp; DSGVO-konform. <a href="datenschutz.html" style="color:var(--bronze-light)">Mehr erfahren</a></p>
+    <p>Diese Website erhebt anonyme Besucherstatistiken, cookiefrei &amp; DSGVO-konform. <a href="datenschutz.html" style="color:var(--bronze-light)">Mehr erfahren</a></p>
     <button type="button">Verstanden</button>
   </div>
 
@@ -297,7 +304,16 @@
       var today = String(new Date().getDay());
       document.querySelectorAll('.hours-table tr').forEach(function (tr) {
         var d = tr.getAttribute('data-day');
-        if (d === today || (d === '0' && (today === '0' || today === '6'))) tr.classList.add('is-today');
+        if (d === today || (d === '0' && (today === '0' || today === '6'))) {
+          tr.classList.add('is-today');
+          var td = tr.querySelector('td');
+          if (td) {
+            var pill = document.createElement('span');
+            pill.className = 'today-pill';
+            pill.textContent = 'Heute';
+            td.appendChild(pill);
+          }
+        }
       });
     })();
   </script>

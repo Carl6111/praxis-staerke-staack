@@ -211,6 +211,21 @@ h2 em, h1 em {
 
 .btn .arrow { transition: transform var(--dur-fast) var(--ease-out); }
 .btn:hover .arrow { transform: translateX(4px); }
+/* Lichtreflex zieht beim Hover über den Button */
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -130%;
+  width: 55%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.28), transparent);
+  transform: skewX(-18deg);
+  z-index: 0;
+  pointer-events: none;
+}
+.btn:hover::after, .btn:focus-visible::after { animation: btnShine 0.8s var(--ease-out); }
+@keyframes btnShine { to { left: 135%; } }
 
 .text-link {
   display: inline-flex;
@@ -804,15 +819,19 @@ html.js .hero__fade-in {
   animation-delay: var(--d, 600ms);
 }
 @keyframes heroFade { to { opacity: 1; } }
-.hero__emergency {
-  border-top: 1px solid rgba(255,255,255,0.18);
-  margin-top: clamp(2rem, 5vh, 3.5rem);
-  padding-top: 1.25rem;
-  font-size: var(--text-sm);
-  color: rgba(255,255,255,0.88);
+.emergency-bar {
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+  padding-block: 0.85rem;
 }
-.hero__emergency strong { color: #fff; font-weight: 600; }
-.hero__emergency a { color: var(--bronze-light); text-decoration: none; font-weight: 700; }
+.emergency-bar p {
+  font-size: var(--text-sm);
+  color: var(--text-mid);
+  text-align: center;
+}
+.emergency-bar strong { color: var(--ink); font-weight: 600; }
+.emergency-bar a { color: var(--bronze); text-decoration: none; font-weight: 700; }
+.emergency-bar a:hover { color: var(--bronze-light); }
 .hero__scroll {
   position: absolute;
   right: var(--gutter);
@@ -927,8 +946,18 @@ html.js .hero__fade-in {
   transition: transform 0.55s var(--ease-out);
   z-index: -1;
 }
-.svc-row:hover { padding-left: 1.25rem; }
-.svc-row:hover::before { transform: scaleX(1); }
+@media (hover: hover) and (pointer: fine) {
+  .svc-row:hover { padding-left: 1.25rem; }
+  .svc-row:hover .svc-row__num { color: var(--bronze); }
+  /* Kein Grün, kein Weiß — nur dezentes Gold-Highlight, Text bleibt dunkel */
+  .svc-row:hover .svc-row__title { background: linear-gradient(transparent 62%, var(--bronze-soft) 0); }
+  .svc-row:hover .svc-row__arrow {
+    background: var(--bronze);
+    border-color: var(--bronze);
+    color: #fff;
+    transform: rotate(-45deg);
+  }
+}
 .svc-row__num {
   font-family: var(--serif);
   font-style: italic;
@@ -941,7 +970,7 @@ html.js .hero__fade-in {
   font-size: var(--text-h3);
   color: var(--ink);
   line-height: 1.15;
-  transition: color var(--dur) var(--ease-soft);
+  transition: color var(--dur) var(--ease-soft), background var(--dur-fast) var(--ease-soft);
 }
 .svc-row__desc {
   font-size: var(--text-sm);
@@ -949,9 +978,6 @@ html.js .hero__fade-in {
   max-width: 36em;
   transition: color var(--dur) var(--ease-soft);
 }
-.svc-row:hover .svc-row__num { color: var(--bronze); }
-.svc-row:hover .svc-row__title { color: var(--cream-on-green); }
-.svc-row:hover .svc-row__desc { color: rgba(244,240,229,0.85); }
 .svc-row__arrow {
   width: 2.9rem; height: 2.9rem;
   border: 1px solid var(--line-strong);
@@ -960,12 +986,6 @@ html.js .hero__fade-in {
   place-items: center;
   color: var(--ink);
   transition: background var(--dur-fast), color var(--dur-fast), border-color var(--dur-fast), transform var(--dur) var(--ease-out);
-}
-.svc-row:hover .svc-row__arrow {
-  background: var(--bronze);
-  border-color: var(--bronze);
-  color: #fff;
-  transform: rotate(-45deg);
 }
 @media (max-width: 760px) {
   .svc-row { grid-template-columns: 2.5rem 1fr auto; }
@@ -988,9 +1008,13 @@ html.js .hero__fade-in {
   transform-style: preserve-3d;
   transition: transform 0.9s var(--ease-out);
 }
-.flipcard:hover .flipcard__inner,
-.flipcard:focus-within .flipcard__inner,
 .flipcard.is-flipped .flipcard__inner { transform: rotateY(180deg); }
+@media (hover: hover) and (pointer: fine) {
+  .flipcard:hover .flipcard__inner,
+  .flipcard:focus-within .flipcard__inner { transform: rotateY(180deg); }
+  .flipcard:hover .flipcard__front,
+  .flipcard:focus-within .flipcard__front { opacity: 0; pointer-events: none; }
+}
 .flipcard__face {
   position: absolute;
   inset: 0;
@@ -999,6 +1023,9 @@ html.js .hero__fade-in {
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
+/* Durchscheinen-Fix: Vorderseite ausblenden, sobald gedreht */
+.flipcard__front { transition: opacity 0.45s var(--ease-out); }
+.flipcard.is-flipped .flipcard__front { opacity: 0; pointer-events: none; }
 .flipcard__front img {
   width: 100%; height: 100%;
   object-fit: cover;
@@ -1068,6 +1095,37 @@ html.js .hero__fade-in {
 }
 @media (max-width: 700px) { .flipcard--wide { aspect-ratio: 4 / 3; } }
 .flipcard--wide .flipcard__front img { object-position: center; }
+
+/* Statische breite Team-Karte + separater Knopf */
+.team-wide {
+  grid-column: 1 / -1;
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  aspect-ratio: 3826 / 2192;
+}
+@media (max-width: 700px) { .team-wide { aspect-ratio: 4 / 3; } }
+.team-wide img { width: 100%; height: 100%; object-fit: cover; }
+.team-wide::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 45%, rgba(10,26,17,0.85));
+}
+.team-wide__label {
+  position: absolute;
+  left: 1.5rem; right: 1.5rem; bottom: 1.4rem;
+  z-index: 1;
+  color: #fff;
+}
+.team-wide__label .name { font-family: var(--serif); font-size: 1.7rem; line-height: 1.1; }
+.team-wide__label .role {
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.88);
+  margin-top: 0.4rem;
+}
+.team-cta { display: flex; justify-content: center; margin-top: var(--space-md); }
 
 /* ---------- Logo-Watermark Elemente ---------- */
 .page-hero__logo {
@@ -1173,7 +1231,7 @@ html.is-loading .hero__fade-in { animation-play-state: paused; }
 .statement__bg img {
   width: 100%; height: 112%;
   object-fit: cover;
-  filter: grayscale(1) sepia(0.55) hue-rotate(95deg) saturate(0.9) brightness(0.6);
+  filter: brightness(0.6) contrast(1.03) saturate(1.02);
   transform: translateY(var(--parallax, 0px));
   will-change: transform;
 }
@@ -1241,11 +1299,22 @@ html.is-loading .hero__fade-in { animation-play-state: paused; }
   overflow: hidden;
   transition: transform var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out), border-color var(--dur-fast);
 }
+.svc-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--bronze);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur) var(--ease-out);
+}
 .svc-card:hover {
   transform: translateY(-6px);
   box-shadow: var(--shadow-md);
   border-color: rgba(184,132,58,0.4);
 }
+.svc-card:hover::after { transform: scaleX(1); }
 .svc-card__num {
   font-family: var(--serif);
   font-style: italic;
@@ -1281,6 +1350,18 @@ html.is-loading .hero__fade-in { animation-play-state: paused; }
 .hours-table tr.is-today th, .hours-table tr.is-today td {
   color: var(--bronze);
   font-weight: 600;
+}
+.today-pill {
+  display: inline-block;
+  margin-left: 0.6rem;
+  padding: 0.15rem 0.55rem;
+  background: var(--bronze);
+  color: #fff;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  border-radius: 999px;
+  vertical-align: middle;
 }
 
 /* ---------- Kontakt info ---------- */
@@ -1548,6 +1629,8 @@ html.is-loading .hero__fade-in { animation-play-state: paused; }
 }
 .value-cell { transition: background var(--dur) var(--ease-soft); }
 .value-cell:hover { background: rgba(244,240,229,0.04); }
+.mfa-card { transition: transform var(--dur) var(--ease-out); }
+.mfa-card:hover { transform: translateY(-6px); }
 
 /* ============================================================
    Premium Motion Layer — EKG, Reveals v2, Magnetik
@@ -1633,6 +1716,71 @@ html.js .statement h2 .w.is-on { opacity: 1; }
       color var(--dur-fast) var(--ease-soft),
       border-color var(--dur-fast) var(--ease-soft),
       transform 0.35s var(--ease-out);
+  }
+}
+
+/* ---------- Gezielte Highlights ---------- */
+.hl {
+  font-weight: 600;
+  background: linear-gradient(transparent 60%, rgba(30,92,54,0.18) 0);
+  padding: 0 0.08em;
+}
+.hl--gold {
+  color: var(--bronze);
+  background: linear-gradient(transparent 60%, var(--bronze-soft) 0);
+}
+
+/* ---------- Dezente Interaktions-Politur ---------- */
+.btn:active { transform: scale(0.98); }
+@media (hover: hover) and (pointer: fine) {
+  .svc-card:hover .svc-card__num { -webkit-text-stroke-color: var(--bronze); }
+}
+
+/* ---------- Scroll-gebundene Animationen (vor/zurück mit Scroll) ---------- */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Eyebrow-Linie wächst beim Reinscrollen, schrumpft beim Hochscrollen */
+    .eyebrow::before {
+      transform: scaleX(0);
+      transform-origin: left;
+      animation: ebLineGrow linear both;
+      animation-timeline: view();
+      animation-range: entry 8% entry 85%;
+    }
+    @keyframes ebLineGrow { to { transform: scaleX(1); } }
+
+    /* Große Ziffern steigen scroll-gescrubbt auf */
+    .svc-card__num, .value-cell__num, .svc-row__num {
+      animation: numScrub linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 22%;
+    }
+    @keyframes numScrub {
+      from { opacity: 0; transform: translateY(0.45em); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Section-Überschriften driften sanft mit dem Scroll */
+    .section-head h2, .editorial h2 {
+      animation: headDrift linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
+    @keyframes headDrift {
+      from { opacity: 0.55; transform: translateY(1.4rem); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Bilder wischen beim Scrollen von unten herein */
+    .media-frame {
+      animation: frameWipe linear both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 60%;
+    }
+    @keyframes frameWipe {
+      from { clip-path: inset(0 0 100% 0 round var(--radius-lg)); }
+      to   { clip-path: inset(0 0 0 0 round var(--radius-lg)); }
+    }
   }
 }
 

@@ -96,7 +96,8 @@
     <!-- Hero -->
     <section class="hero">
       <div class="hero__media" aria-hidden="true">
-        <video id="hero-video" autoplay muted loop playsinline preload="metadata" disablepictureinpicture>
+        <video id="hero-video" autoplay muted loop playsinline webkit-playsinline preload="auto" disablepictureinpicture>
+          <source src="videos/praxis1-mobile.mp4" media="(max-width: 760px)" type="video/mp4">
           <source src="videos/Praxisvideo1.mp4" type="video/mp4">
         </video>
       </div>
@@ -106,12 +107,10 @@
           <span class="line"><span style="--d:100ms">Ihre Gesundheit.</span></span>
           <span class="line"><span style="--d:280ms"><em>Unser Auftrag.</em></span></span>
         </h1>
-        <p class="hero__sub hero__fade-in" style="--d:550ms">Ihre Hausarztpraxis in Magdeburg — mit Schwerpunkten in Ernährungsmedizin und Sportmedizin. Hier nimmt man sich Zeit für Sie.</p>
+        <p class="hero__sub hero__fade-in" style="--d:550ms">Ihre Hausarztpraxis in Magdeburg. Hier nimmt man sich Zeit für Sie.</p>
         <div class="hero__actions hero__fade-in" style="--d:750ms">
           <a class="btn btn--light" href="kontakt.html"><span>Termin vereinbaren</span><svg class="arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-          <a class="btn btn--ghost" style="border-color:rgba(255,255,255,0.4);color:#fff" href="#willkommen"><span>Entdecken</span></a>
         </div>
-        <p class="hero__emergency hero__fade-in" style="--d:950ms"><strong>Notfall außerhalb der Sprechzeiten:</strong> Ärztlicher Bereitschaftsdienst: <a href="tel:116117">116 117</a> · Notruf: <a href="tel:112">112</a></p>
       </div>
       <a class="hero__scroll" href="#willkommen" aria-hidden="true" tabindex="-1">Scrollen</a>
     </section>
@@ -124,6 +123,13 @@
       </div>
     </div>
 
+    <!-- Notfall-Leiste -->
+    <aside class="emergency-bar">
+      <div class="container">
+        <p><strong>Notfall außerhalb der Sprechzeiten:</strong> Bereitschaftsdienst <a href="tel:116117">116 117</a> · Notruf <a href="tel:112">112</a></p>
+      </div>
+    </aside>
+
     <!-- Willkommen -->
     <section class="section" id="willkommen">
       <div class="container">
@@ -131,9 +137,9 @@
           <div>
             <p class="eyebrow reveal">Willkommen</p>
             <h2 class="reveal" style="--reveal-delay:80ms">Medizin mit <em>Herz</em> und Verstand</h2>
-            <p class="lead reveal" style="--reveal-delay:160ms;margin-top:1.5rem">Franka Stärke und Thorsten Staack führen seit dem 01.04.2025 gemeinsam ihre Gemeinschaftspraxis in Magdeburg. Neben der hausärztlichen Grundversorgung bieten sie Sprechstunden mit ernährungsmedizinischem und sportmedizinischem Schwerpunkt an.</p>
-            <p class="reveal" style="--reveal-delay:240ms;margin-top:1.25rem;color:var(--text-mid);max-width:38em">Die Praxis ist barrierefrei, direkt an der Straßenbahn (ca. 100 m) und mit Parkplätzen direkt vor der Tür erreichbar. Wir nehmen uns Zeit für Ihre Anliegen.</p>
-            <blockquote class="editorial__quote reveal" style="--reveal-delay:320ms">„Gute Medizin beginnt mit echtem Zuhören.“</blockquote>
+            <p class="lead reveal" style="--reveal-delay:160ms;margin-top:1.5rem">Franka Stärke und Thorsten Staack führen seit dem 01.04.2025 gemeinsam ihre Gemeinschaftspraxis in Magdeburg. Neben der hausärztlichen Grundversorgung bieten sie Sprechstunden mit <span class="hl--gold">ernährungsmedizinischem</span> und <span class="hl--gold">sportmedizinischem</span> Schwerpunkt an.</p>
+            <p class="reveal" style="--reveal-delay:240ms;margin-top:1.25rem;color:var(--text-mid);max-width:38em">Die Praxis ist <span class="hl">barrierefrei</span>, direkt an der Straßenbahn (ca. 100 m) und mit <span class="hl">Parkplätzen direkt vor der Tür</span> erreichbar. Wir nehmen uns Zeit für Ihre Anliegen.</p>
+            <blockquote class="editorial__quote reveal" style="--reveal-delay:320ms">„Wir nehmen uns Zeit zum Zuhören.“</blockquote>
           </div>
           <div class="editorial__stack reveal" style="--reveal-delay:200ms">
             <figure class="media-frame">
@@ -150,7 +156,7 @@
           <div class="media-frame">
             <img src="images/praxis-team-alt.jpg" alt="Hauseingang der Hausarztpraxis Stärke & Staack, Gr. Diesdorfer Straße 186" loading="lazy" width="2000" height="860">
           </div>
-          <figcaption class="media-caption">Hauseingang · 1. Etage links — Gr. Diesdorfer Straße 186 · Straßenbahn ca. 100 m · Parkplätze vor der Tür · Barrierefrei</figcaption>
+          <figcaption class="media-caption">Hauseingang · 1. Etage links · Gr. Diesdorfer Straße 186 · Straßenbahn ca. 100 m · Parkplätze vor der Tür · Barrierefrei</figcaption>
         </figure>
       </div>
     </section>
@@ -173,13 +179,13 @@
           <a class="svc-row" href="leistungen.html">
             <span class="svc-row__num">01</span>
             <span class="svc-row__title">Vorsorge &amp; Prävention</span>
-            <span class="svc-row__desc">Regelmäßige Check-ups und Krebsvorsorge — wir erkennen Risiken frühzeitig und halten Sie gesund.</span>
+            <span class="svc-row__desc">Regelmäßige Check-ups und Krebsvorsorge, damit Risiken früh auffallen.</span>
             <span class="svc-row__arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
           </a>
           <a class="svc-row" href="leistungen.html">
             <span class="svc-row__num">02</span>
             <span class="svc-row__title">Diagnostik &amp; Labor</span>
-            <span class="svc-row__desc">Modernes EKG, Ultraschall und eigenes Labor — schnelle Ergebnisse für schnelle Entscheidungen.</span>
+            <span class="svc-row__desc">Modernes EKG, Ultraschall und ein eigenes Labor für schnelle Befunde.</span>
             <span class="svc-row__arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
           </a>
           <a class="svc-row" href="leistungen.html">
@@ -191,7 +197,7 @@
           <a class="svc-row" href="leistungen.html">
             <span class="svc-row__num">04</span>
             <span class="svc-row__title">Akutsprechstunde</span>
-            <span class="svc-row__desc">Plötzlich krank? Wir bieten täglich Kapazitäten für akute Beschwerden — ohne lange Wartezeit.</span>
+            <span class="svc-row__desc">Plötzlich krank? Für akute Beschwerden halten wir täglich Termine frei, ohne lange Wartezeit.</span>
             <span class="svc-row__arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
           </a>
         </div>
@@ -207,7 +213,7 @@
         <div class="section-head">
           <p class="eyebrow reveal">Das Team</p>
           <h2 class="reveal" style="--reveal-delay:80ms">Ihr <em>Praxisteam</em></h2>
-          <p class="lead reveal" style="--reveal-delay:160ms">Drehen Sie die Karte um — lernen Sie uns kennen.</p>
+          <p class="lead reveal" style="--reveal-delay:160ms">Tippen Sie auf eine Karte, um uns kennenzulernen.</p>
         </div>
         <div class="flip-grid flip-grid--duo">
           <div class="flipcard reveal" style="--reveal-delay:100ms">
@@ -242,23 +248,16 @@
               </div>
             </div>
           </div>
-          <div class="flipcard flipcard--wide reveal" style="--reveal-delay:340ms">
-            <div class="flipcard__inner">
-              <div class="flipcard__face flipcard__front">
-                <img src="images/team-1.jpg" alt="Unser Praxisteam" loading="lazy" width="1913" height="1096">
-                <div class="flipcard__label">
-                  <p class="name">Unser Praxisteam</p>
-                  <p class="role">Alle Teammitglieder kennenlernen →</p>
-                </div>
-              </div>
-              <div class="flipcard__face flipcard__back">
-                <p class="eyebrow">Das Team</p>
-                <p class="name">Unser Praxisteam</p>
-                <p style="margin-bottom:1.5rem">Vom Empfang bis zur Behandlung — wir sind für Sie da.</p>
-                <a class="btn btn--light" href="team.html" style="align-self:flex-start"><span>Team kennenlernen</span><svg class="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-              </div>
-            </div>
-          </div>
+          <figure class="team-wide reveal" style="--reveal-delay:340ms">
+            <img src="images/team-1.jpg" alt="Unser Praxisteam" loading="lazy" width="1913" height="1096">
+            <figcaption class="team-wide__label">
+              <p class="name">Unser Praxisteam</p>
+              <p class="role">Wir sind für Sie da, vom Empfang bis zur Behandlung.</p>
+            </figcaption>
+          </figure>
+        </div>
+        <div class="team-cta reveal" style="--reveal-delay:120ms">
+          <a class="btn" href="team.html"><span>Team ansehen</span><svg class="arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
       </div>
     </section>
@@ -273,11 +272,11 @@
     <!-- Statement -->
     <section class="statement">
       <div class="statement__bg" aria-hidden="true">
-        <img src="images/room.png" alt="" loading="lazy" width="2000" height="1200">
+        <img src="images/sprechzimmer.jpg" alt="" loading="lazy" width="846" height="634">
       </div>
       <div class="container statement__content">
         <h2>Modernste Ausstattung.<br><em>Menschliche Wärme.</em></h2>
-        <p class="reveal" style="--reveal-delay:140ms">Unsere Praxis verbindet zeitgemäße Medizintechnik mit einem Ambiente, in dem Sie sich wohlfühlen. Weil gute Medizin auch Vertrauen braucht.</p>
+        <p class="reveal" style="--reveal-delay:140ms">Bei uns finden Sie aktuelle Medizintechnik und Räume, in denen Sie sich wohlfühlen.</p>
       </div>
     </section>
 
@@ -285,9 +284,8 @@
     <section class="section">
       <div class="container">
         <div class="cta-panel reveal">
-          <p class="eyebrow">Jetzt handeln</p>
           <h2>Buchen Sie Ihren<br><em>nächsten Termin</em></h2>
-          <p>Wir nehmen uns Zeit für Sie. Rufen Sie uns an oder nutzen Sie unser Kontaktformular — wir melden uns schnellstmöglich.</p>
+          <p>Wir nehmen uns Zeit für Sie. Rufen Sie an oder schreiben Sie uns über das Kontaktformular. Wir melden uns so schnell wie möglich.</p>
           <div class="cta-panel__actions">
             <a class="btn btn--light" href="kontakt.html"><span>Termin vereinbaren</span></a>
             <a class="btn btn--ghost" href="tel:03917348410"><span>0391 7348410</span></a>
@@ -302,7 +300,7 @@
       <div class="footer__grid">
         <div>
           <h3>Stärke &amp; Staack</h3>
-          <p class="footer__tagline">Persönliche Medizin mit moderner Diagnostik — Ihr Hausarzt des Vertrauens.</p>
+          <p class="footer__tagline">Ihre Hausarztpraxis in Magdeburg, an der Gr. Diesdorfer Straße.</p>
         </div>
         <nav aria-label="Footer Navigation">
           <h4>Navigation</h4>
@@ -341,7 +339,7 @@
   </footer>
 
   <div class="privacy-bar" id="privacy-bar" role="status">
-    <p>Diese Website erhebt anonyme Besucherstatistiken — cookiefrei &amp; DSGVO-konform. <a href="datenschutz.html" style="color:var(--bronze-light)">Mehr erfahren</a></p>
+    <p>Diese Website erhebt anonyme Besucherstatistiken, cookiefrei &amp; DSGVO-konform. <a href="datenschutz.html" style="color:var(--bronze-light)">Mehr erfahren</a></p>
     <button type="button">Verstanden</button>
   </div>
 
@@ -353,6 +351,18 @@
         var show = function () { v.classList.add('is-ready'); };
         if (v.readyState >= 2) show();
         else v.addEventListener('loadeddata', show, { once: true });
+
+        v.muted = true;
+        var tryPlay = function () {
+          var p = v.play();
+          if (p && typeof p.catch === 'function') p.catch(function () {});
+        };
+        tryPlay();
+        v.addEventListener('loadeddata', tryPlay, { once: true });
+        var kick = function () { tryPlay(); };
+        ['touchstart', 'click', 'scroll'].forEach(function (ev) {
+          window.addEventListener(ev, kick, { once: true, passive: true });
+        });
       }
 
       var html = document.documentElement;
