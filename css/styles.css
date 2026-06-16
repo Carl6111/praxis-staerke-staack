@@ -817,18 +817,9 @@ html.js .reveal-line.is-visible { transform: scaleX(1); }
   pointer-events: none;
   -webkit-mask: url("../images/logo-icon-transparent.png") right bottom / contain no-repeat;
           mask: url("../images/logo-icon-transparent.png") right bottom / contain no-repeat;
-  background:
-    linear-gradient(112deg, transparent 34%, rgba(255, 244, 218, 0.5) 46%, rgba(255, 255, 255, 0.85) 50%, rgba(255, 244, 218, 0.5) 54%, transparent 66%),
-    linear-gradient(0deg, rgba(244, 240, 229, 0.18), rgba(244, 240, 229, 0.18));
-  background-size: 300% 100%, 100% 100%;
-  background-position: 180% 0, 0 0;
-  background-repeat: no-repeat;
+  background: rgba(244, 240, 229, 0.2);
   opacity: 0;
-  animation: logoSweep 5s var(--ease-soft) 1.2s infinite, logoIn 1.6s var(--ease-out) 0.5s forwards;
-}
-@keyframes logoSweep {
-  0%       { background-position: 175% 0, 0 0; }
-  55%, 100% { background-position: -85% 0, 0 0; }
+  animation: logoIn 1.6s var(--ease-out) 0.5s forwards;
 }
 @keyframes logoIn {
   from { opacity: 0; transform: translateY(28px) scale(1.06); }
