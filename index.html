@@ -103,10 +103,17 @@
     <!-- Hero -->
     <section class="hero" id="hero">
       <div class="hero__media" aria-hidden="true">
-        <picture class="hero__plate">
-          <source media="(max-width: 760px)" srcset="images/tresenv6-1200.jpg">
-          <img id="hero-img" src="images/tresenv6-2000.jpg" alt="" width="2000" height="2000" fetchpriority="high" decoding="async">
-        </picture>
+        <div class="hero__parallax" id="hero-parallax">
+          <div class="hero__stage">
+            <div class="hero__kb">
+              <div class="hero__layer hero__layer--bg">
+                <img id="hero-img" src="images/tresenv6-2000.jpg" srcset="images/tresenv6-1200.jpg 1200w, images/tresenv6-2000.jpg 2000w" sizes="100vw" alt="" width="2000" height="2000" fetchpriority="high" decoding="async">
+              </div>
+              <div class="hero__layer hero__layer--fg"></div>
+            </div>
+          </div>
+        </div>
+        <div class="hero__glow"></div>
         <div class="hero__sweep"></div>
         <div class="hero__rays"></div>
         <div class="hero__dust">
@@ -376,6 +383,42 @@
         var show = function () { img.classList.add('is-ready'); };
         if (img.complete) show();
         else img.addEventListener('load', show, { once: true });
+      }
+
+      var parallax = document.getElementById('hero-parallax');
+      var hero = document.getElementById('hero');
+      var allowMotion = window.matchMedia('(prefers-reduced-motion: no-preference)').matches;
+      var isWide = window.matchMedia('(min-width: 761px)').matches;
+      var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+      if (parallax && isWide && allowMotion) {
+        var fg = parallax.querySelector('.hero__layer--fg');
+        if (fg) {
+          var pre = new Image();
+          pre.onload = function () { fg.classList.add('is-ready'); };
+          pre.src = 'images/tresenv6-fg.png';
+        }
+      }
+
+      if (parallax && hero && allowMotion && isWide && finePointer) {
+        var tpx = 0, tpy = 0, cpx = 0, cpy = 0, raf = null;
+        function loop() {
+          cpx += (tpx - cpx) * 0.08;
+          cpy += (tpy - cpy) * 0.08;
+          parallax.style.setProperty('--px', cpx.toFixed(3));
+          parallax.style.setProperty('--py', cpy.toFixed(3));
+          if (Math.abs(tpx - cpx) > 0.001 || Math.abs(tpy - cpy) > 0.001) {
+            raf = requestAnimationFrame(loop);
+          } else { raf = null; }
+        }
+        function kick() { if (!raf) raf = requestAnimationFrame(loop); }
+        hero.addEventListener('pointermove', function (e) {
+          var r = hero.getBoundingClientRect();
+          tpx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+          tpy = ((e.clientY - r.top) / r.height - 0.5) * 2;
+          kick();
+        });
+        hero.addEventListener('pointerleave', function () { tpx = 0; tpy = 0; kick(); });
       }
 
       var html = document.documentElement;
