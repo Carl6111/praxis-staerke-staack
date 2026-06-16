@@ -1,4 +1,12 @@
 {
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/datenschutzerklärung", "destination": "/datenschutz", "permanent": true },
+    { "source": "/allgemeine-leistungen", "destination": "/leistungen", "permanent": true },
+    { "source": "/diagnostik", "destination": "/leistungen", "permanent": true },
+    { "source": "/igel", "destination": "/leistungen", "permanent": true }
+  ],
   "headers": [
     {
       "source": "/(.*)\\.mp4",
