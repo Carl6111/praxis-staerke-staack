@@ -110,7 +110,6 @@
               <div class="hero__layer hero__layer--bg">
                 <img id="hero-img" src="images/tresenv6-2000.jpg" srcset="images/tresenv6-1200.jpg 1200w, images/tresenv6-2000.jpg 2000w" sizes="100vw" alt="" width="2000" height="2000" fetchpriority="high" decoding="async">
               </div>
-              <div class="hero__layer hero__layer--fg"></div>
             </div>
           </div>
         </div>
@@ -143,6 +142,13 @@
         <div class="hero__actions hero__fade-in" style="--d:750ms">
           <a class="btn btn--light" href="kontakt.html"><span>Termin vereinbaren</span><svg class="arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           <a class="btn btn--ghost btn--ghost-light" href="tel:03917348410"><span>0391 7348410</span></a>
+        </div>
+      </div>
+      <div class="hero__fg" id="hero-fg" aria-hidden="true">
+        <div class="hero__fg-stage">
+          <div class="hero__fg-kb">
+            <div class="hero__fg-layer"></div>
+          </div>
         </div>
       </div>
       <a class="hero__scroll" href="#willkommen" aria-hidden="true" tabindex="-1">Scrollen</a>
@@ -392,8 +398,9 @@
       var isWide = window.matchMedia('(min-width: 761px)').matches;
       var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-      if (parallax && isWide && allowMotion) {
-        var fg = parallax.querySelector('.hero__layer--fg');
+      if (isWide && allowMotion) {
+        var fgEl = document.getElementById('hero-fg');
+        var fg = fgEl && fgEl.querySelector('.hero__fg-layer');
         if (fg) {
           var pre = new Image();
           pre.onload = function () { fg.classList.add('is-ready'); };
@@ -406,8 +413,8 @@
         function loop() {
           cpx += (tpx - cpx) * 0.08;
           cpy += (tpy - cpy) * 0.08;
-          parallax.style.setProperty('--px', cpx.toFixed(3));
-          parallax.style.setProperty('--py', cpy.toFixed(3));
+          hero.style.setProperty('--px', cpx.toFixed(3));
+          hero.style.setProperty('--py', cpy.toFixed(3));
           if (Math.abs(tpx - cpx) > 0.001 || Math.abs(tpy - cpy) > 0.001) {
             raf = requestAnimationFrame(loop);
           } else { raf = null; }
