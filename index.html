@@ -107,9 +107,6 @@
           <source media="(max-width: 760px)" srcset="images/tresenv6-1200.jpg">
           <img id="hero-img" src="images/tresenv6-2000.jpg" alt="" width="2000" height="2000" fetchpriority="high" decoding="async">
         </picture>
-        <video id="hero-video" class="hero__video" muted loop playsinline webkit-playsinline preload="none" disablepictureinpicture poster="images/tresenv6-2000.jpg">
-          <source src="videos/tresen_ambient_1080.mp4" type="video/mp4">
-        </video>
         <div class="hero__sweep"></div>
         <div class="hero__rays"></div>
         <div class="hero__dust">
@@ -379,21 +376,6 @@
         var show = function () { img.classList.add('is-ready'); };
         if (img.complete) show();
         else img.addEventListener('load', show, { once: true });
-      }
-
-      var vid = document.getElementById('hero-video');
-      var canMotion = window.matchMedia('(min-width: 761px) and (prefers-reduced-motion: no-preference)').matches;
-      if (vid && canMotion) {
-        vid.muted = true;
-        vid.preload = 'auto';
-        vid.addEventListener('playing', function () { vid.classList.add('is-ready'); }, { once: true });
-        var play = function () { var p = vid.play(); if (p && p.catch) p.catch(function () {}); };
-        if (vid.readyState >= 2) play();
-        else vid.addEventListener('loadeddata', play, { once: true });
-        vid.load();
-        ['pointerdown', 'touchstart', 'scroll'].forEach(function (ev) {
-          window.addEventListener(ev, play, { once: true, passive: true });
-        });
       }
 
       var html = document.documentElement;
