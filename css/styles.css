@@ -820,6 +820,13 @@ html.js .reveal-line.is-visible { transform: scaleX(1); }
 @media (min-width: 761px) and (prefers-reduced-motion: no-preference) {
   .hero__layer--fg { display: block; }
 }
+/* Desktop: niedrigerer Banner-Hero, ganzes Foto formatfuellend (cover, kein Blur) */
+@media (min-width: 761px) {
+  .hero { min-height: 0; height: clamp(600px, 80vh, 820px); }
+  .hero__fill { display: none; }
+  .hero__layer--bg img { object-fit: cover; object-position: center 60%; }
+  .hero__layer--fg { background-size: cover; background-position: center 74%; }
+}
 @keyframes heroKenburns {
   0%   { transform: scale(1.0)  translate(0, 0); }
   100% { transform: scale(1.05) translate(-1%, -0.8%); }
