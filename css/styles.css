@@ -209,6 +209,15 @@ h2 em, h1 em {
 }
 .btn--light:hover { color: #fff; border-color: var(--bronze); }
 
+.btn--ghost-light {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(244,240,229,0.55);
+  color: var(--cream-on-green);
+  -webkit-backdrop-filter: blur(6px);
+          backdrop-filter: blur(6px);
+}
+.btn--ghost-light:hover, .btn--ghost-light:focus-visible { color: #fff; border-color: var(--bronze); }
+
 .btn .arrow { transition: transform var(--dur-fast) var(--ease-out); }
 .btn:hover .arrow { transform: translateX(4px); }
 /* Lichtreflex zieht beim Hover über den Button */
@@ -414,6 +423,16 @@ body.has-dark-hero .nav:not(.is-scrolled) .btn--ghost { border-color: rgba(244,2
   pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
 }
+.page-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(58% 80% at 10% 125%, rgba(184,132,58,0.24), transparent 60%);
+  animation: pageHeroGlow 9s var(--ease-soft) infinite alternate;
+}
+@keyframes pageHeroGlow { from { opacity: 0.45; } to { opacity: 1; } }
+.page-hero > .container { position: relative; z-index: 1; }
 .page-hero h1 {
   font-size: var(--text-hero);
   margin-top: 1.5rem;
@@ -734,26 +753,177 @@ html.js .reveal-line.is-visible { transform: scaleX(1); }
   position: absolute;
   inset: 0;
   z-index: -2;
-  background: var(--ink);
+  background: var(--green-deep);
+  overflow: hidden;
 }
-.hero__media video {
+/* ---- Foto-Platte (Ken-Burns Idle-Drift) ---- */
+.hero__plate {
+  position: absolute;
+  inset: -2%;
+  display: block;
+  animation: heroKenburns 38s var(--ease-soft) infinite alternate;
+  will-change: transform;
+}
+.hero__plate img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   opacity: 0;
-  transition: opacity 1.6s var(--ease-soft);
+  /* Warmes Color-Grading direkt auf dem Foto */
+  filter: saturate(1.14) contrast(1.05) brightness(1.02);
+  transform: scale(calc(1.05 + var(--hero-zoom, 0) * 0.07)) translateY(var(--hero-drift, 0px));
+  transition: opacity 1.8s var(--ease-soft);
+  will-change: transform;
 }
-.hero__media video.is-ready { opacity: 1; }
+.hero__plate img.is-ready { opacity: 1; }
+
+/* ---- Ambient-Loop-Video (Desktop, faded über Standbild) ---- */
+.hero__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  filter: saturate(1.14) contrast(1.05) brightness(1.02);
+  transition: opacity 2s var(--ease-soft);
+  will-change: opacity;
+  display: none;
+}
+.hero__video.is-ready { opacity: 1; }
+@media (min-width: 761px) and (prefers-reduced-motion: no-preference) {
+  .hero__video { display: block; }
+}
+@keyframes heroKenburns {
+  0%   { transform: scale(1.0)  translate(0, 0); }
+  100% { transform: scale(1.07) translate(-1.5%, -1%); }
+}
+
+/* ---- Warmer Licht-Wash (golden hour push) ---- */
+.hero__media::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  background:
+    radial-gradient(60% 55% at 22% 30%, rgba(255, 196, 120, 0.55), transparent 70%),
+    radial-gradient(50% 50% at 75% 18%, rgba(255, 170, 96, 0.30), transparent 72%);
+}
+.hero__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  background:
+    radial-gradient(120% 90% at 50% 120%, rgba(120, 70, 24, 0.42), transparent 60%),
+    linear-gradient(180deg, rgba(40, 24, 10, 0) 40%, rgba(28, 16, 6, 0.45) 100%);
+}
+
+/* ---- Streifenlicht durch die Jalousie (Godrays) ---- */
+.hero__rays {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.5;
+  background: repeating-linear-gradient(
+    9deg,
+    rgba(255, 210, 140, 0) 0px,
+    rgba(255, 210, 140, 0) 26px,
+    rgba(255, 198, 120, 0.16) 34px,
+    rgba(255, 210, 140, 0) 46px
+  );
+  -webkit-mask-image: radial-gradient(70% 70% at 24% 26%, #000 0%, transparent 68%);
+          mask-image: radial-gradient(70% 70% at 24% 26%, #000 0%, transparent 68%);
+  animation: heroRays 14s ease-in-out infinite alternate;
+}
+@keyframes heroRays {
+  0%   { opacity: 0.32; transform: translateX(0) skewX(0deg); }
+  100% { opacity: 0.6;  transform: translateX(2.5%) skewX(-1.5deg); }
+}
+
+/* ---- Diagonaler Licht-Sweep ---- */
+.hero__sweep {
+  position: absolute;
+  top: -40%;
+  left: -60%;
+  width: 60%;
+  height: 180%;
+  z-index: 3;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: linear-gradient(105deg, transparent 0%, rgba(255, 226, 170, 0.0) 35%, rgba(255, 230, 180, 0.22) 50%, rgba(255, 226, 170, 0) 65%, transparent 100%);
+  filter: blur(14px);
+  transform: rotate(8deg);
+  animation: heroSweep 11s var(--ease-soft) infinite;
+}
+@keyframes heroSweep {
+  0%, 100% { transform: translateX(0) rotate(8deg); opacity: 0; }
+  18%      { opacity: 1; }
+  55%      { transform: translateX(360%) rotate(8deg); opacity: 0.0; }
+}
+
+/* ---- Schwebender Bronze-Staub ---- */
+.hero__dust {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
+}
+.hero__dust span {
+  position: absolute;
+  bottom: -4vh;
+  left: var(--x);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 214, 150, 0.95), rgba(216, 164, 92, 0.25) 60%, transparent 72%);
+  filter: blur(0.4px);
+  transform: scale(var(--s, 1));
+  opacity: 0;
+  animation: heroDust var(--dur, 20s) linear infinite;
+  animation-delay: var(--dl, 0s);
+}
+@keyframes heroDust {
+  0%   { opacity: 0; transform: translate(0, 0) scale(var(--s, 1)); }
+  12%  { opacity: 0.9; }
+  80%  { opacity: 0.55; }
+  100% { opacity: 0; transform: translate(14px, var(--dy, -60vh)) scale(var(--s, 1)); }
+}
+
+/* ---- Feiner Film-Grain im Hero ---- */
+.hero__grain {
+  position: absolute;
+  inset: -50%;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  animation: heroGrain 0.6s steps(3) infinite;
+}
+@keyframes heroGrain {
+  0%   { transform: translate(0, 0); }
+  33%  { transform: translate(-6%, 4%); }
+  66%  { transform: translate(5%, -5%); }
+  100% { transform: translate(-3%, 2%); }
+}
+
 .hero::after {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(ellipse 90% 60% at 50% 115%, rgba(30,92,54,0.4), transparent 60%),
-    linear-gradient(180deg, rgba(15,45,28,0.35) 0%, rgba(15,45,28,0.12) 35%, rgba(10,31,19,0.9) 100%);
+    radial-gradient(ellipse 90% 60% at 50% 118%, rgba(30,92,54,0.28), transparent 60%),
+    linear-gradient(180deg, rgba(15,45,28,0.28) 0%, rgba(15,45,28,0.06) 32%, rgba(10,31,19,0.86) 100%);
 }
-.hero__media video { transform: scale(calc(1.04 + var(--hero-zoom, 0) * 0.06)) translateY(var(--hero-drift, 0px)); will-change: transform; }
 .hero__content {
   padding-bottom: clamp(2.5rem, 6vh, 5rem);
 }
@@ -908,6 +1078,23 @@ html.js .hero__fade-in {
   width: 1.4rem;
   height: 1px;
   background: var(--ink-mid);
+}
+.media-caption--overlay {
+  position: absolute;
+  left: clamp(1rem, 3vw, 2rem);
+  bottom: clamp(0.9rem, 3vw, 1.6rem);
+  margin-top: 0;
+  color: var(--cream-on-green);
+  text-shadow: 0 1px 12px rgba(10,31,19,0.6);
+  z-index: 2;
+}
+.media-caption--overlay::before { background: var(--bronze-light); }
+.media-frame:has(.media-caption--overlay)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(10,31,19,0.55), transparent 45%);
 }
 @media (max-width: 860px) {
   .editorial { grid-template-columns: 1fr; }
@@ -1798,5 +1985,7 @@ html.js .statement h2 .w.is-on { opacity: 1; }
   html.js .reveal-line { transform: scaleX(1); }
   html.js .statement h2 .w { opacity: 1; }
   .ekg-divider__path { stroke-dashoffset: 0 !important; stroke-dasharray: none !important; }
-  .hero__media video, .statement__bg img { transform: none !important; }
+  .hero__plate, .hero__plate img, .statement__bg img { transform: none !important; }
+  .hero__plate img { opacity: 1; }
+  .hero__sweep, .hero__dust, .hero__grain, .hero__rays { display: none; }
 }
