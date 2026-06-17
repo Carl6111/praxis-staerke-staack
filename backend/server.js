@@ -61,6 +61,7 @@ const trackLimiter = rateLimit({
 });
 
 const ALLOWED_POST_TYPES = ['neuigkeit', 'urlaub', 'info'];
+const ALLOWED_ANFRAGE_STATUS = ['Neu', 'In Arbeit', 'Erledigt'];
 
 function isValidAdminKey(key) {
   const expected = process.env.ADMIN_KEY || '';
@@ -68,6 +69,42 @@ function isValidAdminKey(key) {
   const ha = crypto.createHmac('sha256', 'praxis-key-check').update(key || '').digest();
   const hb = crypto.createHmac('sha256', 'praxis-key-check').update(expected).digest();
   return crypto.timingSafeEqual(ha, hb);
+}
+
+// E-Mail-Benachrichtigung via Resend. Empfänger als Env-Var -> spätere Umstellung
+// auf die Praxis ohne Code-Änderung. Sendet nur, wenn RESEND_API_KEY gesetzt ist.
+const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
+const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL || 'tafkac@icloud.com';
+const MAIL_FROM = process.env.MAIL_FROM || 'Praxis Stärke & Staack <onboarding@resend.dev>';
+
+async function sendAnfrageMail(a) {
+  if (!RESEND_API_KEY) return;
+  const text =
+    `Neue Kontaktanfrage über die Website\n\n` +
+    `Name:     ${a.vorname} ${a.nachname}\n` +
+    `E-Mail:   ${a.email}\n` +
+    `Telefon:  ${a.telefon || '—'}\n` +
+    `Anliegen: ${a.anliegen || '—'}\n\n` +
+    `Nachricht:\n${a.nachricht}\n`;
+  try {
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: MAIL_FROM,
+        to: [NOTIFY_EMAIL],
+        reply_to: a.email,
+        subject: `Neue Anfrage: ${a.vorname} ${a.nachname}`,
+        text,
+      }),
+    });
+    if (!r.ok) console.error('Resend error:', r.status, await r.text());
+  } catch (e) {
+    console.error('Mail send failed:', e.message);
+  }
 }
 
 app.get('/api/posts', async (req, res) => {
@@ -126,6 +163,48 @@ app.delete('/api/posts/:id', adminLimiter, async (req, res) => {
   res.json({ success: true });
 });
 
+const ANFRAGEN_TABLE = process.env.SUPABASE_TABLE || 'anfragen';
+
+app.get('/api/anfragen', adminLimiter, async (req, res) => {
+  if (!isValidAdminKey(req.headers['x-admin-key'])) {
+    return res.status(401).json({ success: false, error: 'Unauthorized' });
+  }
+  const { data, error } = await supabase
+    .from(ANFRAGEN_TABLE)
+    .select('id, vorname, nachname, email, telefon, anliegen, nachricht, status, created_at')
+    .order('created_at', { ascending: false });
+  if (error) return res.status(500).json({ success: false, error: error.message });
+  res.json({ success: true, anfragen: data });
+});
+
+app.post('/api/anfragen/:id/status', adminLimiter, async (req, res) => {
+  if (!isValidAdminKey(req.headers['x-admin-key'])) {
+    return res.status(401).json({ success: false, error: 'Unauthorized' });
+  }
+  const status = req.body.status?.trim();
+  if (!ALLOWED_ANFRAGE_STATUS.includes(status)) {
+    return res.status(400).json({ success: false, error: `status must be one of: ${ALLOWED_ANFRAGE_STATUS.join(', ')}` });
+  }
+  const { error } = await supabase
+    .from(ANFRAGEN_TABLE)
+    .update({ status })
+    .eq('id', req.params.id);
+  if (error) return res.status(500).json({ success: false, error: error.message });
+  res.json({ success: true });
+});
+
+app.delete('/api/anfragen/:id', adminLimiter, async (req, res) => {
+  if (!isValidAdminKey(req.headers['x-admin-key'])) {
+    return res.status(401).json({ success: false, error: 'Unauthorized' });
+  }
+  const { error } = await supabase
+    .from(ANFRAGEN_TABLE)
+    .delete()
+    .eq('id', req.params.id);
+  if (error) return res.status(500).json({ success: false, error: error.message });
+  res.json({ success: true });
+});
+
 app.post('/api/contact', contactLimiter, async (req, res) => {
   const { vorname, nachname, email, telefon, anliegen, nachricht, datenschutz } = req.body;
 
@@ -159,22 +238,27 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
 
   const strip = s => s.replace(/<[^>]*>/g, '').trim();
 
+  const row = {
+    vorname: strip(vorname),
+    nachname: strip(nachname),
+    email: email.trim().toLowerCase(),
+    telefon: telefon ? strip(telefon) : null,
+    anliegen: anliegen ? strip(anliegen) : null,
+    nachricht: strip(nachricht),
+    status: 'Neu',
+  };
+
   const { error } = await supabase
     .from(process.env.SUPABASE_TABLE || 'anfragen')
-    .insert([{
-      vorname: strip(vorname),
-      nachname: strip(nachname),
-      email: email.trim().toLowerCase(),
-      telefon: telefon ? strip(telefon) : null,
-      anliegen: anliegen ? strip(anliegen) : null,
-      nachricht: strip(nachricht),
-      status: 'Neu',
-    }]);
+    .insert([row]);
 
   if (error) {
     console.error('Supabase insert error:', JSON.stringify(error));
     return res.status(500).json({ error: 'Interner Fehler. Bitte versuche es später erneut.' });
   }
+
+  // Benachrichtigung raus, ohne die Antwort zu verzögern.
+  sendAnfrageMail(row).catch(() => {});
 
   res.json({ success: true });
 });
