@@ -858,6 +858,11 @@ html.js .hero__year { opacity: 0; transform: translateY(-14px); animation: heroY
   .hero__fill { display: none; }
   .hero__layer--bg img { object-fit: cover; object-position: center 56%; }
 }
+/* Mobile: Foto reingezoomt, unten buendig, schmaler Rand oben (Platz fuer Nav/Burger) */
+@media (max-width: 760px) {
+  .hero__layer--bg { inset: 8% 0 0 0; }
+  .hero__layer--bg img { object-fit: cover; object-position: center 42%; }
+}
 @keyframes heroKenburns {
   0%   { transform: scale(1.0)  translate(0, 0); }
   100% { transform: scale(1.05) translate(-1%, -0.8%); }
