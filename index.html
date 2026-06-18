@@ -132,9 +132,6 @@
         </div>
         <div class="hero__grain"></div>
       </div>
-      <div class="hero__fg" id="hero-fg" aria-hidden="true">
-        <div class="hero__fg-layer"></div>
-      </div>
       <span class="hero__logo" aria-hidden="true"></span>
       <div class="container hero__content">
         <p class="hero__badge">Allgemeinmedizin · Ernährungsmedizin · Sportmedizin</p>
@@ -396,16 +393,6 @@
       var allowMotion = window.matchMedia('(prefers-reduced-motion: no-preference)').matches;
       var isWide = window.matchMedia('(min-width: 761px)').matches;
       var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-
-      if (isWide && allowMotion) {
-        var fgEl = document.getElementById('hero-fg');
-        var fg = fgEl && fgEl.querySelector('.hero__fg-layer');
-        if (fg) {
-          var pre = new Image();
-          pre.onload = function () { fg.classList.add('is-ready'); };
-          pre.src = 'images/tresenv6-fg.png';
-        }
-      }
 
       if (parallax && hero && allowMotion && isWide && finePointer) {
         var tpx = 0, tpy = 0, cpx = 0, cpy = 0, raf = null;

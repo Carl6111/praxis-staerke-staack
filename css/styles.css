@@ -806,24 +806,6 @@ html.js .reveal-line.is-visible { transform: scaleX(1); }
   transition: opacity 1.8s var(--ease-soft);
 }
 .hero__layer--bg img.is-ready { opacity: 1; }
-/* ---- Tresen-Vordergrund über Text (näher = stärkerer Parallax) ---- */
-.hero__fg {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none;
-  overflow: hidden;
-}
-.hero__fg-layer {
-  position: absolute;
-  inset: -2%;
-  background: url("../images/tresenv6-fg.png") bottom center / cover no-repeat;
-  opacity: 0;
-  transform: translate3d(calc(var(--px, 0) * 18px), calc(var(--py, 0) * 12px), 0) scale(1.04);
-  transition: opacity 1.2s var(--ease-soft), transform 0.45s var(--ease-soft);
-  will-change: transform, opacity;
-}
-.hero__fg-layer.is-ready { opacity: 1; }
 /* ---- Editorial: großes halbtransparentes Logo unten rechts + Licht-Sweep ---- */
 .hero__logo {
   position: absolute;
@@ -2102,7 +2084,7 @@ html.js .statement h2 .w.is-on { opacity: 1; }
   html.js .statement h2 .w { opacity: 1; }
   .ekg-divider__path { stroke-dashoffset: 0 !important; stroke-dasharray: none !important; }
   .hero__parallax, .hero__stage, .hero__kb, .hero__layer--bg, .hero__layer--bg img,
-  .hero__fg-layer, .hero__logo, .statement__bg img { transform: none !important; }
+  .hero__logo, .statement__bg img { transform: none !important; }
   .hero__layer--bg img { opacity: 1; }
   html.js .hero__media { clip-path: none !important; }
   html.js .hero__logo, html.js .hero__year { opacity: 1; }
