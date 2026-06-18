@@ -2,7 +2,7 @@
 (function () {
   'use strict';
 
-  var API_BASE = 'https://praxis-staerke-backend-production.up.railway.app';
+  var API_BASE = 'https://praxis-staerke-staack-production.up.railway.app';
   var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- Navigation ---------- */

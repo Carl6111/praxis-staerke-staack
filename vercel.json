@@ -2,6 +2,15 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
+    { "source": "/team", "has": [{ "type": "host", "value": "(www\\.)?franka-staerke\\.com" }], "destination": "https://praxis-staerke-staack.de/team", "permanent": true },
+    { "source": "/aktuelles", "has": [{ "type": "host", "value": "(www\\.)?franka-staerke\\.com" }], "destination": "https://praxis-staerke-staack.de/aktuelles", "permanent": true },
+    { "source": "/impressum", "has": [{ "type": "host", "value": "(www\\.)?franka-staerke\\.com" }], "destination": "https://praxis-staerke-staack.de/impressum", "permanent": true },
+    { "source": "/datenschutzerklaerung", "has": [{ "type": "host", "value": "(www\\.)?franka-staerke\\.com" }], "destination": "https://praxis-staerke-staack.de/datenschutz", "permanent": true },
+    { "source": "/allgemeine-leistungen", "has": [{ "type": "host", "value": "(www\\.)?franka-staerke\\.com" }], "destination": "https://praxis-staerke-staack.de/leistungen", "permanent": true },
+    { "source": "/diagnostik", "has": [{ "type": "host", "value": "(www\\.)?franka-staerke\\.com" }], "destination": "https://praxis-staerke-staack.de/leistungen", "permanent": true },
+    { "source": "/igel", "has": [{ "type": "host", "value": "(www\\.)?franka-staerke\\.com" }], "destination": "https://praxis-staerke-staack.de/leistungen", "permanent": true },
+    { "source": "/sportmedizin", "has": [{ "type": "host", "value": "(www\\.)?franka-staerke\\.com" }], "destination": "https://praxis-staerke-staack.de/leistungen", "permanent": true },
+    { "source": "/(.*)", "has": [{ "type": "host", "value": "(www\\.)?franka-staerke\\.com" }], "destination": "https://praxis-staerke-staack.de/", "permanent": true },
     { "source": "/datenschutzerklärung", "destination": "/datenschutz", "permanent": true },
     { "source": "/allgemeine-leistungen", "destination": "/leistungen", "permanent": true },
     { "source": "/diagnostik", "destination": "/leistungen", "permanent": true },
@@ -24,7 +33,7 @@
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
         { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains" },
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; connect-src 'self' https://praxis-staerke-backend-production.up.railway.app; frame-src 'none'; object-src 'none'; base-uri 'self';" }
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; connect-src 'self' https://praxis-staerke-staack-production.up.railway.app https://praxis-staerke-backend-production.up.railway.app; frame-src 'none'; object-src 'none'; base-uri 'self';" }
       ]
     }
   ]

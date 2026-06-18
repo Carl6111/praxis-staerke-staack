@@ -1,0 +1,17 @@
+# Unreferenzierte Roh-/Quelldateien — nicht deployen (blockten Build)
+animations/
+Bilder/
+
+# Lose Root-Medien (Arbeitsdateien, nirgends eingebunden)
+tresenvideo_4K.mp4
+tresenvideo.mp4
+TresenV2.jpg
+tresenv3.jpg
+tresen5.jpg
+
+# Git/Dev
+.git
+.gitignore
+node_modules
+*.log
+.DS_Store

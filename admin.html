@@ -98,7 +98,10 @@
   <div class="admin-shell" id="admin-view" hidden>
     <div class="admin-top">
       <h1>Stärke &amp; Staack <span class="admin-badge">Admin</span></h1>
-      <button class="logout-btn" type="button" id="logout-btn">Abmelden</button>
+      <div style="display:flex;gap:0.6rem;align-items:center">
+        <a class="logout-btn" href="anfragen.html" style="text-decoration:none">Anfragen</a>
+        <button class="logout-btn" type="button" id="logout-btn">Abmelden</button>
+      </div>
     </div>
 
     <section class="panel">
@@ -137,7 +140,7 @@
   <script>
     (function () {
       'use strict';
-      var BACKEND = 'https://praxis-staerke-backend-production.up.railway.app';
+      var BACKEND = 'https://praxis-staerke-staack-production.up.railway.app';
       var TYPE_LABELS = { urlaub: 'Urlaub / Schließung', info: 'Info', neuigkeit: 'Neuigkeit' };
       var adminKey = null;
 

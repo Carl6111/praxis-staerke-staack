@@ -36,3 +36,13 @@ out/
 # Logs
 *.log
 npm-debug.log*
+
+# Große Quell-/Duplikat-Medien (nicht fürs Web)
+Bilder/
+animations/
+*_4K.mp4
+/TresenV2.jpg
+/tresen4.jpg
+/tresen5.jpg
+/tresenv3.jpg
+/tresenvideo.mp4
