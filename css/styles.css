@@ -858,9 +858,10 @@ html.js .hero__year { opacity: 0; transform: translateY(-14px); animation: heroY
   .hero__fill { display: none; }
   .hero__layer--bg img { object-fit: cover; object-position: center 56%; }
 }
-/* Mobile: Foto reingezoomt, unten buendig, schmaler Rand oben (Platz fuer Nav/Burger) */
+/* Mobile: Foto reingezoomt, unten buendig, Rand oben = Nav-/Burger-Leiste (4.75rem) */
 @media (max-width: 760px) {
-  .hero__layer--bg { inset: 8% 0 0 0; }
+  .hero__kb { inset: 0 0 -3% 0; }
+  .hero__layer--bg { inset: 4.75rem 0 0 0; }
   .hero__layer--bg img { object-fit: cover; object-position: center 42%; }
 }
 @keyframes heroKenburns {
