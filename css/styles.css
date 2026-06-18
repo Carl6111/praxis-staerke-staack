@@ -1053,11 +1053,12 @@ html.js .hero__year { opacity: 0; transform: translateY(-14px); animation: heroY
 .hero h1 {
   font-size: var(--text-hero);
   font-weight: 500;
-  color: #fff;
+  color: var(--bronze);
   line-height: 0.98;
   letter-spacing: -0.015em;
   max-width: 9.5em;
-  text-shadow: 0 2px 8px rgba(10,31,19,0.45), 0 6px 32px rgba(10,31,19,0.55);
+  text-shadow: 0 1px 6px rgba(10,31,19,0.45), 0 4px 22px rgba(10,31,19,0.5);
+  -webkit-text-stroke: 0.35px rgba(255,255,255,0.9);
 }
 .hero h1 .line {
   display: block;
@@ -1073,7 +1074,7 @@ html.js .hero h1 .line > span {
 .hero h1 em {
   color: var(--bronze);
   text-shadow: none;
-  -webkit-text-stroke: 0.6px rgba(255,255,255,0.92);
+  -webkit-text-stroke: 0.35px rgba(255,255,255,0.92);
   filter: drop-shadow(0 0 1px rgba(255,255,255,0.85)) drop-shadow(0 2px 8px rgba(10,31,19,0.55));
 }
 .hero__sub {
