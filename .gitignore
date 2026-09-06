@@ -46,3 +46,6 @@ animations/
 /tresen5.jpg
 /tresenv3.jpg
 /tresenvideo.mp4
+.env*
+/Tresen.jpg
+/styles.css
