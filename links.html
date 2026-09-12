@@ -67,7 +67,7 @@
   .links-grid {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 12px;
   }
   .link-card {
     display: block;
@@ -87,33 +87,33 @@
   }
   .link-card .cover {
     width: 100%;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 21 / 8;
     object-fit: cover;
     display: block;
     background: var(--grün);
   }
   .link-card .cover.logo-cover {
-    aspect-ratio: 21 / 9;
+    aspect-ratio: 4 / 1;
     object-fit: contain;
-    padding: 14px 0;
+    padding: 8px 0;
   }
   .link-card .row {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 14px 18px;
+    gap: 12px;
+    padding: 11px 16px;
   }
   .link-card .badge {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     background: #f4f0e5;
   }
-  .link-card .badge svg { width: 22px; height: 22px; }
+  .link-card .badge svg { width: 18px; height: 18px; }
   .link-card .content { flex: 1; }
   .link-card .label {
     font-size: 0.75rem;
@@ -158,9 +158,9 @@
   }
   @media (max-width: 480px) {
     main { padding: 24px 16px; }
-    .link-card .row { padding: 12px 14px; }
-    .link-card .badge { width: 36px; height: 36px; }
-    .link-card .badge svg { width: 20px; height: 20px; }
+    .link-card .row { padding: 10px 14px; }
+    .link-card .badge { width: 30px; height: 30px; }
+    .link-card .badge svg { width: 17px; height: 17px; }
   }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -180,7 +180,7 @@
 
   <div class="links-grid">
     <a class="link-card" href="https://praxis-staerke-staack.vercel.app/" target="_blank" rel="noopener">
-      <img class="cover" src="images/websitefoto.jpg" alt="Empfang der Praxis Stärke &amp; Staack" width="800" height="450" loading="eager" fetchpriority="high">
+      <img class="cover" src="images/websitefoto.jpg" alt="Empfang der Praxis Stärke &amp; Staack" width="800" height="428" loading="eager" fetchpriority="high">
       <div class="row">
         <div class="badge">
           <svg viewBox="0 0 24 24" fill="none" stroke="#0f2d1c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
