@@ -67,15 +67,13 @@
   .links-grid {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 18px;
   }
   .link-card {
-    display: flex;
-    align-items: center;
-    gap: 16px;
+    display: block;
     background: white;
-    border-radius: 14px;
-    padding: 16px 18px;
+    border-radius: 16px;
+    overflow: hidden;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     text-decoration: none;
     color: var(--text);
@@ -83,23 +81,39 @@
     transition: transform 0.2s, box-shadow 0.2s;
   }
   .link-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 22px rgba(0,0,0,0.1);
     border-color: var(--gold);
   }
-  .link-card .icon {
-    width: 44px;
-    height: 44px;
+  .link-card .cover {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    display: block;
+    background: var(--grün);
+  }
+  .link-card .cover.logo-cover {
+    aspect-ratio: 21 / 9;
+    object-fit: contain;
+    padding: 14px 0;
+  }
+  .link-card .row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+  }
+  .link-card .badge {
+    width: 40px;
+    height: 40px;
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    font-size: 1.3rem;
+    background: #f4f0e5;
   }
-  .link-card .icon.website { background: #e8f0e8; color: var(--grün); }
-  .link-card .icon.instagram { background: #fce8f0; color: #e1306c; }
-  .link-card .icon.google { background: #e8f0f8; color: #4285f4; }
+  .link-card .badge svg { width: 22px; height: 22px; }
   .link-card .content { flex: 1; }
   .link-card .label {
     font-size: 0.75rem;
@@ -144,8 +158,9 @@
   }
   @media (max-width: 480px) {
     main { padding: 24px 16px; }
-    .link-card { padding: 14px 14px; }
-    .link-card .icon { width: 38px; height: 38px; font-size: 1.1rem; }
+    .link-card .row { padding: 12px 14px; }
+    .link-card .badge { width: 36px; height: 36px; }
+    .link-card .badge svg { width: 20px; height: 20px; }
   }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -165,46 +180,65 @@
 
   <div class="links-grid">
     <a class="link-card" href="https://praxis-staerke-staack.vercel.app/" target="_blank" rel="noopener">
-      <div class="icon website">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="2" y1="12" x2="22" y2="12"/>
-          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-        </svg>
-      </div>
-      <div class="content">
-        <div class="label">01 · Website</div>
-        <div class="title">Praxis-Stärke-&-Staack</div>
-        <div class="desc">Sprechzeiten, Team, Leistungen &amp; Anfahrt</div>
+      <img class="cover" src="images/websitefoto.jpg" alt="Empfang der Praxis Stärke &amp; Staack" width="800" height="450" loading="eager" fetchpriority="high">
+      <div class="row">
+        <div class="badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0f2d1c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+        </div>
+        <div class="content">
+          <div class="label">01 · Website</div>
+          <div class="title">Praxis-Stärke-&-Staack</div>
+          <div class="desc">Sprechzeiten, Team, Leistungen &amp; Anfahrt</div>
+        </div>
       </div>
     </a>
 
     <a class="link-card" href="https://www.instagram.com/haus_arztpraxis_magdeburg/" target="_blank" rel="noopener">
-      <div class="icon instagram">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-        </svg>
-      </div>
-      <div class="content">
-        <div class="label">02 · Instagram</div>
-        <div class="title">@haus_arztpraxis_magdeburg</div>
-        <div class="desc">Einblicke aus der Praxis</div>
+      <img class="cover logo-cover" style="background:#eef4ee" src="images/logo-icon-links.png" alt="Logo Stärke &amp; Staack" width="500" height="500" loading="lazy">
+      <div class="row">
+        <div class="badge" style="background:#fce8f0">
+          <svg viewBox="0 0 24 24" width="22" height="22">
+            <defs>
+              <linearGradient id="igGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#ffdd55"/>
+                <stop offset="35%" stop-color="#e1306c"/>
+                <stop offset="70%" stop-color="#c13584"/>
+                <stop offset="100%" stop-color="#5851db"/>
+              </linearGradient>
+            </defs>
+            <rect x="2" y="2" width="20" height="20" rx="6" fill="url(#igGrad)"/>
+            <rect x="6.3" y="6.3" width="11.4" height="11.4" rx="3.6" fill="none" stroke="#fff" stroke-width="1.6"/>
+            <circle cx="12" cy="12" r="3.2" fill="none" stroke="#fff" stroke-width="1.6"/>
+            <circle cx="16.4" cy="7.6" r="1.1" fill="#fff"/>
+          </svg>
+        </div>
+        <div class="content">
+          <div class="label">02 · Instagram</div>
+          <div class="title">@haus_arztpraxis_magdeburg</div>
+          <div class="desc">Einblicke aus der Praxis</div>
+        </div>
       </div>
     </a>
 
     <a class="link-card" href="https://www.google.com/maps/place/Hausarztpraxis+Franka+St%C3%A4rke+und+Thorsten+Staack/@52.1825,11.6369,17z/data=!3m1!4b1!4m6!3m5!1s0x47b5f5e3c0f0c1a9:0x0!8m2!3d52.1825!4d11.639!16s%2Fg%2F1tdy0b5wc?entry=ttu" target="_blank" rel="noopener">
-      <div class="icon google">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 14 21.14 5.86 22 4.91 14.14 0.9 9.27 7.91 8.26 12 2"/>
-          <line x1="12" y1="2" x2="12" y2="22"/>
-        </svg>
-      </div>
-      <div class="content">
-        <div class="label">03 · Google-Bewertungen</div>
-        <div class="title">Rezension schreiben</div>
-        <div class="desc">Bewertung auf Google Maps hinterlassen</div>
+      <div class="row" style="padding-top:18px">
+        <div class="badge" style="background:#f4f0e5">
+          <svg viewBox="0 0 24 24" width="22" height="22">
+            <path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.89c2.28-2.1 3.56-5.2 3.56-8.82z"/>
+            <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.89-3c-1.08.73-2.46 1.15-4.06 1.15-3.12 0-5.77-2.11-6.71-4.94H1.28v3.1A12 12 0 0 0 12 24z"/>
+            <path fill="#FBBC05" d="M5.29 14.3a7.2 7.2 0 0 1 0-4.6v-3.1H1.28a12 12 0 0 0 0 10.8z"/>
+            <path fill="#EA4335" d="M12 4.76c1.77 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.28 6.6l4.01 3.1C6.23 6.87 8.88 4.76 12 4.76z"/>
+          </svg>
+        </div>
+        <div class="content">
+          <div class="label">03 · Google-Bewertungen</div>
+          <div class="title">Rezension schreiben</div>
+          <div class="desc">Bewertung auf Google Maps hinterlassen</div>
+        </div>
       </div>
     </a>
   </div>
