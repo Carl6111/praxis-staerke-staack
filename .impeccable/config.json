@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "plus jakarta sans",
+        "createdAt": "2026-09-12T07:53:25.202Z",
+        "reason": "Bestehender Brand-Font der gesamten Praxis-Website (Konsistenz mit Header/Footer/Unterseiten), kein neuer Pick"
+      }
+    ]
+  }
+}
