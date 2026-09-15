@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Warteraum — Hausarztpraxis Stärke &amp; Staack</title>
+  <link rel="icon" type="image/png" href="images/logo-icon-gruen.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/tv.css">
+</head>
+<body class="tv">
+
+  <div class="buehne" id="buehne" data-ton="tinte">
+
+    <div id="szenen"></div>
+
+    <!-- Die Praxis bleibt auch während der textfreien Landschaft erkennbar. -->
+    <footer class="fuss">
+      <div class="fuss__links">
+        <span class="fuss__praxis" id="fuss-praxis"></span>
+      </div>
+      <div class="fuss__rechts">
+        <span id="fuss-datum"></span>
+        <span class="fuss__zeit" id="fuss-zeit">--:--:--</span>
+      </div>
+    </footer>
+
+    <div class="fortschritt">
+      <div class="fortschritt__balken" id="fortschritt-balken"></div>
+    </div>
+
+    <div class="tonstart" id="tonstart" hidden>
+      <div class="tonstart__inhalt">
+        <p class="tonstart__titel">Bereit</p>
+        <p>Eine beliebige Taste auf der Fernbedienung drücken, um den Bildschirm mit Ton zu starten.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="js/tv.js"></script>
+</body>
+</html>
