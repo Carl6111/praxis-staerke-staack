@@ -81,55 +81,41 @@ test('two rotating default rounds each last 3–4 minutes with 30–40% landscap
   }
 });
 
-test('eight distinct selected prices are separated by other content', () => {
+test('no prices appear anywhere in the loop', () => {
   const app = harness();
-  app.run('szenenNeuBauen()');
-  const scenes = app.scenes();
-  const names = scenes.flatMap((scene) => [...scene.html.matchAll(/class="preis__leistung">([^<]+)</g)].map((match) => match[1]));
-  assert.equal(names.length, 8);
-  assert.equal(new Set(names).size, 8);
-  const expected = {
-    'Reisemedizinische Beratung': '30,60 €',
-    'Ganzkörper-Hautcheck': '24,80 €',
-    'Bioimpedanzanalyse': '37,26 €',
-    'Sporttauglichkeit': '95,28 €',
-    'Kleiner Blutcheck': '93,08 €',
-    'Kleiner Vitamin-Check': '53,80 €',
-    'Schule und Sportunterricht': '2,50 €',
-    'Bootsführerschein': '37,53 €',
-  };
-  assert.deepEqual(names.toSorted(), Object.keys(expected).toSorted());
-  let pricedEntries = 0;
-  for (const scene of scenes) {
-    for (const [, name, amount] of scene.html.matchAll(/class="preis__leistung">([^<]+)<[\s\S]*?class="preis__wert(?: [^"]*)?">([^<]+)</g)) {
-      pricedEntries += 1;
-      assert.equal(amount, expected[name], `Price changed for ${name}`);
-    }
-  }
-  assert.equal(pricedEntries, 8);
-  assert.match(scenes.find((scene) => scene.html.includes('Kleiner Blutcheck')).html, /zzgl\. 10,72 € Labor/);
-  assert.match(scenes.find((scene) => scene.html.includes('Kleiner Vitamin-Check')).html, /zzgl\. 71,73 € Labor/);
-  for (let index = 0; index < scenes.length; index += 1) {
-    assert.ok(!(scenes[index].html.includes('preis__leistung') && scenes[(index + 1) % scenes.length].html.includes('preis__leistung')), `Adjacent price scenes at ${index}`);
+  for (let round = 0; round < 2; round += 1) {
+    app.run('szenenNeuBauen()');
+    const content = app.scenes().map((scene) => scene.html).join('');
+    assert.doesNotMatch(content, /\d+,\d{2}\s*€/, 'Amounts belong on the printed list, not on the screen');
+    assert.doesNotMatch(content, /preis__|Selbstzahler|Preisstand/);
   }
 });
 
-test('each service scene contains at most three readable entries', () => {
+test('every service is shown with its name and an explanation', () => {
   const app = harness();
   app.run('szenenNeuBauen()');
-  const counts = app.scenes().map((scene) => [...scene.html.matchAll(/class="leistung"/g)].length).filter(Boolean);
-  assert.ok(counts.length > 0);
-  assert.ok(counts.every((count) => count <= 3), `Service counts: ${counts}`);
+  const scenes = app.scenes().filter((scene) => scene.html.includes('leistungsseite'));
+  const groups = JSON.parse(app.run('JSON.stringify(LEISTUNGEN)'));
+  assert.equal(scenes.length, groups.length);
+  for (const [index, scene] of scenes.entries()) {
+    const titles = [...scene.html.matchAll(/class="leistung__titel">([^<]+)</g)].map((match) => match[1]);
+    const texts = [...scene.html.matchAll(/class="leistung__text">([^<]+)</g)].map((match) => match[1]);
+    assert.deepEqual(titles, groups[index].posten.map((posten) => posten.titel.replace(/&/g, '&amp;')));
+    assert.equal(texts.length, titles.length, 'Each service keeps its explanation');
+    assert.ok(titles.length >= 3 && titles.length <= 4, `Service count on page ${index + 1}: ${titles.length}`);
+    assert.ok(scene.html.includes(groups[index].gruppe), 'The page says which group it shows');
+  }
 });
 
-test('landscape clips play once without text overlays and without eager preload', () => {
+test('landscape clips play once behind a single quiet line, without eager preload', () => {
   const app = harness();
   app.run('szenenNeuBauen()');
   const scenes = app.scenes().filter(isLandscape);
   assert.ok(scenes.length > 0);
   for (const scene of scenes) {
     assert.doesNotMatch(scene.html, /\bloop(?:\s|=|>)/);
-    assert.doesNotMatch(scene.html, /ruhe__(?:text|marke|satz|schleier)/);
+    assert.equal([...scene.html.matchAll(/class="ruhe__satz"/g)].length, 1);
+    assert.match(scene.html, /class="ruhe__marke"/);
     assert.match(scene.html, /preload="none"/);
   }
 });
@@ -187,6 +173,6 @@ test('a 5000-character token is paginated without overflowing or losing content'
   const app = harness();
   const pages = JSON.parse(app.run("JSON.stringify(textSeiten('a'.repeat(5000)))"));
   assert.ok(pages.length > 1);
-  assert.ok(pages.every((page) => page.length > 0 && page.length <= 220), `Page lengths: ${pages.map((page) => page.length)}`);
+  assert.ok(pages.every((page) => page.length > 0 && page.length <= 430), `Page lengths: ${pages.map((page) => page.length)}`);
   assert.equal(pages.join(''), 'a'.repeat(5000));
 });

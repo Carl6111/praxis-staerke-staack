@@ -1,145 +1,284 @@
-/* Warteraum: feste Bühne, Lesedistanz 3–4 m. Farben und Schriften aus styles.css. */
+/* ============================================================
+   Warteraum-Bildschirm — Hausarztpraxis Stärke & Staack
+   Baut auf den Tokens aus styles.css auf. Hier steht nur, was
+   sich aus 3–4 m Leseabstand und dem Dauerbetrieb ergibt.
+   ============================================================ */
+
 .tv { margin: 0; height: 100vh; overflow: hidden; background: #000; cursor: none; }
 .tv::before { display: none; }
+
+/* Feste 1920 × 1080, per JS auf den Bildschirm gerechnet. Ohne feste Bühne
+   bräche jede Zeile je nach Overscan woanders um. */
 .buehne {
   --rand: 120px;
+  --fussraum: 178px;
+  --tv-titel: 96px;
+  --tv-posten: 38px;
+  --tv-text: 28px;
+  --tv-klein: 23px;
+  --einzug: 900ms;
   position: absolute; top: 50%; left: 50%;
   width: 1920px; height: 1080px; transform-origin: center;
-  overflow: hidden; background: var(--green-deep);
+  overflow: hidden; background: var(--paper);
 }
+
+/* ---------- Szenen ---------- */
+
 .szene {
   position: absolute; inset: 0; visibility: hidden; overflow: hidden;
-  padding: 92px var(--rand) 178px;
+  display: grid; grid-template-rows: auto minmax(0, 1fr);
 }
+/* styles.css setzt h1–h3 fest auf --ink; auf dunklem Grund wäre der Titel
+   sonst dunkelgrün auf dunkelgrün. */
 .szene h1, .szene h2, .szene h3 { color: inherit; }
 .szene--papier { background: var(--paper); color: var(--text); }
 .szene--tinte { background: var(--green-deep); color: var(--cream-on-green); }
 .szene--bild { background: var(--green-deep); color: var(--cream-on-green); }
 .szene.ist-sichtbar { visibility: visible; z-index: 2; }
 .szene.ist-abgehend { z-index: 1; }
-.szene.ist-sichtbar:not(.ist-abgehend) { animation: einblenden 700ms ease-out both; }
-.szene[data-wechsel="seitlich"].ist-sichtbar:not(.ist-abgehend) { animation: seitlich 1000ms var(--ease-out) both; }
-.szene[data-wechsel="hoch"].ist-sichtbar:not(.ist-abgehend) { animation: hoch 850ms var(--ease-out) both; }
-.szene[data-wechsel="schnitt"].ist-sichtbar:not(.ist-abgehend) { animation: einblenden 350ms ease-out both; }
-.szene[data-wechsel="blende"].ist-sichtbar:not(.ist-abgehend) { animation: einblenden 1500ms ease-in-out both; }
-.ziffern, .preis__wert, .fuss { font-family: var(--sans); font-variant-numeric: lining-nums tabular-nums; }
 
-/* Das Foto trägt die Szene; Schrift bleibt auf einer ruhigen dunklen Fläche. */
-.empfang { padding: 0; }
+/* Cormorant setzt Mediävalziffern — auf vier Meter liest sich „12,59" darin
+   wie „I 2,59". Zahlen laufen deshalb serifenlos und gleich breit. */
+.ziffern, .fuss { font-family: var(--sans); font-variant-numeric: lining-nums tabular-nums; }
+
+.szene__kopf { padding: 88px var(--rand) 0; }
+.szene__rubrik {
+  font-family: var(--sans); font-size: var(--tv-klein); font-weight: 600;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--bronze); margin-bottom: 18px;
+}
+.szene--tinte .szene__rubrik, .szene--bild .szene__rubrik { color: var(--bronze-light); }
+.szene__titel {
+  font-family: var(--serif); font-size: var(--tv-titel); font-weight: 500;
+  line-height: 1.02; letter-spacing: -.015em;
+}
+/* Unten bleibt Platz für die Fußzeile; sie liegt absolut über der Szene.
+   Der Inhalt sitzt mittig in dem, was übrig bleibt: sonst klebt eine kurze
+   Seite oben und lässt darunter ein leeres Drittel stehen. */
+.szene__inhalt {
+  padding: 52px var(--rand) var(--fussraum); min-height: 0; overflow: hidden;
+  display: flex; flex-direction: column; justify-content: center;
+}
+
+/* ---------- Empfang: Foto trägt die Seite ---------- */
+
+.empfang { display: block; }
 .raumfoto { width: 100%; height: 100%; object-fit: cover; object-position: 50% 46%; }
 .empfang::after {
   content: ''; position: absolute; inset: 0;
-  background: linear-gradient(90deg, rgba(10,31,19,.88), rgba(10,31,19,.46) 48%, rgba(10,31,19,0) 85%);
+  background: linear-gradient(90deg, rgba(10,31,19,.94), rgba(10,31,19,.6) 44%, rgba(10,31,19,0) 82%);
 }
-.empfang__text { position: absolute; left: var(--rand); top: 290px; z-index: 1; }
-.empfang__text h2 { font-size: 72px; font-weight: 500; }
-.empfang__zeit { font-size: 140px; line-height: 1.4; font-weight: 500; letter-spacing: -.045em; }
-.empfang__text > p:last-child { font-size: 34px; margin-top: 16px; }
-.ist-sichtbar .raumfoto { animation: raumfahrt var(--dauer) linear both; }
+.empfang__text { position: absolute; left: var(--rand); top: 300px; z-index: 1; }
+.empfang__titel { font-family: var(--serif); font-size: 76px; font-weight: 500; line-height: 1.05; }
+.empfang__zeit { font-size: 132px; line-height: 1.3; font-weight: 500; letter-spacing: -.045em; }
+.empfang__satz { font-family: var(--sans); font-size: 34px; margin-top: 14px; }
 
-/* Ein Mensch pro Bild. Beim zweiten Porträt wechselt die Bildseite. */
-.portrait { display: grid; grid-template-columns: 720px 1fr; padding: 0 0 158px; gap: 100px; }
-.portrait__foto { height: 922px; overflow: hidden; }
+/* ---------- Porträt: ein Mensch pro Bild, Bildseite wechselt ---------- */
+
+.portrait { display: grid; grid-template-columns: 760px 1fr; grid-template-rows: 1fr; }
+.portrait__foto { height: calc(1080px - 145px); overflow: hidden; background: var(--surface-2); }
 .portrait__foto img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; }
-.portrait__text { align-self: center; padding-right: var(--rand); }
-.portrait__text h2 { font-size: 120px; line-height: 1; max-width: 9ch; text-wrap: initial; }
-.portrait__fach { font-size: 34px; line-height: 1.55; margin-top: 42px; max-width: 29ch; color: var(--text-mid); }
-.portrait__rolle { font-size: 25px; margin-top: 36px; color: var(--text-dim); }
-.portrait--rechts { grid-template-columns: 1fr 720px; }
+.portrait__text { align-self: center; padding: 0 var(--rand) var(--fussraum) 96px; }
+.portrait__name {
+  font-family: var(--serif); font-size: 104px; font-weight: 500; line-height: 1.02;
+  max-width: 11ch; text-wrap: initial;
+}
+.portrait__fach {
+  font-family: var(--sans); font-size: 34px; line-height: 1.5; margin-top: 34px;
+  max-width: 28ch; color: var(--text-mid);
+}
+.portrait__rolle { font-family: var(--sans); font-size: 26px; margin-top: 26px; color: var(--text-dim); }
+.portrait--rechts { grid-template-columns: 1fr 760px; }
 .portrait--rechts .portrait__foto { grid-column: 2; grid-row: 1; }
-.portrait--rechts .portrait__text { grid-column: 1; grid-row: 1; padding: 0 0 0 var(--rand); }
-.ist-sichtbar .portrait__foto img { animation: portratfahrt var(--dauer) linear both; }
+.portrait--rechts .portrait__text {
+  grid-column: 1; grid-row: 1; padding: 0 96px var(--fussraum) var(--rand); text-align: right;
+}
+.portrait--rechts .portrait__name, .portrait--rechts .portrait__fach { margin-left: auto; }
 
-/* Drei bekannte Gesichter, ohne dreimal dieselbe Berufsbezeichnung. */
-.team h2 { font-size: 64px; margin-bottom: 42px; }
-.team__reihe { display: grid; grid-template-columns: repeat(3, 1fr); gap: 46px; }
-.kopf__bild { height: 570px; overflow: hidden; }
+/* ---------- Sprechzeiten ---------- */
+
+.zeiten { max-width: 1300px; }
+.zeiten__reihe {
+  display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 40px;
+  padding: 11px 0; border-bottom: 1px solid var(--line);
+}
+.zeiten__tag, .zeiten__zeit { font-family: var(--sans); font-size: 34px; font-weight: 500; }
+.zeiten__reihe--zu .zeiten__zeit { font-weight: 400; color: var(--text-dim); }
+.akut {
+  margin-top: 26px; padding: 24px 38px; border-left: 3px solid var(--bronze);
+  background: var(--bronze-soft); max-width: 1300px;
+}
+.akut__titel {
+  font-family: var(--sans); font-size: var(--tv-klein); font-weight: 600;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--bronze); margin-bottom: 10px;
+}
+.akut__text { font-family: var(--sans); font-size: 32px; }
+
+/* ---------- Team ---------- */
+
+.koepfe { display: grid; grid-template-columns: repeat(3, 1fr); gap: 52px; }
+.kopf__bild { height: 470px; overflow: hidden; background: var(--surface-2); }
+/* Kopf statt Bildmitte: sonst läge der Zuschnitt auf Brusthöhe. */
 .kopf__bild img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
-.kopf__name { font-family: var(--serif); font-size: 48px; line-height: 1.2; margin-top: 26px; }
+.kopf__name { font-family: var(--serif); font-size: 52px; font-weight: 500; line-height: 1.1; margin-top: 24px; }
+.kopf__rolle {
+  font-family: var(--sans); font-size: var(--tv-klein); font-weight: 600;
+  letter-spacing: .14em; color: var(--bronze); margin-top: 12px;
+}
 
-/* Worte dürfen selbst die Komposition bilden. Keine Rubrik und kein Erklärungstext. */
-.leistungen { display: flex; align-items: center; }
-.leistungen__namen { width: 100%; }
-.leistungen .leistung { font-family: var(--sans); font-size: 78px; line-height: 1.25; font-weight: 400; letter-spacing: -.035em; }
-.leistung + .leistung { margin-top: 74px; }
-.leistungen--0 .leistung:first-child { max-width: 1200px; }
-.leistungen--0 .leistung:nth-child(2) { margin-left: 240px; }
-.leistungen--0 .leistung:nth-child(3) { text-align: right; }
-.leistungen--1 .leistung:first-child { font-size: 58px; }
-.leistungen--1 .leistung:nth-child(2) { font-family: var(--serif); font-size: 162px; line-height: 1; text-align: center; }
-.leistungen--1 .leistung:nth-child(3) { text-align: right; }
-.leistungen--2 { text-align: center; }
-.leistungen--2 .leistung { font-family: var(--serif); font-size: 112px; }
-.leistungen--3 .leistung { max-width: 1200px; font-size: 80px; }
-.leistungen--3 .leistung + .leistung { margin-left: 420px; margin-top: 100px; }
+/* ---------- Leistungen ---------- */
 
-/* Zwei Leistungen pro Preisbild. Zusatzkosten stehen direkt beim Betrag. */
-.preisseite__titel { font-size: 58px; }
-.preise { margin-top: 88px; }
-.preisseite--paar .preise { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 100px; }
-.preisseite--paar .preis + .preis { border-left: 1px solid var(--line-strong); padding-left: 90px; }
-.preis__leistung { font-family: var(--sans); font-size: 43px; font-weight: 500; line-height: 1.3; text-wrap: initial; }
-.preis__detail { font-size: 27px; line-height: 1.5; margin-top: 16px; color: var(--text-mid); }
-.preis__betrag { margin-top: 44px; }
-.preis__wert { font-size: 108px; line-height: 1.1; font-weight: 400; white-space: nowrap; letter-spacing: -.04em; }
-.preis__zusatz { font-size: 29px; line-height: 1.45; margin-top: 20px; max-width: 24ch; }
-.preisstand { position: absolute; left: var(--rand); bottom: 184px; font-size: 24px; color: var(--text-dim); }
-.preisseite--zeilen .preise { margin-top: 52px; }
-.preisseite--zeilen .preis { display: grid; grid-template-columns: 1fr 670px; gap: 70px; align-items: center; padding: 38px 0; }
-.preisseite--zeilen .preis + .preis { border-top: 1px solid rgba(244,240,229,.25); }
-.preisseite--zeilen .preis__betrag { margin-top: 0; text-align: right; }
-.preisseite--zeilen .preis__wert { font-size: 88px; }
-.preisseite--zeilen .preis__zusatz { margin-left: auto; }
-.preisseite--zeilen .preis__detail, .szene--tinte .preisstand { color: rgba(244,240,229,.78); }
+.leistungen { display: grid; grid-template-columns: repeat(2, 1fr); gap: 58px 92px; }
+.leistung { padding-top: 26px; border-top: 1px solid rgba(244,240,229,.2); }
+.leistung__titel { font-family: var(--sans); font-size: 42px; font-weight: 600; line-height: 1.25; }
+.leistung__text {
+  font-family: var(--sans); font-size: 30px; line-height: 1.55;
+  margin-top: 14px; max-width: 42ch; color: rgba(244,240,229,.72);
+}
 
-/* Zwei Zeitblöcke ersetzen die sechsteilige Wochentabelle. */
-.sprechzeiten h2 { font-size: 94px; }
-.zeiten { display: grid; grid-template-columns: 1fr 1fr; gap: 120px; margin-top: 94px; }
-.zeiten__block > p:first-child { font-size: 36px; }
-.zeiten__zeit { font-size: 93px; line-height: 1.4; margin-top: 10px; letter-spacing: -.045em; }
-.akut { border-left: 3px solid var(--bronze); background: var(--bronze-soft); padding: 24px 36px; margin-top: 86px; }
-.akut p:first-child { font-size: 30px; font-weight: 500; }
-.akut p + p { font-size: 32px; margin-top: 10px; }
+/* ---------- Kontakt ---------- */
 
-/* Kontakt und einzelne echte Praxisnachrichten erhalten ihre eigene Fläche. */
-.kontakt { display: flex; flex-direction: column; justify-content: center; }
-.kontakt h2 { font-size: 76px; }
-.kontakt__telefon { font-size: 128px; line-height: 1.3; letter-spacing: -.045em; margin-top: 48px; }
-.kontakt__email { font-size: 46px; margin-top: 30px; }
-.nachricht { display: flex; flex-direction: column; justify-content: center; }
-.nachricht__rubrik { font-size: 28px; margin-bottom: 34px; color: var(--bronze-light); }
-.nachricht h2 { font-family: var(--sans); font-size: 62px; line-height: 1.2; max-width: 1500px; overflow-wrap: anywhere; }
-.nachricht__text { font-size: 42px; line-height: 1.55; margin-top: 40px; max-width: 1450px; white-space: pre-line; overflow-wrap: anywhere; }
-.nachricht--lang h2 { font-size: 42px; }
-.nachricht--lang .nachricht__text { font-size: 36px; }
+.kontakt__telefon { font-size: 124px; line-height: 1.15; font-weight: 500; letter-spacing: -.045em; }
+.kontakt__email { font-family: var(--sans); font-size: 44px; margin-top: 26px; }
+.kontakt__adresse { font-family: var(--sans); font-size: 34px; margin-top: 22px; color: rgba(244,240,229,.72); }
+.kontakt__notdienst {
+  font-family: var(--sans); font-size: 28px; margin-top: 46px; padding-top: 24px;
+  border-top: 1px solid rgba(244,240,229,.2); color: rgba(244,240,229,.72);
+}
+.kontakt__notdienst .ziffern { font-weight: 600; color: var(--cream-on-green); }
 
-/* Landschaft bleibt unverdeckt. Lediglich die Fußzeile hat einen eigenen Grund. */
-.ruhe { padding: 0; }
-.ruhe__video { width: 100%; height: 100%; object-fit: cover; }
+/* ---------- Praxisnachrichten ---------- */
+
+.meldungen { display: grid; gap: 32px; max-width: 1560px; }
+.meldung { padding-top: 26px; border-top: 1px solid var(--line); }
+.meldung__marke {
+  font-family: var(--sans); font-size: var(--tv-klein); font-weight: 600;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--bronze); margin-bottom: 10px;
+}
+.meldung__titel {
+  font-family: var(--sans); font-size: 40px; font-weight: 600; line-height: 1.3;
+  max-width: 40ch; overflow-wrap: anywhere;
+}
+.meldung__text {
+  font-family: var(--sans); font-size: var(--tv-text); line-height: 1.55; margin-top: 12px;
+  max-width: 76ch; color: var(--text-mid); white-space: pre-line; overflow-wrap: anywhere;
+}
+.nachrichten--lang .meldung__titel { font-size: 34px; }
+.nachrichten--lang .meldung__text { font-size: 25px; }
+
+/* ---------- Landschaft ---------- */
+
+.ruhe { display: block; background: #000; }
+.ruhe__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ruhe__schleier {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(10,31,19,.78) 0%, rgba(10,31,19,.2) 36%, rgba(10,31,19,0) 64%);
+}
+.ruhe__text { position: absolute; left: var(--rand); bottom: 216px; color: var(--cream-on-green); }
+.ruhe__marke {
+  font-family: var(--sans); font-size: var(--tv-klein); font-weight: 600; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--bronze-light); margin-bottom: 14px;
+  text-shadow: 0 2px 18px rgba(0,0,0,.55);
+}
+.ruhe__satz {
+  font-family: var(--serif); font-size: 58px; line-height: 1.25; max-width: 26ch;
+  text-shadow: 0 2px 24px rgba(0,0,0,.5);
+}
+
+/* ---------- Fußzeile ---------- */
+
 .fuss {
   position: absolute; z-index: 5; left: 0; right: 0; bottom: 0; height: 145px;
   padding: 36px var(--rand) 50px; display: flex; justify-content: space-between; align-items: baseline;
   background: var(--paper); color: var(--text-mid); font-size: 27px; white-space: nowrap;
-  transition: background-color 700ms, color 700ms;
+  transition: background-color 900ms var(--ease-soft), color 900ms var(--ease-soft);
 }
-.fuss__praxis { font-weight: 500; }
+/* Kein Logo: die Bildmarke liegt nur in festen Farben vor, die Fußzeile steht
+   aber abwechselnd auf Papier, Tinte und Videobild. */
+.fuss__praxis { font-weight: 600; letter-spacing: .04em; }
 .fuss__rechts { display: flex; align-items: baseline; gap: 46px; }
-.fuss__zeit { font-size: 36px; min-width: 170px; }
+.fuss__zeit { font-size: 36px; min-width: 178px; }
 .buehne[data-ton="tinte"] .fuss { background: var(--green-deep); color: var(--cream-on-green); }
-.buehne[data-ton="bild"] .fuss { background: rgba(10,31,19,.88); color: var(--cream-on-green); }
-.fortschritt { position: absolute; z-index: 6; left: var(--rand); right: var(--rand); bottom: 28px; height: 2px; background: rgba(184,132,58,.2); }
-.fortschritt__balken { height: 100%; width: 100%; transform: scaleX(0); transform-origin: left; background: var(--bronze); }
-.tonstart { position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; background: var(--green-deep); color: var(--cream-on-green); font-size: 34px; text-align: center; }
-.tonstart[hidden] { display: none; }
-.tonstart__inhalt { max-width: 34ch; }
-.tonstart__titel { font-family: var(--serif); font-size: 62px; }
+.buehne[data-ton="bild"] .fuss { background: rgba(10,31,19,.9); color: var(--cream-on-green); }
+
+.fortschritt {
+  position: absolute; z-index: 6; left: 0; right: 0; bottom: 0; height: 3px;
+  background: rgba(184,132,58,.18);
+}
+.fortschritt__balken {
+  height: 100%; width: 100%; transform: scaleX(0); transform-origin: left; background: var(--bronze);
+}
+
+/* ---------- Ein- und Auftritt ----------
+   Der Wechsel trägt den Text herein, statt ihn umzuschalten: Rubrik, Titel und
+   dann die Einträge, jeder eine Spur später. Langsam genug zum Mitlesen. */
+
+.szene.ist-sichtbar:not(.ist-abgehend) { animation: einblenden 1100ms var(--ease-soft) both; }
+.szene[data-wechsel="hoch"].ist-sichtbar:not(.ist-abgehend) { animation: hoch 1100ms var(--ease-soft) both; }
+.szene[data-wechsel="seitlich"].ist-sichtbar:not(.ist-abgehend) { animation: seitlich 1200ms var(--ease-soft) both; }
+.szene[data-wechsel="blende"].ist-sichtbar:not(.ist-abgehend) { animation: einblenden 1500ms ease-in-out both; }
+.szene.ist-abgehend { animation: ausblenden 1300ms ease-in-out both; }
+
+.ist-sichtbar .szene__rubrik,
+.ist-sichtbar .empfang__text > *,
+.ist-sichtbar .portrait__text > *,
+.ist-sichtbar .ruhe__text > *,
+.ist-sichtbar .zeiten__reihe,
+.ist-sichtbar .akut,
+.ist-sichtbar .kopf,
+.ist-sichtbar .leistung,
+.ist-sichtbar .meldung,
+.ist-sichtbar .szene__inhalt > p {
+  animation: aufsteigen var(--einzug) var(--ease-soft) both;
+  animation-delay: calc(320ms + var(--i, 0) * 150ms);
+}
+/* Der Titel kommt hinter einer Kante hervor statt nur einzublenden. */
+.ist-sichtbar .szene__titel,
+.ist-sichtbar .empfang__titel,
+.ist-sichtbar .portrait__name,
+.ist-sichtbar .ruhe__satz {
+  animation: enthuellen 1300ms var(--ease-soft) 420ms both;
+}
+.ist-sichtbar .ruhe__marke { animation-delay: 1000ms; }
+.ist-sichtbar .ruhe__satz { animation-delay: 1150ms; }
+.ist-sichtbar .empfang__text > .szene__rubrik { animation-delay: 500ms; }
+.ist-sichtbar .empfang__zeit { animation-delay: 900ms; }
+.ist-sichtbar .empfang__satz { animation-delay: 1050ms; }
+.ist-sichtbar .portrait__fach { animation-delay: 760ms; }
+.ist-sichtbar .portrait__rolle { animation-delay: 900ms; }
+.ist-sichtbar .kontakt__telefon { animation: enthuellen 1300ms var(--ease-soft) 480ms both; }
+
+/* Sehr langsame Bildfahrt über die Standzeit der Seite. Ein Standbild über
+   Minuten wirkt wie ein eingefrorener Bildschirm. */
+.ist-sichtbar .raumfoto { animation: raumfahrt var(--dauer) linear both; }
+.ist-sichtbar .portrait__foto img { animation: portratfahrt var(--dauer) linear both; }
+.ist-sichtbar .kopf__bild img { animation: portratfahrt var(--dauer) linear both; }
 
 @keyframes einblenden { from { opacity: 0; } to { opacity: 1; } }
-@keyframes seitlich { from { transform: translateX(7%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-@keyframes hoch { from { transform: translateY(6%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes ausblenden { from { opacity: 1; } to { opacity: 0; } }
+@keyframes hoch { from { opacity: 0; transform: translateY(2.2%); } to { opacity: 1; transform: translateY(0); } }
+@keyframes seitlich { from { opacity: 0; transform: translateX(3%); } to { opacity: 1; transform: translateX(0); } }
+@keyframes aufsteigen { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes enthuellen {
+  from { opacity: 0; transform: translateY(42px); clip-path: inset(0 0 100% 0); }
+  to { opacity: 1; transform: translateY(0); clip-path: inset(-20% -20% -20% -20%); }
+}
 @keyframes raumfahrt { from { transform: scale(1.04) translateX(-.6%); } to { transform: scale(1.09) translateX(.6%); } }
-@keyframes portratfahrt { from { transform: scale(1.015); } to { transform: scale(1.05); } }
+@keyframes portratfahrt { from { transform: scale(1.01); } to { transform: scale(1.055); } }
+
 @media (prefers-reduced-motion: reduce) {
-  .buehne .szene.ist-sichtbar, .buehne .ist-sichtbar img { animation: none !important; }
+  .buehne .szene.ist-sichtbar, .buehne .szene.ist-abgehend,
+  .buehne .ist-sichtbar *, .buehne .ist-sichtbar img { animation: none !important; }
   .buehne .fuss, .buehne .fortschritt__balken { transition: none !important; }
 }
+
+/* ---------- Hinweis beim Start ----------
+   Browser starten Ton erst nach einer Eingabe. Steht nur, wenn in tv-data.js
+   eine Musikdatei eingetragen ist. */
+.tonstart {
+  position: absolute; inset: 0; z-index: 20; display: grid; place-items: center;
+  background: var(--green-deep); color: var(--cream-on-green);
+  font-family: var(--sans); font-size: 34px; text-align: center;
+}
+.tonstart[hidden] { display: none; }
+.tonstart__inhalt { max-width: 34ch; line-height: 1.5; }
+.tonstart__titel { font-family: var(--serif); font-size: 62px; margin-bottom: 20px; }

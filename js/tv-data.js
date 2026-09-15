@@ -1,10 +1,7 @@
 // Inhalte des Warteraum-Bildschirms.
 //
-// Einzige Quelle für alles Feste auf dem TV. Wer Preise oder Texte ändern will,
-// ändert sie hier — sonst nirgends. Neuigkeiten kommen live aus /api/posts.
-//
-// Die Selbstzahlerpreise stammen aus der Praxis-Preisliste. Preisstand unten
-// pflegen, er wird auf dem Bildschirm ausgewiesen.
+// Einzige Quelle für alles Feste auf dem TV. Wer Texte ändern will, ändert sie
+// hier — sonst nirgends. Neuigkeiten kommen live aus /api/posts.
 
 export const PREISSTAND = 'September 2026';
 
@@ -20,23 +17,33 @@ export const PRAXIS = {
 
 export const TV_TEXTE = {
   empfangBild: 'images/tresenv6-2000.jpg',
+  akutRubrik: 'Ohne Termin',
   akutTitel: 'Akutsprechstunde',
   akutZeit: '8 – 9 Uhr',
-  akutHinweis: 'Montag bis Freitag ohne Voranmeldung',
-  teamTitel: 'Unser Praxisteam',
-  preisTitel: 'Selbstzahlerleistungen',
-  preisStand: 'Preisstand',
-  zeitenTitel: 'Sprechzeiten',
-  kontaktTitel: 'Termine und Rezepte',
-  beitragTitel: 'Aus der Praxis',
+  akutHinweis: 'Montag bis Freitag, ohne Voranmeldung',
+  zeitenRubrik: 'Sprechzeiten',
+  zeitenTitel: 'Wann wir für Sie da sind',
+  aerzteRubrik: 'Praxisinhaber',
+  teamRubrik: 'Praxisteam',
+  teamTitel: 'Unsere Fachkräfte',
+  leistungenRubrik: 'Leistungen · Kassenleistung',
+  kontaktRubrik: 'Termine und Rezepte',
+  kontaktTitel: 'So erreichen Sie uns',
+  kontaktNotdienst: 'Außerhalb der Sprechzeiten: ärztlicher Bereitschaftsdienst',
+  beitragRubrik: 'Aus der Praxis',
+  beitragTitel: 'Was gerade bei uns ansteht',
 };
 
 export const OEFFNUNGSZEITEN = [
-  { tag: 'Montag bis Freitag', zeit: '8 – 12 Uhr' },
-  { tag: 'Montag zusätzlich', zeit: '16 – 18 Uhr' },
+  { tag: 'Montag', zeit: '08:00 – 12:00 · 16:00 – 18:00' },
+  { tag: 'Dienstag', zeit: '08:00 – 12:00' },
+  { tag: 'Mittwoch', zeit: '08:00 – 12:00' },
+  { tag: 'Donnerstag', zeit: '08:00 – 12:00' },
+  { tag: 'Freitag', zeit: '08:00 – 12:00' },
+  { tag: 'Samstag & Sonntag', zeit: 'Geschlossen' },
 ];
 
-export const AKUTSPRECHSTUNDE = 'Montag bis Freitag 8 – 9 Uhr ohne Voranmeldung.';
+export const AKUTSPRECHSTUNDE = 'Montag bis Freitag 08:00 – 09:00 Uhr ohne Voranmeldung.';
 
 export const AERZTE = [
   {
@@ -59,31 +66,77 @@ export const FACHKRAEFTE = [
   { name: 'Schwester Claudia', rolle: 'Medizinische Fachangestellte', bild: 'images/team-5.jpg' },
 ];
 
-// Auf dem TV stehen nur Leistungsnamen, höchstens drei je Bild.
+// Kassenleistungen, inhaltlich identisch zu leistungen.html.
+//
+// In benannte Gruppen geteilt statt in gleich große Blöcke: jede Seite muss für
+// sich allein verständlich sein. Wer genau während Seite zwei hereinkommt, soll
+// an der Überschrift erkennen, worum es geht.
 export const LEISTUNGEN = [
-  { posten: [
-    { titel: 'Hausärztliche Grundversorgung' },
-    { titel: 'Vorsorge & Check-up' },
-    { titel: 'Impfungen' },
-  ] },
-  { posten: [
-    { titel: 'EKG & Langzeit-EKG' },
-    { titel: 'Ultraschall' },
-    { titel: 'Lungenfunktion' },
-  ] },
-  { posten: [
-    { titel: 'Ernährungsmedizin' },
-    { titel: 'Sportmedizin' },
-    { titel: 'Bioimpedanzanalyse' },
-  ] },
-  { posten: [
-    { titel: 'Psychosomatische Grundversorgung' },
-    { titel: 'Disease-Management-Programme' },
-  ] },
+  {
+    gruppe: 'Versorgung und Vorsorge',
+    posten: [
+      {
+        titel: 'Hausärztliche Grundversorgung',
+        text: 'Behandlung akuter Beschwerden, medizinische Beratung, Krankschreibungen, Überweisungen und langfristige Begleitung.',
+      },
+      {
+        titel: 'Vorsorge & Check-up',
+        text: 'Gesundheits-Check-up ab 35, Hautkrebsvorsorge, Krebsfrüherkennung und Jugendgesundheitsuntersuchung.',
+      },
+      {
+        titel: 'Disease-Management-Programme',
+        text: 'Strukturierte Begleitung bei chronischer Erkrankung, etwa Diabetes mellitus Typ 2 und koronare Herzkrankheit.',
+      },
+      {
+        titel: 'Impfungen',
+        text: 'Alle von der STIKO empfohlenen Impfungen: Grippe, COVID, Tetanus, Pneumokokken, Gürtelrose und weitere.',
+      },
+    ],
+  },
+  {
+    gruppe: 'Diagnostik in der Praxis',
+    posten: [
+      {
+        titel: 'EKG & Langzeit-EKG',
+        text: 'Ruhe-EKG und 24-Stunden-EKG zur Abklärung von Herzrhythmusstörungen, dazu Langzeit-Blutdruckmessung.',
+      },
+      {
+        titel: 'Ultraschall',
+        text: 'Bauchraum, Schilddrüse und Bauchaorta. Schnell, strahlungsfrei, direkt in der Praxis.',
+      },
+      {
+        titel: 'Lungenfunktion',
+        text: 'Spirometrie bei Verdacht auf Asthma oder COPD, Pulsoximetrie und ABI-Messung zur Durchblutungsprüfung.',
+      },
+      {
+        titel: 'Bioimpedanzanalyse',
+        text: 'Messung von Muskelmasse, Körperfett und Wasserhaushalt — für Gewichtsmanagement und Ernährungstherapie.',
+      },
+    ],
+  },
+  {
+    gruppe: 'Unsere Schwerpunkte',
+    posten: [
+      {
+        titel: 'Ernährungsmedizin',
+        text: 'Beratung und Therapie nach §43 SGB V. Schwerpunkt Mikronährstoffmedizin und individuelle Labordiagnostik.',
+      },
+      {
+        titel: 'Sportmedizin',
+        text: 'Sportmedizinische Untersuchung, Tauglichkeitsprüfung und Belastungstests für Freizeit- und Leistungssport.',
+      },
+      {
+        titel: 'Psychosomatische Grundversorgung',
+        text: 'Begleitung bei psychosomatischen Beschwerden, Erschöpfung und leichten Depressionen — ohne lange Wartezeit.',
+      },
+    ],
+  },
 ];
 
-// tv: Reihenfolge der acht ausgewählten Preise im Loop; Beträge bleiben unverändert.
-// Selbstzahlerleistungen. `preis` in Euro, `zusatz` erscheint kleiner darunter.
+// Selbstzahlerpreise. Stand 15.09.2026 bewusst NICHT im Loop: der Bildschirm
+// nennt die Leistungen, die Beträge stehen auf der Liste am Tresen und auf der
+// Website. Die Daten bleiben hier, damit eine spätere Preisseite nichts neu
+// erheben muss. `preis` in Euro, `zusatz` erscheint kleiner darunter.
 export const SELBSTZAHLER = [
   {
     gruppe: 'Diagnostik',
@@ -93,34 +146,25 @@ export const SELBSTZAHLER = [
       { leistung: 'Langzeit-EKG, 18 – 24 Stunden', preis: 53.95 },
       { leistung: 'Langzeit-Blutdruckmessung, 18 – 24 Stunden', preis: 26.46 },
       { leistung: 'ABI-Messung', detail: 'Ausschluss einer Durchblutungsstörung', preis: 12.59 },
-      { leistung: 'Bioimpedanzanalyse', tv: 3, detail: 'Fett- und Muskelmasse, Wasserhaushalt', preis: 37.26 },
+      { leistung: 'Bioimpedanzanalyse', detail: 'Fett- und Muskelmasse, Wasserhaushalt', preis: 37.26 },
       { leistung: 'Spirometrie', detail: 'Lungenfunktionstest', preis: 40.08 },
-      { leistung: 'Reisemedizinische Beratung', tv: 1, preis: 30.60, zusatz: 'zzgl. Impfungen, je 10,72 €' },
-      { leistung: 'Ganzkörper-Hautcheck', tv: 2, preis: 24.80 },
+      { leistung: 'Reisemedizinische Beratung', preis: 30.60, zusatz: 'zzgl. Impfungen, je 10,72 €' },
+      { leistung: 'Ganzkörper-Hautcheck', preis: 24.80 },
       { leistung: 'Beratung zu Patientenverfügung und Vorsorgevollmacht', preis: 40.22 },
-      { leistung: 'Ultraschall der Schilddrüse', preis: 26.81 },
-      { leistung: 'Ultraschall des Bauchraums', detail: 'vier Organe', preis: 58.97 },
-      { leistung: 'Ultraschall der Bauchschlagader', detail: 'Ausschluss Aortenaneurysma', preis: 37.53 },
     ],
   },
   {
-    gruppe: 'Blutuntersuchungen & Check-ups',
-    hinweis: 'Angegeben ist das Honorar der Praxis. Die Laborkosten kommen hinzu.',
+    gruppe: 'Blutchecks & Ernährungsmedizin',
+    hinweis: 'Laborkosten werden gesondert berechnet.',
     posten: [
       {
-        leistung: 'Kleiner Blutcheck', tv: 5,
-        detail: 'Cholesterine und Blutzucker, mit Urin, EKG und Beratung',
-        preis: 93.08,
-        zusatz: 'zzgl. 10,72 € Labor',
-      },
-      {
-        leistung: 'Großer Blutcheck',
-        detail: 'Cholesterine, Niere, Elektrolyte, Leber, Blutbild, TSH, HbA1c, Blutzucker, mit Urin, EKG und Beratung',
-        preis: 93.08,
+        leistung: 'Kleiner Gesundheitscheck',
+        detail: 'Blutbild, Leber, Niere, Fette, Zucker, mit Beratung',
+        preis: 53.80,
         zusatz: 'zzgl. 63,67 € Labor',
       },
       {
-        leistung: 'Kleiner Vitamin-Check', tv: 6,
+        leistung: 'Kleiner Vitamin-Check',
         detail: 'Vitamin D, B12, Folsäure, Ferritin, mit Beratung',
         preis: 53.80,
         zusatz: 'zzgl. 71,73 € Labor',
@@ -149,34 +193,59 @@ export const SELBSTZAHLER = [
     gruppe: 'Atteste & Bescheinigungen',
     posten: [
       { leistung: 'Osteopathie', preis: 2.50 },
-      { leistung: 'Schule und Sportunterricht', tv: 7, preis: 2.50 },
+      { leistung: 'Schule und Sportunterricht', preis: 2.50 },
       { leistung: 'Nachweis für Arbeitgeber, Impfnachweis, Kurzbescheinigung', preis: 5.36 },
       { leistung: 'LKW-Tauglichkeit', preis: 37.53, zusatz: 'zzgl. erforderlicher weiterer Diagnostik' },
-      { leistung: 'Bootsführerschein', tv: 8, preis: 37.53, zusatz: 'zzgl. erforderlicher weiterer Diagnostik' },
-      { leistung: 'Sporttauglichkeit', tv: 4, detail: 'Status, Anamnese, Urin, EKG', preis: 95.28 },
+      { leistung: 'Bootsführerschein', preis: 37.53, zusatz: 'zzgl. erforderlicher weiterer Diagnostik' },
+      { leistung: 'Sporttauglichkeit', detail: 'Status, Anamnese, Urin, EKG', preis: 95.28 },
     ],
   },
 ];
 
-// Drei Clips pro Runde, in der Folgerunde die anderen drei (84 bzw. 88 Sekunden).
+// Drei Clips pro Runde, in der Folgerunde die anderen drei.
 // Alle lokal: 1920×1080, H.264, ohne Tonspur, 0,75-fache Geschwindigkeit.
-// Kein Text über Landschaft. Kontext bleibt in der gemeinsamen Fußzeile.
+// Über jedem Clip steht eine einzelne ruhige Zeile — dieselbe Auskunft, die man
+// sonst an der Anmeldung erfragt.
 // Herkunft: mixkit.co, Mixkit Stock Video Free License, geprüft 15.09.2026.
 // Lizenz erlaubt kommerzielle Nutzung und öffentliche Wiedergabe:
 // "publicly perform and broadcast", "Attribution is not required".
 export const RUHEVIDEOS = [
   // mixkit.co/free-stock-video/forest-covered-by-mist-at-sunrise-from-the-heights-28339/
-  { datei: 'videos/ruhe-1-waldnebel.mp4', sekunden: 40 },
+  {
+    datei: 'videos/ruhe-1-waldnebel.mp4',
+    sekunden: 40,
+    hinweis: { titel: 'Akutsprechstunde', text: 'Montag bis Freitag 8 bis 9 Uhr, ohne Voranmeldung.' },
+  },
   // mixkit.co/free-stock-video/turquoise-blue-water-bay-from-above-5008/
-  { datei: 'videos/ruhe-2-bucht.mp4', sekunden: 20 },
+  {
+    datei: 'videos/ruhe-2-bucht.mp4',
+    sekunden: 20,
+    hinweis: { titel: 'Termin vereinbaren', text: '0391 7348410' },
+  },
   // mixkit.co/free-stock-video/river-passing-through-a-forest-full-of-trees-51447/
-  { datei: 'videos/ruhe-6-waldfluss.mp4', sekunden: 24 },
+  {
+    datei: 'videos/ruhe-6-waldfluss.mp4',
+    sekunden: 24,
+    hinweis: { titel: 'Unsere Schwerpunkte', text: 'Ernährungsmedizin und Sportmedizin, zusätzlich zur hausärztlichen Versorgung.' },
+  },
   // mixkit.co/free-stock-video/huge-trees-in-a-large-green-forest-5040/
-  { datei: 'videos/ruhe-3-baeume.mp4', sekunden: 34 },
+  {
+    datei: 'videos/ruhe-3-baeume.mp4',
+    sekunden: 34,
+    hinweis: { titel: 'Rezepte und Terminanfragen', text: 'praxis-staerke@t-online.de' },
+  },
   // mixkit.co/free-stock-video/aerial-view-of-waves-hitting-a-small-cliff-51455/
-  { datei: 'videos/ruhe-4-kueste.mp4', sekunden: 34 },
+  {
+    datei: 'videos/ruhe-4-kueste.mp4',
+    sekunden: 34,
+    hinweis: { titel: 'Außerhalb der Sprechzeiten', text: 'Ärztlicher Bereitschaftsdienst unter 116 117.' },
+  },
   // mixkit.co/free-stock-video/slow-aerial-tour-through-a-mist-covered-forest-28342/
-  { datei: 'videos/ruhe-5-nebelwald.mp4', sekunden: 20 },
+  {
+    datei: 'videos/ruhe-5-nebelwald.mp4',
+    sekunden: 20,
+    hinweis: { titel: 'Sie finden uns', text: 'Gr. Diesdorfer Str. 186, 39110 Magdeburg.' },
+  },
 ];
 
 // Hintergrundmusik. Solange hier `null` steht, läuft der Bildschirm stumm —

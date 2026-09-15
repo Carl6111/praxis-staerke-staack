@@ -1,16 +1,24 @@
 // Ablauf des Warteraum-Bildschirms. Feste Inhalte kommen aus tv-data.js.
+//
+// Der Bildschirm läuft ohne Bedienung: Seiten wechseln nach fester Zeit, neue
+// Beiträge aus dem Praxis-Admin erscheinen von allein. Preise stehen bewusst
+// nicht im Loop — der Bildschirm nennt die Leistungen, die Beträge die Liste
+// am Tresen.
 import {
-  PRAXIS, TV_TEXTE, PREISSTAND, OEFFNUNGSZEITEN, AKUTSPRECHSTUNDE,
-  AERZTE, FACHKRAEFTE, LEISTUNGEN, SELBSTZAHLER, RUHEVIDEOS, MUSIK,
+  PRAXIS, TV_TEXTE, OEFFNUNGSZEITEN, AKUTSPRECHSTUNDE,
+  AERZTE, FACHKRAEFTE, LEISTUNGEN, RUHEVIDEOS, MUSIK,
 } from './tv-data.js';
 
 const POSTS_INTERVALL_MS = 10 * 60 * 1000;
 const NEUBAU_NACH_MS = 6 * 60 * 60 * 1000;
+const WECHSEL_MS = 1600;
+
 const buehne = document.getElementById('buehne');
 const szenenRaum = document.getElementById('szenen');
 const balken = document.getElementById('fortschritt-balken');
 const uhrFeld = document.getElementById('fuss-zeit');
 const datumFeld = document.getElementById('fuss-datum');
+
 const zustand = {
   beitraege: [], szenen: [], index: 0, ruheVersatz: 0, beitragVersatz: 0,
   timer: null, gestartet: Date.now(),
@@ -30,6 +38,8 @@ function starten() {
   setInterval(beitraegeLaden, POSTS_INTERVALL_MS);
 }
 
+// Feste Bühne von 1920 × 1080, auf den Bildschirm gerechnet. Ein Fernseher
+// schneidet je nach Overscan Ränder ab; so bleibt das Layout überall gleich.
 function buehneSkalieren() {
   const faktor = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
   buehne.style.transform = `translate(-50%, -50%) scale(${faktor})`;
@@ -61,6 +71,10 @@ async function beitraegeLaden() {
   }
 }
 
+/* ---------- Ton ----------
+   Die Tonfrage ist mit der Praxis nicht entschieden. Solange in tv-data.js keine
+   Musikdatei steht, läuft der Bildschirm stumm und es erscheint kein Hinweis. */
+
 function tonVorbereiten() {
   const schild = document.getElementById('tonstart');
   if (!MUSIK) { schild.hidden = true; return; }
@@ -79,57 +93,52 @@ function tonVorbereiten() {
   document.addEventListener('click', freigeben);
 }
 
-/* ---------- Folge: Preise und Landschaft über die Runde verteilen ---------- */
+/* ---------- Folge: Information und Landschaft über die Runde verteilen ---------- */
 
 function szenenNeuBauen() {
-  const preise = SELBSTZAHLER.flatMap((g) => g.posten).filter((p) => p.tv).sort((a, b) => a.tv - b.tv);
-  const paare = preisSeiten(preise);
   const szene = (dauer, ton, wechsel, bau) => ({ dauer: dauer * 1000, ton, wechsel, bau });
-  const preis = (i, dauer) => szene(dauer, i % 2 ? 'tinte' : 'papier', 'schnitt',
-    () => szenePreise(paare[i], i));
 
-  // Ein fester Zeitrahmen für Kontakt und Beiträge hält den Loop kurz.
-  // Fortsetzungen und weitere Beiträge kommen in folgenden Runden vollständig dran.
-  const meldungen = zustand.beitraege.flatMap((b) =>
-    textSeiten(b.content).map((text) => ({ ...b, content: text })));
-  const meldung = meldungen.length
-    ? meldungen[zustand.beitragVersatz++ % meldungen.length] : null;
+  // Eine Meldungsseite pro Runde. Weitere Beiträge und Fortsetzungen kommen in
+  // den folgenden Runden dran, statt eine Seite zu überfüllen.
+  const seiten = beitragsSeiten();
+  const meldungen = seiten.length
+    ? seiten[zustand.beitragVersatz++ % seiten.length] : null;
 
+  // Reihenfolge nach dem, was Wartende zuerst brauchen: erst die Akutsprechstunde,
+  // dann die Sprechzeiten, dann Menschen und Leistungen im Wechsel.
   const bloecke = [
     [
-      szene(10, 'bild', 'blende', szeneAkut),
-      szene(10, 'papier', 'seitlich', () => szeneArzt(AERZTE[0], false)),
-      preis(0, 11),
+      szene(13, 'bild', 'blende', szeneEmpfang),
+      szene(16, 'papier', 'hoch', szeneZeiten),
+      szene(17, 'tinte', 'hoch', () => szeneLeistungen(LEISTUNGEN[0])),
     ],
     [
-      szene(9, 'tinte', 'hoch', () => szeneLeistungen(LEISTUNGEN[0], 0)),
-      szene(10, 'papier', 'seitlich', () => szeneArzt(AERZTE[1], true)),
-      preis(1, 11),
-      szene(9, 'papier', 'hoch', () => szeneLeistungen(LEISTUNGEN[1], 1)),
+      szene(14, 'papier', 'seitlich', () => szeneArzt(AERZTE[0], false)),
+      szene(14, 'papier', 'seitlich', () => szeneArzt(AERZTE[1], true)),
+      szene(17, 'tinte', 'hoch', () => szeneLeistungen(LEISTUNGEN[1])),
     ],
     [
-      szene(11, 'papier', 'seitlich', szeneTeam),
-      szene(9, 'tinte', 'hoch', () => szeneLeistungen(LEISTUNGEN[2], 2)),
-      preis(2, 13),
-      szene(11, 'papier', 'hoch', szeneZeiten),
-    ],
-    [
-      szene(9, 'papier', 'hoch', () => szeneLeistungen(LEISTUNGEN[3], 3)),
-      preis(3, 11),
-      szene(meldung ? 8 : 18, 'tinte', 'blende', szeneKontakt),
-      ...(meldung ? [szene(10, 'tinte', 'hoch', () => szeneBeitrag(meldung))] : []),
+      szene(15, 'papier', 'hoch', szeneTeam),
+      szene(15, 'tinte', 'hoch', () => szeneLeistungen(LEISTUNGEN[2])),
+      szene(14, 'tinte', 'blende', szeneKontakt),
+      ...(meldungen ? [szene(14, 'papier', 'hoch', () => szeneBeitraege(meldungen))] : []),
     ],
   ];
 
+  // Nach jedem Block eine Landschaftspause. Der Startversatz wandert pro Runde
+  // weiter, sonst liefen immer dieselben drei Clips und die hinteren nie.
   const folge = [];
   bloecke.forEach((block, i) => {
     folge.push(...block);
-    if (i < 3 && RUHEVIDEOS.length) {
+    if (RUHEVIDEOS.length) {
       const platz = (zustand.ruheVersatz + i) % RUHEVIDEOS.length;
+      // Die Szene ist so lang wie der Clip: eine ruhige Kamerafahrt lässt sich
+      // nicht unsichtbar schleifen.
       folge.push(szene(RUHEVIDEOS[platz].sekunden, 'bild', 'blende', () => szeneRuhe(platz)));
     }
   });
-  zustand.ruheVersatz = (zustand.ruheVersatz + 3) % RUHEVIDEOS.length;
+  zustand.ruheVersatz = (zustand.ruheVersatz + bloecke.length) % RUHEVIDEOS.length;
+
   zustand.szenen = folge.map((s) => ({
     ...s,
     html: s.bau().replace('<section ', `<section data-wechsel="${s.wechsel}" style="--dauer:${s.dauer}ms" `),
@@ -145,7 +154,7 @@ function szeneZeigen(index) {
     szenenNeuBauen();
     index = 0;
     // Die letzte Szene überbrückt den DOM-Neubau ohne leeren Zwischenframe.
-    if (vorher) { szenenRaum.append(vorher); setTimeout(() => vorher.remove(), 1600); }
+    if (vorher) { szenenRaum.append(vorher); setTimeout(() => vorher.remove(), WECHSEL_MS); }
   }
   const szenen = [...szenenRaum.children].slice(0, zustand.szenen.length);
   if (!szenen.length) return;
@@ -156,7 +165,7 @@ function szeneZeigen(index) {
     setTimeout(() => {
       vorher.classList.remove('ist-sichtbar', 'ist-abgehend');
       vorher.querySelector('video')?.pause();
-    }, 1600);
+    }, WECHSEL_MS);
   }
   aktiv.classList.add('ist-sichtbar');
   const szene = zustand.szenen[index];
@@ -165,6 +174,8 @@ function szeneZeigen(index) {
   naechstesVideoVorladen(szenen, index);
   fortschrittStarten(szene.dauer);
   zustand.timer = setTimeout(() => {
+    // Nach einem halben Tag Dauerbetrieb einmal neu laden: das räumt Speicherreste
+    // auf und zieht nebenbei eine neu veröffentlichte Version der Seite.
     if (Date.now() - zustand.gestartet > NEUBAU_NACH_MS && index === szenen.length - 1) {
       window.location.reload();
       return;
@@ -196,20 +207,53 @@ function videoSteuern(element) {
 function fortschrittStarten(dauer) {
   balken.style.transition = 'none';
   balken.style.transform = 'scaleX(0)';
+  // Erzwingt ein Neuzeichnen, sonst fasst der Browser Zurücksetzen und Animation
+  // zusammen und der Balken springt ohne Bewegung auf 100 %.
   void balken.offsetWidth;
   balken.style.transition = `transform ${dauer}ms linear`;
   balken.style.transform = 'scaleX(1)';
 }
 
-/* ---------- Unterschiedliche Bildkompositionen ---------- */
+/* ---------- Szenen ----------
+   Jede Seite trägt Rubrik und Titel wie die Praxiswebsite. Die Kompositionen
+   darunter unterscheiden sich: Foto, Porträt, Raster, Liste. */
 
-function szeneAkut() {
+function kopf(rubrik, titel) {
+  return `<header class="szene__kopf">
+      <p class="szene__rubrik">${esc(rubrik)}</p>
+      <h2 class="szene__titel">${esc(titel)}</h2>
+    </header>`;
+}
+
+function szeneEmpfang() {
   return `<section class="szene szene--bild empfang">
     <img class="raumfoto" src="${esc(TV_TEXTE.empfangBild)}" alt="">
     <div class="empfang__text">
-      <h2>${esc(TV_TEXTE.akutTitel)}</h2>
+      <p class="szene__rubrik">${esc(TV_TEXTE.akutRubrik)}</p>
+      <h2 class="empfang__titel">${esc(TV_TEXTE.akutTitel)}</h2>
       <p class="empfang__zeit ziffern">${esc(TV_TEXTE.akutZeit)}</p>
-      <p>${esc(TV_TEXTE.akutHinweis)}</p>
+      <p class="empfang__satz">${esc(TV_TEXTE.akutHinweis)}</p>
+    </div>
+  </section>`;
+}
+
+function szeneZeiten() {
+  const reihen = OEFFNUNGSZEITEN.map((z, i) => {
+    const zu = z.zeit === 'Geschlossen';
+    return `<div class="zeiten__reihe${zu ? ' zeiten__reihe--zu' : ''}" style="--i:${i}">
+        <span class="zeiten__tag">${esc(z.tag)}</span>
+        <span class="zeiten__zeit ziffern">${esc(z.zeit)}</span>
+      </div>`;
+  }).join('');
+
+  return `<section class="szene szene--papier sprechzeiten">
+    ${kopf(TV_TEXTE.zeitenRubrik, TV_TEXTE.zeitenTitel)}
+    <div class="szene__inhalt">
+      <div class="zeiten">${reihen}</div>
+      <div class="akut" style="--i:${OEFFNUNGSZEITEN.length}">
+        <p class="akut__titel">${esc(TV_TEXTE.akutTitel)}</p>
+        <p class="akut__text ziffern">${esc(AKUTSPRECHSTUNDE)}</p>
+      </div>
     </div>
   </section>`;
 }
@@ -218,7 +262,8 @@ function szeneArzt(p, gespiegelt) {
   return `<section class="szene szene--papier portrait${gespiegelt ? ' portrait--rechts' : ''}">
     <div class="portrait__foto"><img src="${esc(p.bild)}" alt="${esc(p.name)}"></div>
     <div class="portrait__text">
-      <h2>${esc(p.name)}</h2>
+      <p class="szene__rubrik">${esc(TV_TEXTE.aerzteRubrik)}</p>
+      <h2 class="portrait__name">${esc(p.name)}</h2>
       <p class="portrait__fach">${esc(p.fach)}</p>
       <p class="portrait__rolle ziffern">${esc(p.rolle)}</p>
     </div>
@@ -227,59 +272,58 @@ function szeneArzt(p, gespiegelt) {
 
 function szeneTeam() {
   return `<section class="szene szene--papier team">
-    <h2>${esc(TV_TEXTE.teamTitel)}</h2>
-    <div class="team__reihe">${FACHKRAEFTE.map((p) => `
-      <figure class="kopf">
-        <div class="kopf__bild"><img src="${esc(p.bild)}" alt="${esc(p.name)}"></div>
-        <figcaption class="kopf__name">${esc(p.name)}</figcaption>
-      </figure>`).join('')}</div>
+    ${kopf(TV_TEXTE.teamRubrik, TV_TEXTE.teamTitel)}
+    <div class="szene__inhalt">
+      <div class="koepfe">${FACHKRAEFTE.map((p, i) => `
+        <figure class="kopf" style="--i:${i}">
+          <div class="kopf__bild"><img src="${esc(p.bild)}" alt="${esc(p.name)}"></div>
+          <figcaption>
+            <h3 class="kopf__name">${esc(p.name)}</h3>
+            <p class="kopf__rolle">${esc(p.rolle)}</p>
+          </figcaption>
+        </figure>`).join('')}</div>
+    </div>
   </section>`;
 }
 
-function szeneLeistungen(gruppe, i) {
-  return `<section class="szene szene--${i % 2 ? 'papier' : 'tinte'} leistungen leistungen--${i}">
-    <div class="leistungen__namen">${gruppe.posten.map((p) => `
-      <h2 class="leistung">${esc(p.titel)}</h2>`).join('')}</div>
-  </section>`;
-}
-
-function szenePreise(posten, i) {
-  return `<section class="szene szene--${i % 2 ? 'tinte' : 'papier'} preisseite ${i % 2 ? 'preisseite--zeilen' : 'preisseite--paar'}">
-    <h2 class="preisseite__titel">${esc(TV_TEXTE.preisTitel)}</h2>
-    <div class="preise">${posten.map((p) => `
-      <article class="preis">
-        <div><h3 class="preis__leistung">${esc(p.leistung)}</h3>
-          ${p.detail && p.detail.length <= 80 ? `<p class="preis__detail">${esc(p.detail)}</p>` : ''}</div>
-        <div class="preis__betrag"><p class="preis__wert ziffern">${euro(p.preis)}</p>
-          ${p.zusatz ? `<p class="preis__zusatz ziffern">${esc(p.zusatz)}</p>` : ''}</div>
-      </article>`).join('')}</div>
-    <p class="preisstand">${esc(TV_TEXTE.preisStand)} ${esc(PREISSTAND)}</p>
-  </section>`;
-}
-
-function szeneZeiten() {
-  return `<section class="szene szene--papier sprechzeiten">
-    <h2>${esc(TV_TEXTE.zeitenTitel)}</h2>
-    <div class="zeiten">${OEFFNUNGSZEITEN.map((z) => `
-      <div class="zeiten__block"><p>${esc(z.tag)}</p><p class="zeiten__zeit ziffern">${esc(z.zeit)}</p></div>`).join('')}</div>
-    <div class="akut"><p>${esc(TV_TEXTE.akutTitel)}</p><p class="ziffern">${esc(AKUTSPRECHSTUNDE)}</p></div>
+function szeneLeistungen(gruppe) {
+  return `<section class="szene szene--tinte leistungsseite">
+    ${kopf(TV_TEXTE.leistungenRubrik, gruppe.gruppe)}
+    <div class="szene__inhalt">
+      <div class="leistungen">${gruppe.posten.map((l, i) => `
+        <article class="leistung" style="--i:${i}">
+          <h3 class="leistung__titel">${esc(l.titel)}</h3>
+          <p class="leistung__text">${esc(l.text)}</p>
+        </article>`).join('')}</div>
+    </div>
   </section>`;
 }
 
 function szeneKontakt() {
   return `<section class="szene szene--tinte kontakt">
-    <h2>${esc(TV_TEXTE.kontaktTitel)}</h2>
-    <p class="kontakt__telefon ziffern">${esc(PRAXIS.telefon)}</p>
-    <p class="kontakt__email">${esc(PRAXIS.email)}</p>
+    ${kopf(TV_TEXTE.kontaktRubrik, TV_TEXTE.kontaktTitel)}
+    <div class="szene__inhalt">
+      <p class="kontakt__telefon ziffern" style="--i:0">${esc(PRAXIS.telefon)}</p>
+      <p class="kontakt__email" style="--i:1">${esc(PRAXIS.email)}</p>
+      <p class="kontakt__adresse" style="--i:2">${esc(PRAXIS.strasse)} · ${esc(PRAXIS.ort)}</p>
+      <p class="kontakt__notdienst" style="--i:3">${esc(TV_TEXTE.kontaktNotdienst)}
+        <span class="ziffern">${esc(PRAXIS.notdienst)}</span></p>
+    </div>
   </section>`;
 }
 
-function szeneBeitrag(b) {
-  const lang = b.title.length > 80 || /\S{40}/.test(b.content);
-  return `<section class="szene szene--tinte nachricht${lang ? ' nachricht--lang' : ''}">
-    <p class="nachricht__rubrik">${esc(TV_TEXTE.beitragTitel)}</p>
-    <h2>${esc(b.title)}</h2>
-    <p class="nachricht__text">${esc(b.content)}</p>
+function szeneBeitraege(meldungen) {
+  const lang = meldungen.some((b) => /\S{40}/.test(b.content) || b.titel.length > 80);
+  return `<section class="szene szene--papier nachrichten${lang ? ' nachrichten--lang' : ''}">
+    ${kopf(TV_TEXTE.beitragRubrik, TV_TEXTE.beitragTitel)}
+    <div class="szene__inhalt">
+      <div class="meldungen">${meldungen.map((b, i) => `
+        <article class="meldung" style="--i:${i}">
+          <p class="meldung__marke">${esc(beitragsart(b.type))}</p>
+          <h3 class="meldung__titel">${esc(b.titel)}</h3>
+          <p class="meldung__text">${esc(b.content)}</p>
+        </article>`).join('')}</div>
+    </div>
   </section>`;
 }
 
@@ -287,20 +331,50 @@ function szeneRuhe(index) {
   const video = RUHEVIDEOS[index % RUHEVIDEOS.length];
   return `<section class="szene szene--bild ruhe">
     <video class="ruhe__video" src="${esc(video.datei)}" muted playsinline preload="none"></video>
+    <div class="ruhe__schleier"></div>
+    <div class="ruhe__text">
+      <p class="ruhe__marke">${esc(video.hinweis.titel)}</p>
+      <p class="ruhe__satz">${esc(video.hinweis.text)}</p>
+    </div>
   </section>`;
 }
 
-function euro(betrag) { return `${betrag.toFixed(2).replace('.', ',')} €`; }
+/* ---------- Helfer ---------- */
 
-// Höchstens zwei Preise: zusammen mit dem Preisstand drei Informationsgruppen.
-// Zeilen mit Zusatzkosten behalten ihren Platz; nichts wird abgeschnitten.
-function preisSeiten(posten) {
+function beitragsart(type) {
+  if (type === 'urlaub') return 'Urlaub';
+  if (type === 'info') return 'Hinweis';
+  return 'Neuigkeit';
+}
+
+// Beiträge auf Seiten verteilen: kurze Meldungen stehen zu mehreren zusammen,
+// ein langer Beitrag bekommt so viele Seiten, wie sein Text braucht. Nichts wird
+// abgeschnitten — die Praxis schreibt hier Urlaubszeiten und Vertretungen hinein.
+const SEITEN_BUDGET = 430;
+
+function beitragsSeiten() {
   const seiten = [];
-  for (let i = 0; i < posten.length; i += 2) seiten.push(posten.slice(i, i + 2));
+  let aktuell = [];
+  let summe = 0;
+  for (const beitrag of zustand.beitraege) {
+    textSeiten(beitrag.content, SEITEN_BUDGET).forEach((text, teil) => {
+      const laenge = text.length + String(beitrag.title || '').length;
+      if (aktuell.length && summe + laenge > SEITEN_BUDGET) {
+        seiten.push(aktuell); aktuell = []; summe = 0;
+      }
+      aktuell.push({
+        ...beitrag,
+        content: text,
+        titel: teil === 0 ? beitrag.title : `${beitrag.title} — Fortsetzung`,
+      });
+      summe += laenge;
+    });
+  }
+  if (aktuell.length) seiten.push(aktuell);
   return seiten;
 }
 
-function textSeiten(text, budget = 220) {
+function textSeiten(text, budget = SEITEN_BUDGET) {
   const seiten = [];
   let zeile = '';
   for (const wort of String(text || '').split(/\s+/)) {
@@ -316,6 +390,8 @@ function textSeiten(text, budget = 220) {
   return seiten;
 }
 
+// Beitragstitel kommen aus dem Admin. Der Server entfernt bereits Markup, hier
+// wird zusätzlich escaped: zwei unabhängige Schritte ins DOM.
 function esc(wert) {
   return String(wert ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
