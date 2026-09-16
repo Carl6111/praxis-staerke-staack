@@ -38,10 +38,7 @@ export const TV_TEXTE = {
 
 export const OEFFNUNGSZEITEN = [
   { tag: 'Montag', zeit: '08:00 – 12:00 · 16:00 – 18:00' },
-  { tag: 'Dienstag', zeit: '08:00 – 12:00' },
-  { tag: 'Mittwoch', zeit: '08:00 – 12:00' },
-  { tag: 'Donnerstag', zeit: '08:00 – 12:00' },
-  { tag: 'Freitag', zeit: '08:00 – 12:00' },
+  { tag: 'Dienstag – Freitag', zeit: '08:00 – 12:00' },
   { tag: 'Samstag & Sonntag', zeit: 'Geschlossen' },
 ];
 
@@ -206,47 +203,71 @@ export const SELBSTZAHLER = [
 
 // Drei Clips pro Runde, in der Folgerunde die anderen drei.
 // Alle lokal: 1920×1080, H.264, ohne Tonspur, 0,75-fache Geschwindigkeit.
-// Landschaft bleibt ohne Routinehinweise. Nur ausdrücklich wichtige Hinweise
-// mit hinweis.wichtig = true werden eingeblendet; reguläre Infos stehen auf Praxisseiten.
-// Herkunft: mixkit.co, Mixkit Stock Video Free License, geprüft 15.09.2026.
-// Lizenz erlaubt kommerzielle Nutzung und öffentliche Wiedergabe:
+//
+// Über jedem Clip steht ein Leitsatz der Praxis. Die Sätze sind nicht neu
+// erfunden, sondern stehen wörtlich so auf der Praxiswebsite — unter „Unsere
+// Werte" (team.html) und im Willkommenstext (index.html). Wer sie ändert,
+// ändert sie dort mit, sonst sagt der Bildschirm etwas anderes als die Website.
+// Öffnungszeiten, Telefon und Adresse stehen bewusst nicht mehr hier: dafür
+// gibt es eigene Seiten im Loop.
+//
+// Herkunft der Clips: mixkit.co, Mixkit Stock Video Free License, geprüft
+// 15.09.2026. Lizenz erlaubt kommerzielle Nutzung und öffentliche Wiedergabe:
 // "publicly perform and broadcast", "Attribution is not required".
 export const RUHEVIDEOS = [
   // mixkit.co/free-stock-video/forest-covered-by-mist-at-sunrise-from-the-heights-28339/
   {
     datei: 'videos/ruhe-1-waldnebel.mp4',
     sekunden: 40,
-    hinweis: { titel: 'Akutsprechstunde', text: 'Montag bis Freitag 8 bis 9 Uhr, ohne Voranmeldung.' },
+    leitsatz: {
+      titel: 'Vertrauen',
+      text: 'Wir nehmen uns Zeit für Ihre Anliegen und sind offen und ehrlich mit Ihnen.',
+    },
   },
   // mixkit.co/free-stock-video/turquoise-blue-water-bay-from-above-5008/
   {
     datei: 'videos/ruhe-2-bucht.mp4',
     sekunden: 20,
-    hinweis: { titel: 'Termin vereinbaren', text: '0391 7348410' },
+    leitsatz: {
+      titel: 'Menschlichkeit',
+      text: 'Wir behandeln Menschen, nicht Akten.',
+    },
   },
   // mixkit.co/free-stock-video/river-passing-through-a-forest-full-of-trees-51447/
   {
     datei: 'videos/ruhe-6-waldfluss.mp4',
     sekunden: 24,
-    hinweis: { titel: 'Unsere Schwerpunkte', text: 'Ernährungsmedizin und Sportmedizin, zusätzlich zur hausärztlichen Versorgung.' },
+    leitsatz: {
+      titel: 'Kompetenz',
+      text: 'Wir bilden uns regelmäßig fort und arbeiten mit aktueller Diagnostik.',
+    },
   },
   // mixkit.co/free-stock-video/huge-trees-in-a-large-green-forest-5040/
   {
     datei: 'videos/ruhe-3-baeume.mp4',
     sekunden: 34,
-    hinweis: { titel: 'Rezepte und Terminanfragen', text: 'praxis-staerke@t-online.de' },
+    leitsatz: {
+      titel: 'Begleitung',
+      text: 'Ihre beiden Hausärzte, die Sie über die Jahre begleiten.',
+    },
   },
   // mixkit.co/free-stock-video/aerial-view-of-waves-hitting-a-small-cliff-51455/
   {
     datei: 'videos/ruhe-4-kueste.mp4',
     sekunden: 34,
-    hinweis: { titel: 'Außerhalb der Sprechzeiten', text: 'Ärztlicher Bereitschaftsdienst unter 116 117.' },
+    leitsatz: {
+      titel: 'Unser Anspruch',
+      text: 'Medizin mit Herz und Verstand.',
+    },
   },
   // mixkit.co/free-stock-video/slow-aerial-tour-through-a-mist-covered-forest-28342/
   {
     datei: 'videos/ruhe-5-nebelwald.mp4',
     sekunden: 20,
-    hinweis: { titel: 'Sie finden uns', text: 'Gr. Diesdorfer Str. 186, 39110 Magdeburg.' },
+    leitsatz: {
+      titel: 'Zuhören',
+      text: 'Wir nehmen uns Zeit zum Zuhören.',
+    },
   },
 ];
 

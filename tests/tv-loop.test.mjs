@@ -79,6 +79,18 @@ function harness() {
 const isLandscape = (scene) => /<video\b/.test(scene.html);
 const clips = (scenes) => scenes.filter(isLandscape).map((scene) => scene.html.match(/src="([^"]+)"/)[1]);
 
+test('opening hours use three individually animated rows with unchanged times', () => {
+  const app = harness();
+  const html = app.run('szeneZeiten()');
+  const rows = [...html.matchAll(/<div data-leseblock class="zeiten__reihe[^\"]*">([\s\S]*?)<\/div>/g)]
+    .map(([, row]) => row.replace(/<[^>]*>/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim());
+  assert.deepEqual(rows, [
+    'Montag 08:00 – 12:00 · 16:00 – 18:00',
+    'Dienstag – Freitag 08:00 – 12:00',
+    'Samstag & Sonntag Geschlossen',
+  ]);
+});
+
 test('both rounds give every block its reading time and preserve clip durations', () => {
   const app = harness();
   const videos = JSON.parse(app.run('JSON.stringify(RUHEVIDEOS)'));
@@ -127,15 +139,20 @@ test('every service is shown with its name and an explanation', () => {
   }
 });
 
-test('landscape clips play once without routine overlays or eager preload', () => {
+test('landscape clips play once under one practice motto, without eager preload', () => {
   const app = harness();
   app.run('szenenNeuBauen()');
+  const videos = JSON.parse(app.run('JSON.stringify(RUHEVIDEOS)'));
   const scenes = app.scenes().filter(isLandscape);
   assert.ok(scenes.length > 0);
   for (const scene of scenes) {
     assert.doesNotMatch(scene.html, /\bloop(?:\s|=|>)/);
-    assert.doesNotMatch(scene.html, /ruhe__text|ruhe__schleier|data-leseblock/);
     assert.match(scene.html, /preload="none"/);
+    const clip = videos.find((video) => scene.html.includes(video.datei));
+    assert.equal([...scene.html.matchAll(/class="ruhe__satz"/g)].length, 1, 'One motto, not a list');
+    assert.ok(scene.html.includes(clip.leitsatz.titel) && scene.html.includes(clip.leitsatz.text));
+    const sichtbar = scene.html.replace(/<[^>]*>/g, ' ');
+    assert.doesNotMatch(sichtbar, /\d{3,}|Uhr|@/, 'Opening hours and contact have their own pages');
   }
 });
 
@@ -198,12 +215,13 @@ test('a 5000-character token is paginated without overflowing or losing content'
   assert.equal(pages.join(''), 'a'.repeat(5000));
 });
 
-test('only an explicitly important landscape hint is shown', () => {
+test('every clip carries a motto, and a clip without one stays bare', () => {
   const app = harness();
-  app.run("RUHEVIDEOS[0].hinweis = { wichtig: true, titel: 'Wichtiger Hinweis', text: 'Bitte beachten.' }");
-  const html = app.run('szeneRuhe(0)');
-  assert.match(html, /Wichtiger Hinweis/);
-  assert.match(html, /ruhe__text/);
-  app.run('RUHEVIDEOS[0].hinweis.wichtig = false');
+  const videos = JSON.parse(app.run('JSON.stringify(RUHEVIDEOS)'));
+  videos.forEach((video, index) => {
+    assert.ok(video.leitsatz?.titel && video.leitsatz?.text, `Clip ${index + 1} needs a motto`);
+    assert.match(app.run(`szeneRuhe(${index})`), /ruhe__text/);
+  });
+  app.run('delete RUHEVIDEOS[0].leitsatz');
   assert.doesNotMatch(app.run('szeneRuhe(0)'), /ruhe__text|ruhe__schleier/);
 });

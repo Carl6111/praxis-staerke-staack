@@ -342,12 +342,13 @@ function szeneBeitraege(meldungen) {
 
 function szeneRuhe(index) {
   const video = RUHEVIDEOS[index % RUHEVIDEOS.length];
+  const leitsatz = video.leitsatz;
   return `<section class="szene szene--bild ruhe">
     <video class="ruhe__video" src="${esc(video.datei)}" muted playsinline preload="none"></video>
-    ${video.hinweis?.wichtig === true ? `<div class="ruhe__schleier"></div>
+    ${leitsatz ? `<div class="ruhe__schleier"></div>
     <div class="ruhe__text">
-      <p data-leseblock class="ruhe__marke">${esc(video.hinweis.titel)}</p>
-      <p data-leseblock data-lese-titel class="ruhe__satz">${esc(video.hinweis.text)}</p>
+      <p data-leseblock class="ruhe__marke">${esc(leitsatz.titel)}</p>
+      <p data-leseblock data-lese-titel class="ruhe__satz">${esc(leitsatz.text)}</p>
     </div>` : ''}
   </section>`;
 }
