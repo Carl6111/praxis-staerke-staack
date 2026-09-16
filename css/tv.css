@@ -168,16 +168,22 @@
   position: absolute; inset: 0;
   background: linear-gradient(to top, rgba(10,31,19,.78) 0%, rgba(10,31,19,.2) 36%, rgba(10,31,19,0) 64%);
 }
-.ruhe__text { position: absolute; left: var(--rand); bottom: 216px; color: var(--cream-on-green); }
-.ruhe__marke {
-  font-family: var(--sans); font-size: var(--tv-klein); font-weight: 600; letter-spacing: .2em;
-  text-transform: uppercase; color: var(--bronze-light); margin-bottom: 14px;
-  text-shadow: 0 2px 18px rgba(0,0,0,.55);
+/* Der Schleier folgt dem Satz: sonst steht er auf hellem Laub ohne Grund. */
+.ruhe--oben .ruhe__schleier {
+  background: linear-gradient(to bottom, rgba(10,31,19,.78) 0%, rgba(10,31,19,.2) 38%, rgba(10,31,19,0) 66%);
 }
+.ruhe--rechts .ruhe__schleier {
+  background: linear-gradient(to top left, rgba(10,31,19,.82) 0%, rgba(10,31,19,.28) 34%, rgba(10,31,19,0) 64%);
+}
+.ruhe__text { position: absolute; left: var(--rand); bottom: 216px; color: var(--cream-on-green); }
+/* Drei Plätze im Bild statt immer derselben Ecke. */
+.ruhe--oben .ruhe__text { top: 132px; bottom: auto; }
+.ruhe--rechts .ruhe__text { left: auto; right: var(--rand); text-align: right; }
 .ruhe__satz {
-  font-family: var(--serif); font-size: 58px; line-height: 1.25; max-width: 26ch;
+  font-family: var(--serif); font-size: 58px; line-height: 1.25; max-width: 24ch;
   text-shadow: 0 2px 24px rgba(0,0,0,.5);
 }
+.ruhe--gross .ruhe__satz { font-size: 84px; line-height: 1.15; max-width: 18ch; letter-spacing: -.01em; }
 
 /* ---------- Fußzeile ---------- */
 

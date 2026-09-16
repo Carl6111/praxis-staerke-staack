@@ -149,8 +149,9 @@ test('landscape clips play once under one practice motto, without eager preload'
     assert.doesNotMatch(scene.html, /\bloop(?:\s|=|>)/);
     assert.match(scene.html, /preload="none"/);
     const clip = videos.find((video) => scene.html.includes(video.datei));
-    assert.equal([...scene.html.matchAll(/class="ruhe__satz"/g)].length, 1, 'One motto, not a list');
-    assert.ok(scene.html.includes(clip.leitsatz.titel) && scene.html.includes(clip.leitsatz.text));
+    assert.equal([...scene.html.matchAll(/class="ruhe__satz"/g)].length, 1, 'One sentence, not a list');
+    assert.ok(scene.html.includes(clip.leitsatz.text));
+    assert.doesNotMatch(scene.html, /ruhe__marke|text-transform/, 'A value label turns the sentence into a corporate slide');
     const sichtbar = scene.html.replace(/<[^>]*>/g, ' ');
     assert.doesNotMatch(sichtbar, /\d{3,}|Uhr|@/, 'Opening hours and contact have their own pages');
   }
@@ -215,13 +216,19 @@ test('a 5000-character token is paginated without overflowing or losing content'
   assert.equal(pages.join(''), 'a'.repeat(5000));
 });
 
-test('every clip carries a motto, and a clip without one stays bare', () => {
+test('every clip carries one sentence, and they do not all sit in the same corner', () => {
   const app = harness();
   const videos = JSON.parse(app.run('JSON.stringify(RUHEVIDEOS)'));
+  const places = new Set();
   videos.forEach((video, index) => {
-    assert.ok(video.leitsatz?.titel && video.leitsatz?.text, `Clip ${index + 1} needs a motto`);
-    assert.match(app.run(`szeneRuhe(${index})`), /ruhe__text/);
+    assert.ok(video.leitsatz?.text, `Clip ${index + 1} needs a sentence`);
+    assert.doesNotMatch(video.leitsatz.text, /\n/);
+    const html = app.run(`szeneRuhe(${index})`);
+    assert.match(html, /ruhe__text/);
+    const [, place] = html.match(/class="szene szene--bild ruhe ruhe--(\w+)/);
+    places.add(place);
   });
+  assert.ok(places.size >= 3, `Sentences share too few places: ${[...places]}`);
   app.run('delete RUHEVIDEOS[0].leitsatz');
   assert.doesNotMatch(app.run('szeneRuhe(0)'), /ruhe__text|ruhe__schleier/);
 });
