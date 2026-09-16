@@ -139,7 +139,7 @@ test('every service is shown with its name and an explanation', () => {
   }
 });
 
-test('landscape clips play once under one practice motto, without eager preload', () => {
+test('landscape clips play once, most of them bare, without eager preload', () => {
   const app = harness();
   app.run('szenenNeuBauen()');
   const videos = JSON.parse(app.run('JSON.stringify(RUHEVIDEOS)'));
@@ -149,6 +149,10 @@ test('landscape clips play once under one practice motto, without eager preload'
     assert.doesNotMatch(scene.html, /\bloop(?:\s|=|>)/);
     assert.match(scene.html, /preload="none"/);
     const clip = videos.find((video) => scene.html.includes(video.datei));
+    if (!clip.leitsatz) {
+      assert.doesNotMatch(scene.html, /ruhe__text|ruhe__schleier/, 'A clip without a sentence stays a pause');
+      continue;
+    }
     assert.equal([...scene.html.matchAll(/class="ruhe__satz"/g)].length, 1, 'One sentence, not a list');
     assert.ok(scene.html.includes(clip.leitsatz.text));
     assert.doesNotMatch(scene.html, /ruhe__marke|text-transform/, 'A value label turns the sentence into a corporate slide');
@@ -216,19 +220,20 @@ test('a 5000-character token is paginated without overflowing or losing content'
   assert.equal(pages.join(''), 'a'.repeat(5000));
 });
 
-test('every clip carries one sentence, and they do not all sit in the same corner', () => {
+test('exactly two clips speak, one per round', () => {
   const app = harness();
   const videos = JSON.parse(app.run('JSON.stringify(RUHEVIDEOS)'));
-  const places = new Set();
-  videos.forEach((video, index) => {
-    assert.ok(video.leitsatz?.text, `Clip ${index + 1} needs a sentence`);
-    assert.doesNotMatch(video.leitsatz.text, /\n/);
-    const html = app.run(`szeneRuhe(${index})`);
-    assert.match(html, /ruhe__text/);
-    const [, place] = html.match(/class="szene szene--bild ruhe ruhe--(\w+)/);
-    places.add(place);
-  });
-  assert.ok(places.size >= 3, `Sentences share too few places: ${[...places]}`);
-  app.run('delete RUHEVIDEOS[0].leitsatz');
-  assert.doesNotMatch(app.run('szeneRuhe(0)'), /ruhe__text|ruhe__schleier/);
+  const mitSatz = videos
+    .map((video, index) => ({ index, leitsatz: video.leitsatz }))
+    .filter((clip) => clip.leitsatz);
+  assert.equal(mitSatz.length, 2, 'Six statements in a row cancel each other out');
+  // Eine Runde zeigt drei Clips, danach rotiert der Versatz um drei weiter. Beide
+  // Sätze in derselben Dreiergruppe hieße: eine Runde redet, die nächste schweigt.
+  assert.notEqual(Math.floor(mitSatz[0].index / 3), Math.floor(mitSatz[1].index / 3));
+  for (const clip of mitSatz) {
+    assert.ok(clip.leitsatz.text.length <= 40, `Too long to land: ${clip.leitsatz.text}`);
+    assert.match(app.run(`szeneRuhe(${clip.index})`), /ruhe__text/);
+  }
+  app.run(`delete RUHEVIDEOS[${mitSatz[0].index}].leitsatz`);
+  assert.doesNotMatch(app.run(`szeneRuhe(${mitSatz[0].index})`), /ruhe__text|ruhe__schleier/);
 });

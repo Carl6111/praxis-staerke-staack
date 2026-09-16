@@ -348,8 +348,7 @@ function szeneRuhe(index) {
     <video class="ruhe__video" src="${esc(video.datei)}" muted playsinline preload="none"></video>
   </section>`;
   }
-  const lage = ['unten', 'oben', 'rechts'].includes(leitsatz.lage) ? leitsatz.lage : 'unten';
-  return `<section class="szene szene--bild ruhe ruhe--${lage}${leitsatz.gross ? ' ruhe--gross' : ''}">
+  return `<section class="szene szene--bild ruhe">
     <video class="ruhe__video" src="${esc(video.datei)}" muted playsinline preload="none"></video>
     <div class="ruhe__schleier"></div>
     <div class="ruhe__text">

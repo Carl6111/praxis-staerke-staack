@@ -204,15 +204,14 @@ export const SELBSTZAHLER = [
 // Drei Clips pro Runde, in der Folgerunde die anderen drei.
 // Alle lokal: 1920×1080, H.264, ohne Tonspur, 0,75-fache Geschwindigkeit.
 //
-// Über jedem Clip steht ein Satz der Praxis — ohne Wertbegriff darüber. Eine
-// Zeile wie "VERTRAUEN" über dem Satz macht aus der Aussage eine Werte-Folie;
-// niemand in einer Praxis beschriftet, welche Tugend er gerade vorführt.
-// Die Sätze selbst stehen wörtlich so auf der Praxiswebsite (team.html,
-// Abschnitt "Unsere Werte", und index.html). Sie sind nicht neu erfunden,
+// Nur zwei der sechs Clips tragen einen Satz, je einer pro Runde. Sechs
+// Aussagen nacheinander entwerten sich gegenseitig; zwei mit stummen
+// Landschaften dazwischen bleiben hängen. Beide Sätze stehen wörtlich so auf
+// der Startseite der Praxis (index.html, Hero) — sie sind nicht erfunden,
 // sonst sagt der Bildschirm etwas anderes als die Website.
 //
-// `lage` verteilt die Sätze über das Bild: unten links, oben links, unten
-// rechts. Immer dieselbe Ecke wirkt wie eine Vorlage.
+// Öffnungszeiten, Telefon und Adresse gehören ausdrücklich nicht hierher:
+// dafür gibt es eigene Seiten im Loop.
 //
 // Herkunft der Clips: mixkit.co, Mixkit Stock Video Free License, geprüft
 // 15.09.2026. Lizenz erlaubt kommerzielle Nutzung und öffentliche Wiedergabe:
@@ -222,38 +221,22 @@ export const RUHEVIDEOS = [
   {
     datei: 'videos/ruhe-1-waldnebel.mp4',
     sekunden: 40,
-    leitsatz: { text: 'Wir nehmen uns Zeit zum Zuhören.', lage: 'unten', gross: true },
+    leitsatz: { text: 'Ihre Gesundheit. Unser Auftrag.' },
   },
   // mixkit.co/free-stock-video/turquoise-blue-water-bay-from-above-5008/
-  {
-    datei: 'videos/ruhe-2-bucht.mp4',
-    sekunden: 20,
-    leitsatz: { text: 'Wir behandeln Menschen, nicht Akten.', lage: 'oben' },
-  },
+  { datei: 'videos/ruhe-2-bucht.mp4', sekunden: 20 },
   // mixkit.co/free-stock-video/river-passing-through-a-forest-full-of-trees-51447/
-  {
-    datei: 'videos/ruhe-6-waldfluss.mp4',
-    sekunden: 24,
-    leitsatz: { text: 'Was Sie beschäftigt, gehört für uns zur Behandlung dazu.', lage: 'rechts' },
-  },
+  { datei: 'videos/ruhe-6-waldfluss.mp4', sekunden: 24 },
   // mixkit.co/free-stock-video/huge-trees-in-a-large-green-forest-5040/
-  {
-    datei: 'videos/ruhe-3-baeume.mp4',
-    sekunden: 34,
-    leitsatz: { text: 'Zwei Hausärzte, die Sie über die Jahre begleiten.', lage: 'unten' },
-  },
+  { datei: 'videos/ruhe-3-baeume.mp4', sekunden: 34 },
   // mixkit.co/free-stock-video/aerial-view-of-waves-hitting-a-small-cliff-51455/
   {
     datei: 'videos/ruhe-4-kueste.mp4',
     sekunden: 34,
-    leitsatz: { text: 'Medizin mit Herz und Verstand.', lage: 'oben', gross: true },
+    leitsatz: { text: 'Hier nimmt man sich Zeit für Sie.' },
   },
   // mixkit.co/free-stock-video/slow-aerial-tour-through-a-mist-covered-forest-28342/
-  {
-    datei: 'videos/ruhe-5-nebelwald.mp4',
-    sekunden: 20,
-    leitsatz: { text: 'Wir sind offen und ehrlich mit Ihnen.', lage: 'rechts' },
-  },
+  { datei: 'videos/ruhe-5-nebelwald.mp4', sekunden: 20 },
 ];
 
 // Hintergrundmusik. Solange hier `null` steht, läuft der Bildschirm stumm —
