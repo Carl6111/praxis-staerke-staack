@@ -25,13 +25,13 @@ export const TV_TEXTE = {
   zeitenTitel: 'Wann wir für Sie da sind',
   aerzteRubrik: 'Praxisinhaber',
   teamRubrik: 'Praxisteam',
-  teamTitel: 'Unsere Fachkräfte',
+  teamTitel: 'Unser Team',
   leistungenRubrik: 'Leistungen · Kassenleistung',
   kontaktRubrik: 'Termine und Rezepte',
-  kontaktTitel: 'So erreichen Sie uns',
+  kontaktTitel: 'Telefon, E-Mail und Adresse',
   kontaktNotdienst: 'Außerhalb der Sprechzeiten: ärztlicher Bereitschaftsdienst',
   beitragRubrik: 'Aus der Praxis',
-  beitragTitel: 'Was gerade bei uns ansteht',
+  beitragTitel: 'Aktuelles aus der Praxis',
 };
 
 export const OEFFNUNGSZEITEN = [

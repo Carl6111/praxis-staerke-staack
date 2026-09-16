@@ -210,7 +210,7 @@
 
 /* ---------- Ein- und Auftritt ----------
    Der Wechsel trägt den Text herein, statt ihn umzuschalten: Rubrik, Titel und
-   dann die Einträge, jeder eine Spur später. Langsam genug zum Mitlesen. */
+   dann die Einträge mit individuellen Leseabständen aus tv-timing.js. */
 
 .szene.ist-sichtbar:not(.ist-abgehend) { animation: einblenden 1100ms var(--ease-soft) both; }
 .szene[data-wechsel="hoch"].ist-sichtbar:not(.ist-abgehend) { animation: hoch 1100ms var(--ease-soft) both; }
@@ -218,34 +218,14 @@
 .szene[data-wechsel="blende"].ist-sichtbar:not(.ist-abgehend) { animation: einblenden 1500ms ease-in-out both; }
 .szene.ist-abgehend { animation: ausblenden 1300ms ease-in-out both; }
 
-.ist-sichtbar .szene__rubrik,
-.ist-sichtbar .empfang__text > *,
-.ist-sichtbar .portrait__text > *,
-.ist-sichtbar .ruhe__text > *,
-.ist-sichtbar .zeiten__reihe,
-.ist-sichtbar .akut,
-.ist-sichtbar .kopf,
-.ist-sichtbar .leistung,
-.ist-sichtbar .meldung,
-.ist-sichtbar .szene__inhalt > p {
-  animation: aufsteigen var(--einzug) var(--ease-soft) both;
-  animation-delay: calc(320ms + var(--i, 0) * 150ms);
+/* Der nächste Block wartet, bis der vorherige vollständig erschienen ist und
+   seine Lesezeit abgelaufen ist. Frühere Blöcke bleiben an ihrem Platz sichtbar. */
+[data-leseblock] { opacity: 0; }
+.ist-sichtbar [data-leseblock] {
+  animation: aufsteigen var(--lese-animation) var(--ease-soft) both;
+  animation-delay: var(--lese-start);
 }
-/* Der Titel kommt hinter einer Kante hervor statt nur einzublenden. */
-.ist-sichtbar .szene__titel,
-.ist-sichtbar .empfang__titel,
-.ist-sichtbar .portrait__name,
-.ist-sichtbar .ruhe__satz {
-  animation: enthuellen 1300ms var(--ease-soft) 420ms both;
-}
-.ist-sichtbar .ruhe__marke { animation-delay: 1000ms; }
-.ist-sichtbar .ruhe__satz { animation-delay: 1150ms; }
-.ist-sichtbar .empfang__text > .szene__rubrik { animation-delay: 500ms; }
-.ist-sichtbar .empfang__zeit { animation-delay: 900ms; }
-.ist-sichtbar .empfang__satz { animation-delay: 1050ms; }
-.ist-sichtbar .portrait__fach { animation-delay: 760ms; }
-.ist-sichtbar .portrait__rolle { animation-delay: 900ms; }
-.ist-sichtbar .kontakt__telefon { animation: enthuellen 1300ms var(--ease-soft) 480ms both; }
+.ist-sichtbar [data-lese-titel] { animation-name: enthuellen; }
 
 /* Sehr langsame Bildfahrt über die Standzeit der Seite. Ein Standbild über
    Minuten wirkt wie ein eingefrorener Bildschirm. */
@@ -253,6 +233,7 @@
 .ist-sichtbar .portrait__foto img { animation: portratfahrt var(--dauer) linear both; }
 .ist-sichtbar .kopf__bild img { animation: portratfahrt var(--dauer) linear both; }
 
+@keyframes sichtbarwerden { from { opacity: 0; } to { opacity: 1; } }
 @keyframes einblenden { from { opacity: 0; } to { opacity: 1; } }
 @keyframes ausblenden { from { opacity: 1; } to { opacity: 0; } }
 @keyframes hoch { from { opacity: 0; transform: translateY(2.2%); } to { opacity: 1; transform: translateY(0); } }
@@ -269,6 +250,10 @@
   .buehne .szene.ist-sichtbar, .buehne .szene.ist-abgehend,
   .buehne .ist-sichtbar *, .buehne .ist-sichtbar img { animation: none !important; }
   .buehne .fuss, .buehne .fortschritt__balken { transition: none !important; }
+  /* Zeitliche Reihenfolge bleibt erhalten, ohne Bewegung oder Überblendung. */
+  .buehne .ist-sichtbar [data-leseblock] {
+    animation: sichtbarwerden 1ms linear var(--lese-start) both !important;
+  }
 }
 
 /* ---------- Hinweis beim Start ----------

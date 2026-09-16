@@ -23,6 +23,14 @@ function harness() {
           remove: (...names) => names.forEach((name) => classes.delete(name)),
           contains: (name) => classes.has(name),
         };
+        const style = () => ({ setProperty(name, value) { this[name] = value; } });
+        element.style = style();
+        const blocks = [...section.matchAll(/<([a-z0-9]+)\b([^>]*\bdata-leseblock\b[^>]*)>([\s\S]*?)<\/\1>/g)].map(([, , attributes, html]) => ({
+          textContent: html.replace(/<[^>]*>/g, ' ').replace(/&amp;/g, '&').replace(/&[a-z#0-9]+;/g, ' '),
+          hasAttribute: (name) => attributes.includes(name),
+          style: style(),
+        }));
+        element.querySelectorAll = (selector) => selector === '[data-leseblock]' ? blocks : [];
         element.remove = () => { room.children = room.children.filter((child) => child !== element); };
         const source = section.match(/<video\b[^>]*src="([^"]+)"/);
         const video = source ? {
@@ -54,10 +62,12 @@ function harness() {
     clearTimeout() {}, setInterval() {},
   });
   const data = readFileSync(join(site, 'js/tv-data.js'), 'utf8').replace(/^export /gm, '');
+  const timing = readFileSync(join(site, 'js/tv-timing.js'), 'utf8').replace(/^export /gm, '');
   const script = readFileSync(join(site, 'js/tv.js'), 'utf8')
     .replace(/import\s*\{[\s\S]*?\}\s*from\s*['"]\.\/tv-data\.js['"];?/, '')
+    .replace("import { leseplan } from './tv-timing.js';", '')
     .replace(/^starten\(\);?\s*$/m, '');
-  vm.runInContext(`${data}\n${script}`, context);
+  vm.runInContext(`${data}\n${timing}\n${script}`, context);
   return {
     room, requests, timers,
     run: (expression) => vm.runInContext(expression, context),
@@ -69,15 +79,25 @@ function harness() {
 const isLandscape = (scene) => /<video\b/.test(scene.html);
 const clips = (scenes) => scenes.filter(isLandscape).map((scene) => scene.html.match(/src="([^"]+)"/)[1]);
 
-test('two rotating default rounds each last 3–4 minutes with 30–40% landscape', () => {
+test('both rounds give every block its reading time and preserve clip durations', () => {
   const app = harness();
+  const videos = JSON.parse(app.run('JSON.stringify(RUHEVIDEOS)'));
   for (let round = 0; round < 2; round += 1) {
     app.run('szenenNeuBauen()');
-    const scenes = app.scenes();
-    const duration = scenes.reduce((sum, scene) => sum + scene.dauer, 0);
-    const landscape = scenes.filter(isLandscape).reduce((sum, scene) => sum + scene.dauer, 0);
-    assert.ok(duration >= 180_000 && duration <= 240_000, `Round ${round + 1}: ${duration / 1000}s`);
-    assert.ok(landscape / duration >= 0.30 && landscape / duration <= 0.40, `Landscape share: ${landscape / duration}`);
+    for (const [i, scene] of app.scenes().entries()) {
+      const blocks = app.room.children[i].querySelectorAll('[data-leseblock]');
+      assert.ok(blocks.length > 0, 'Each scene schedules its text');
+      const last = blocks.at(-1);
+      const end = parseFloat(last.style['--lese-start']) + parseFloat(last.style['--lese-animation'])
+        + app.run('lesedauer(' + JSON.stringify(last.textContent) + ')') + 3000;
+      assert.ok(scene.dauer >= end, 'Last block must be readable before the scene ends');
+      if (isLandscape(scene)) {
+        const video = videos.find(v => scene.html.includes(v.datei));
+        assert.equal(scene.dauer, video.sekunden * 1000, 'Clip length stays unchanged');
+      }
+    }
+    const services = app.scenes().filter(s => s.html.includes('leistungsseite'));
+    assert.ok(services.every(s => s.dauer > 17000), 'Dense service pages need more than their former 17 seconds');
   }
 });
 
@@ -164,8 +184,8 @@ test('practice contact stays visible in each round when a post is present', () =
     assert.ok(content.includes(app.run('PRAXIS.telefon')), 'Contact phone must remain available');
     assert.ok(content.includes(app.run('PRAXIS.email')), 'Contact email must remain available');
     assert.ok(content.includes('Praxisurlaub'), 'The post must also be shown');
-    const duration = scenes.reduce((sum, scene) => sum + scene.dauer, 0);
-    assert.ok(duration >= 180_000 && duration <= 240_000, `Round with post: ${duration / 1000}s`);
+    const news = scenes.find(scene => scene.html.includes('nachrichten'));
+    assert.ok(news.dauer >= 14000, 'The post keeps at least its original dwell time');
   }
 });
 

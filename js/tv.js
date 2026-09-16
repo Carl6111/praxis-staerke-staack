@@ -1,6 +1,6 @@
 // Ablauf des Warteraum-Bildschirms. Feste Inhalte kommen aus tv-data.js.
 //
-// Der Bildschirm läuft ohne Bedienung: Seiten wechseln nach fester Zeit, neue
+// Der Bildschirm läuft ohne Bedienung: Seiten wechseln nach berechneter Lesezeit, neue
 // Beiträge aus dem Praxis-Admin erscheinen von allein. Preise stehen bewusst
 // nicht im Loop — der Bildschirm nennt die Leistungen, die Beträge die Liste
 // am Tresen.
@@ -8,6 +8,7 @@ import {
   PRAXIS, TV_TEXTE, OEFFNUNGSZEITEN, AKUTSPRECHSTUNDE,
   AERZTE, FACHKRAEFTE, LEISTUNGEN, RUHEVIDEOS, MUSIK,
 } from './tv-data.js';
+import { leseplan } from './tv-timing.js';
 
 const POSTS_INTERVALL_MS = 10 * 60 * 1000;
 const NEUBAU_NACH_MS = 6 * 60 * 60 * 1000;
@@ -144,6 +145,20 @@ function szenenNeuBauen() {
     html: s.bau().replace('<section ', `<section data-wechsel="${s.wechsel}" style="--dauer:${s.dauer}ms" `),
   }));
   szenenRaum.innerHTML = zustand.szenen.map((s) => s.html).join('');
+  [...szenenRaum.children].forEach((element, i) => {
+    const bloecke = [...element.querySelectorAll('[data-leseblock]')];
+    const plan = leseplan(bloecke.map((block) => ({
+      text: block.textContent,
+      titel: block.hasAttribute('data-lese-titel'),
+    })), zustand.szenen[i].dauer);
+    bloecke.forEach((block, index) => {
+      block.style.setProperty('--lese-start', plan.schritte[index].start + 'ms');
+      block.style.setProperty('--lese-animation', plan.schritte[index].animation + 'ms');
+    });
+    // Filmclips behalten ihre Länge. Ihre kurzen Hinweise passen in diese Zeit.
+    if (!element.querySelector('video')) zustand.szenen[i].dauer = plan.dauer;
+    element.style.setProperty('--dauer', zustand.szenen[i].dauer + 'ms');
+  });
 }
 
 function szeneZeigen(index) {
@@ -220,8 +235,8 @@ function fortschrittStarten(dauer) {
 
 function kopf(rubrik, titel) {
   return `<header class="szene__kopf">
-      <p class="szene__rubrik">${esc(rubrik)}</p>
-      <h2 class="szene__titel">${esc(titel)}</h2>
+      <p data-leseblock class="szene__rubrik">${esc(rubrik)}</p>
+      <h2 data-leseblock data-lese-titel class="szene__titel">${esc(titel)}</h2>
     </header>`;
 }
 
@@ -229,18 +244,18 @@ function szeneEmpfang() {
   return `<section class="szene szene--bild empfang">
     <img class="raumfoto" src="${esc(TV_TEXTE.empfangBild)}" alt="">
     <div class="empfang__text">
-      <p class="szene__rubrik">${esc(TV_TEXTE.akutRubrik)}</p>
-      <h2 class="empfang__titel">${esc(TV_TEXTE.akutTitel)}</h2>
-      <p class="empfang__zeit ziffern">${esc(TV_TEXTE.akutZeit)}</p>
-      <p class="empfang__satz">${esc(TV_TEXTE.akutHinweis)}</p>
+      <p data-leseblock class="szene__rubrik">${esc(TV_TEXTE.akutRubrik)}</p>
+      <h2 data-leseblock data-lese-titel class="empfang__titel">${esc(TV_TEXTE.akutTitel)}</h2>
+      <p data-leseblock class="empfang__zeit ziffern">${esc(TV_TEXTE.akutZeit)}</p>
+      <p data-leseblock class="empfang__satz">${esc(TV_TEXTE.akutHinweis)}</p>
     </div>
   </section>`;
 }
 
 function szeneZeiten() {
-  const reihen = OEFFNUNGSZEITEN.map((z, i) => {
+  const reihen = OEFFNUNGSZEITEN.map((z) => {
     const zu = z.zeit === 'Geschlossen';
-    return `<div class="zeiten__reihe${zu ? ' zeiten__reihe--zu' : ''}" style="--i:${i}">
+    return `<div data-leseblock class="zeiten__reihe${zu ? ' zeiten__reihe--zu' : ''}">
         <span class="zeiten__tag">${esc(z.tag)}</span>
         <span class="zeiten__zeit ziffern">${esc(z.zeit)}</span>
       </div>`;
@@ -250,7 +265,7 @@ function szeneZeiten() {
     ${kopf(TV_TEXTE.zeitenRubrik, TV_TEXTE.zeitenTitel)}
     <div class="szene__inhalt">
       <div class="zeiten">${reihen}</div>
-      <div class="akut" style="--i:${OEFFNUNGSZEITEN.length}">
+      <div data-leseblock class="akut">
         <p class="akut__titel">${esc(TV_TEXTE.akutTitel)}</p>
         <p class="akut__text ziffern">${esc(AKUTSPRECHSTUNDE)}</p>
       </div>
@@ -262,10 +277,10 @@ function szeneArzt(p, gespiegelt) {
   return `<section class="szene szene--papier portrait${gespiegelt ? ' portrait--rechts' : ''}">
     <div class="portrait__foto"><img src="${esc(p.bild)}" alt="${esc(p.name)}"></div>
     <div class="portrait__text">
-      <p class="szene__rubrik">${esc(TV_TEXTE.aerzteRubrik)}</p>
-      <h2 class="portrait__name">${esc(p.name)}</h2>
-      <p class="portrait__fach">${esc(p.fach)}</p>
-      <p class="portrait__rolle ziffern">${esc(p.rolle)}</p>
+      <p data-leseblock class="szene__rubrik">${esc(TV_TEXTE.aerzteRubrik)}</p>
+      <h2 data-leseblock data-lese-titel class="portrait__name">${esc(p.name)}</h2>
+      <p data-leseblock class="portrait__fach">${esc(p.fach)}</p>
+      <p data-leseblock class="portrait__rolle ziffern">${esc(p.rolle)}</p>
     </div>
   </section>`;
 }
@@ -274,8 +289,8 @@ function szeneTeam() {
   return `<section class="szene szene--papier team">
     ${kopf(TV_TEXTE.teamRubrik, TV_TEXTE.teamTitel)}
     <div class="szene__inhalt">
-      <div class="koepfe">${FACHKRAEFTE.map((p, i) => `
-        <figure class="kopf" style="--i:${i}">
+      <div class="koepfe">${FACHKRAEFTE.map((p) => `
+        <figure data-leseblock class="kopf">
           <div class="kopf__bild"><img src="${esc(p.bild)}" alt="${esc(p.name)}"></div>
           <figcaption>
             <h3 class="kopf__name">${esc(p.name)}</h3>
@@ -290,8 +305,8 @@ function szeneLeistungen(gruppe) {
   return `<section class="szene szene--tinte leistungsseite">
     ${kopf(TV_TEXTE.leistungenRubrik, gruppe.gruppe)}
     <div class="szene__inhalt">
-      <div class="leistungen">${gruppe.posten.map((l, i) => `
-        <article class="leistung" style="--i:${i}">
+      <div class="leistungen">${gruppe.posten.map((l) => `
+        <article data-leseblock class="leistung">
           <h3 class="leistung__titel">${esc(l.titel)}</h3>
           <p class="leistung__text">${esc(l.text)}</p>
         </article>`).join('')}</div>
@@ -303,10 +318,10 @@ function szeneKontakt() {
   return `<section class="szene szene--tinte kontakt">
     ${kopf(TV_TEXTE.kontaktRubrik, TV_TEXTE.kontaktTitel)}
     <div class="szene__inhalt">
-      <p class="kontakt__telefon ziffern" style="--i:0">${esc(PRAXIS.telefon)}</p>
-      <p class="kontakt__email" style="--i:1">${esc(PRAXIS.email)}</p>
-      <p class="kontakt__adresse" style="--i:2">${esc(PRAXIS.strasse)} · ${esc(PRAXIS.ort)}</p>
-      <p class="kontakt__notdienst" style="--i:3">${esc(TV_TEXTE.kontaktNotdienst)}
+      <p data-leseblock data-lese-titel class="kontakt__telefon ziffern">${esc(PRAXIS.telefon)}</p>
+      <p data-leseblock class="kontakt__email">${esc(PRAXIS.email)}</p>
+      <p data-leseblock class="kontakt__adresse">${esc(PRAXIS.strasse)} · ${esc(PRAXIS.ort)}</p>
+      <p data-leseblock class="kontakt__notdienst">${esc(TV_TEXTE.kontaktNotdienst)}
         <span class="ziffern">${esc(PRAXIS.notdienst)}</span></p>
     </div>
   </section>`;
@@ -317,8 +332,8 @@ function szeneBeitraege(meldungen) {
   return `<section class="szene szene--papier nachrichten${lang ? ' nachrichten--lang' : ''}">
     ${kopf(TV_TEXTE.beitragRubrik, TV_TEXTE.beitragTitel)}
     <div class="szene__inhalt">
-      <div class="meldungen">${meldungen.map((b, i) => `
-        <article class="meldung" style="--i:${i}">
+      <div class="meldungen">${meldungen.map((b) => `
+        <article data-leseblock class="meldung">
           <p class="meldung__marke">${esc(beitragsart(b.type))}</p>
           <h3 class="meldung__titel">${esc(b.titel)}</h3>
           <p class="meldung__text">${esc(b.content)}</p>
@@ -333,8 +348,8 @@ function szeneRuhe(index) {
     <video class="ruhe__video" src="${esc(video.datei)}" muted playsinline preload="none"></video>
     <div class="ruhe__schleier"></div>
     <div class="ruhe__text">
-      <p class="ruhe__marke">${esc(video.hinweis.titel)}</p>
-      <p class="ruhe__satz">${esc(video.hinweis.text)}</p>
+      <p data-leseblock class="ruhe__marke">${esc(video.hinweis.titel)}</p>
+      <p data-leseblock data-lese-titel class="ruhe__satz">${esc(video.hinweis.text)}</p>
     </div>
   </section>`;
 }
