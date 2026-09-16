@@ -318,11 +318,9 @@ function szeneKontakt() {
   return `<section class="szene szene--tinte kontakt">
     ${kopf(TV_TEXTE.kontaktRubrik, TV_TEXTE.kontaktTitel)}
     <div class="szene__inhalt">
-      <p data-leseblock data-lese-titel class="kontakt__telefon ziffern">${esc(PRAXIS.telefon)}</p>
-      <p data-leseblock class="kontakt__email">${esc(PRAXIS.email)}</p>
-      <p data-leseblock class="kontakt__adresse">${esc(PRAXIS.strasse)} · ${esc(PRAXIS.ort)}</p>
-      <p data-leseblock class="kontakt__notdienst">${esc(TV_TEXTE.kontaktNotdienst)}
-        <span class="ziffern">${esc(PRAXIS.notdienst)}</span></p>
+      <p data-leseblock data-lese-titel class="kontakt__website">${esc(PRAXIS.website)}</p>
+      <p data-leseblock class="kontakt__qr">${esc(TV_TEXTE.kontaktQr)}</p>
+      <p data-leseblock class="kontakt__info">${esc(TV_TEXTE.kontaktInfo)}</p>
     </div>
   </section>`;
 }
@@ -346,11 +344,11 @@ function szeneRuhe(index) {
   const video = RUHEVIDEOS[index % RUHEVIDEOS.length];
   return `<section class="szene szene--bild ruhe">
     <video class="ruhe__video" src="${esc(video.datei)}" muted playsinline preload="none"></video>
-    <div class="ruhe__schleier"></div>
+    ${video.hinweis?.wichtig === true ? `<div class="ruhe__schleier"></div>
     <div class="ruhe__text">
       <p data-leseblock class="ruhe__marke">${esc(video.hinweis.titel)}</p>
       <p data-leseblock data-lese-titel class="ruhe__satz">${esc(video.hinweis.text)}</p>
-    </div>
+    </div>` : ''}
   </section>`;
 }
 

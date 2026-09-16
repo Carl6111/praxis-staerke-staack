@@ -8,6 +8,7 @@ export const PREISSTAND = 'September 2026';
 export const PRAXIS = {
   name: 'Stärke & Staack',
   untertitel: 'Hausarztpraxis',
+  website: 'praxis-staerke-staack.de',
   strasse: 'Gr. Diesdorfer Str. 186',
   ort: '39110 Magdeburg',
   telefon: '0391 7348410',
@@ -27,9 +28,10 @@ export const TV_TEXTE = {
   teamRubrik: 'Praxisteam',
   teamTitel: 'Unser Team',
   leistungenRubrik: 'Leistungen · Kassenleistung',
-  kontaktRubrik: 'Termine und Rezepte',
-  kontaktTitel: 'Telefon, E-Mail und Adresse',
-  kontaktNotdienst: 'Außerhalb der Sprechzeiten: ärztlicher Bereitschaftsdienst',
+  kontaktRubrik: 'Weitere Informationen',
+  kontaktTitel: 'Unsere Website',
+  kontaktQr: 'Scannen Sie einen der QR-Codes in der Praxis.',
+  kontaktInfo: 'Dort finden Sie Öffnungszeiten, Leistungen und Kontakt.',
   beitragRubrik: 'Aus der Praxis',
   beitragTitel: 'Aktuelles aus der Praxis',
 };
@@ -204,8 +206,8 @@ export const SELBSTZAHLER = [
 
 // Drei Clips pro Runde, in der Folgerunde die anderen drei.
 // Alle lokal: 1920×1080, H.264, ohne Tonspur, 0,75-fache Geschwindigkeit.
-// Über jedem Clip steht eine einzelne ruhige Zeile — dieselbe Auskunft, die man
-// sonst an der Anmeldung erfragt.
+// Landschaft bleibt ohne Routinehinweise. Nur ausdrücklich wichtige Hinweise
+// mit hinweis.wichtig = true werden eingeblendet; reguläre Infos stehen auf Praxisseiten.
 // Herkunft: mixkit.co, Mixkit Stock Video Free License, geprüft 15.09.2026.
 // Lizenz erlaubt kommerzielle Nutzung und öffentliche Wiedergabe:
 // "publicly perform and broadcast", "Attribution is not required".

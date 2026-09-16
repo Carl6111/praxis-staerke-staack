@@ -1,7 +1,8 @@
 // Ruhiger TV-Ausgangswert, kein gemessenes Lesetempo einzelner Zuschauer.
 // Forschung zum stillen Lesen: https://biblio.ugent.be/publication/8647789
 // Der Forschungswert (238 Wörter/min für englische Sachtexte) ist nicht direkt
-// auf einen deutschen Wartezimmer-TV übertragbar. Hier bewusst 200 plus Pausen.
+// auf einen deutschen Wartezimmer-TV übertragbar. 200 dient nur als Lesebasis;
+// der Aufbau läuft auf Wunsch schneller, gelesen werden kann im längeren Endbild.
 export const LESEN = Object.freeze({
   woerterProMinute: 200,
   minBlockMs: 1800,
@@ -9,7 +10,8 @@ export const LESEN = Object.freeze({
   animationMs: 900,
   titelAnimationMs: 1300,
   blickwechselMs: 450,
-  abschlussMs: 3000,
+  aufbaufaktor: 0.45,
+  abschlussMs: 8000,
 });
 
 export function lesedauer(text) {
@@ -22,15 +24,15 @@ export function lesedauer(text) {
 }
 
 export function leseplan(bloecke, mindestdauer = 0) {
-  let start = LESEN.orientierungMs;
+  let start = LESEN.orientierungMs * LESEN.aufbaufaktor;
   const schritte = bloecke.map(({ text, titel }) => {
-    const animation = titel ? LESEN.titelAnimationMs : LESEN.animationMs;
-    const lesezeit = lesedauer(text);
+    const animation = (titel ? LESEN.titelAnimationMs : LESEN.animationMs) * LESEN.aufbaufaktor;
+    const lesezeit = lesedauer(text) * LESEN.aufbaufaktor;
     const schritt = { start, animation, lesezeit };
-    start += animation + lesezeit + LESEN.blickwechselMs;
+    start += animation + lesezeit + LESEN.blickwechselMs * LESEN.aufbaufaktor;
     return schritt;
   });
   const letzter = schritte.at(-1);
-  const ende = letzter ? letzter.start + letzter.animation + letzter.lesezeit + LESEN.abschlussMs : 0;
+  const ende = letzter ? letzter.start + letzter.animation + lesedauer(bloecke.at(-1).text) + LESEN.abschlussMs : 0;
   return { schritte, dauer: Math.max(mindestdauer, ende) };
 }

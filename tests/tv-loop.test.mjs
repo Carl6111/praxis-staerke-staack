@@ -85,16 +85,16 @@ test('both rounds give every block its reading time and preserve clip durations'
   for (let round = 0; round < 2; round += 1) {
     app.run('szenenNeuBauen()');
     for (const [i, scene] of app.scenes().entries()) {
-      const blocks = app.room.children[i].querySelectorAll('[data-leseblock]');
-      assert.ok(blocks.length > 0, 'Each scene schedules its text');
-      const last = blocks.at(-1);
-      const end = parseFloat(last.style['--lese-start']) + parseFloat(last.style['--lese-animation'])
-        + app.run('lesedauer(' + JSON.stringify(last.textContent) + ')') + 3000;
-      assert.ok(scene.dauer >= end, 'Last block must be readable before the scene ends');
       if (isLandscape(scene)) {
         const video = videos.find(v => scene.html.includes(v.datei));
         assert.equal(scene.dauer, video.sekunden * 1000, 'Clip length stays unchanged');
       }
+      const blocks = app.room.children[i].querySelectorAll('[data-leseblock]');
+      if (!blocks.length) { assert.ok(isLandscape(scene), 'Only a landscape can have no text'); continue; }
+      const last = blocks.at(-1);
+      const end = parseFloat(last.style['--lese-start']) + parseFloat(last.style['--lese-animation'])
+        + app.run('lesedauer(' + JSON.stringify(last.textContent) + ')') + 8000;
+      assert.ok(scene.dauer >= end, 'Last block must be readable before the scene ends');
     }
     const services = app.scenes().filter(s => s.html.includes('leistungsseite'));
     assert.ok(services.every(s => s.dauer > 17000), 'Dense service pages need more than their former 17 seconds');
@@ -127,15 +127,14 @@ test('every service is shown with its name and an explanation', () => {
   }
 });
 
-test('landscape clips play once behind a single quiet line, without eager preload', () => {
+test('landscape clips play once without routine overlays or eager preload', () => {
   const app = harness();
   app.run('szenenNeuBauen()');
   const scenes = app.scenes().filter(isLandscape);
   assert.ok(scenes.length > 0);
   for (const scene of scenes) {
     assert.doesNotMatch(scene.html, /\bloop(?:\s|=|>)/);
-    assert.equal([...scene.html.matchAll(/class="ruhe__satz"/g)].length, 1);
-    assert.match(scene.html, /class="ruhe__marke"/);
+    assert.doesNotMatch(scene.html, /ruhe__text|ruhe__schleier|data-leseblock/);
     assert.match(scene.html, /preload="none"/);
   }
 });
@@ -174,15 +173,17 @@ test('startup fetches practice posts without requesting weather', async () => {
   assert.ok(!app.requests.some((url) => /wetter|weather|tv-feed/.test(url)), `Unexpected requests: ${app.requests}`);
 });
 
-test('practice contact stays visible in each round when a post is present', () => {
+test('website and existing QR codes replace direct contact details in every round', () => {
   const app = harness();
   app.run("zustand.beitraege = [{ title: 'Praxisurlaub', content: 'Ab Montag wieder geöffnet.' }]");
   for (let round = 0; round < 2; round += 1) {
     app.run('szenenNeuBauen()');
     const scenes = app.scenes();
     const content = scenes.map((scene) => scene.html).join('');
-    assert.ok(content.includes(app.run('PRAXIS.telefon')), 'Contact phone must remain available');
-    assert.ok(content.includes(app.run('PRAXIS.email')), 'Contact email must remain available');
+    assert.ok(content.includes('praxis-staerke-staack.de'), 'Show the verified practice website');
+    assert.ok(content.includes('QR-Codes in der Praxis'), 'Refer to existing printed QR codes');
+    assert.ok(!content.includes(app.run('PRAXIS.telefon')), 'Do not show the phone number');
+    assert.ok(!content.includes(app.run('PRAXIS.email')), 'Do not show the email address');
     assert.ok(content.includes('Praxisurlaub'), 'The post must also be shown');
     const news = scenes.find(scene => scene.html.includes('nachrichten'));
     assert.ok(news.dauer >= 14000, 'The post keeps at least its original dwell time');
@@ -195,4 +196,14 @@ test('a 5000-character token is paginated without overflowing or losing content'
   assert.ok(pages.length > 1);
   assert.ok(pages.every((page) => page.length > 0 && page.length <= 430), `Page lengths: ${pages.map((page) => page.length)}`);
   assert.equal(pages.join(''), 'a'.repeat(5000));
+});
+
+test('only an explicitly important landscape hint is shown', () => {
+  const app = harness();
+  app.run("RUHEVIDEOS[0].hinweis = { wichtig: true, titel: 'Wichtiger Hinweis', text: 'Bitte beachten.' }");
+  const html = app.run('szeneRuhe(0)');
+  assert.match(html, /Wichtiger Hinweis/);
+  assert.match(html, /ruhe__text/);
+  app.run('RUHEVIDEOS[0].hinweis.wichtig = false');
+  assert.doesNotMatch(app.run('szeneRuhe(0)'), /ruhe__text|ruhe__schleier/);
 });

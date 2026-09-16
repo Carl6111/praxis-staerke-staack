@@ -20,7 +20,7 @@ test('each block starts only after the preceding animation and reading interval'
   ]);
   for (let i = 1; i < plan.schritte.length; i++) {
     const vorher = plan.schritte[i - 1];
-    assert.ok(plan.schritte[i].start >= vorher.start + vorher.animation + vorher.lesezeit + LESEN.blickwechselMs);
+    assert.ok(plan.schritte[i].start >= vorher.start + vorher.animation + vorher.lesezeit + LESEN.blickwechselMs * LESEN.aufbaufaktor);
   }
   const ende = plan.schritte.at(-1);
   assert.ok(plan.dauer >= ende.start + ende.animation + ende.lesezeit + LESEN.abschlussMs);
@@ -30,6 +30,24 @@ test('long pages extend beyond the old duration rather than truncating the final
   const kurz = leseplan([{ text: 'Kurzer Hinweis' }], 17000);
   const lang = leseplan(Array.from({ length: 4 }, () => ({ text: 'Erklärung '.repeat(30) })), 17000);
   assert.equal(kurz.dauer, 17000);
-  assert.ok(lang.dauer > 40000);
+  assert.ok(lang.dauer > kurz.dauer);
   assert.equal(leseplan([], 20000).dauer, 20000);
+});
+
+test('every reveal is more than twice as fast, with at least eight seconds on the complete page', () => {
+  const blocks = [
+    { text: 'Unsere Sprechzeiten', titel: true },
+    { text: 'Montag 08:00 – 12:00 · 16:00 – 18:00' },
+    { text: 'Erklärung '.repeat(30) },
+  ];
+  const plan = leseplan(blocks);
+  let oldStart = 600;
+  blocks.forEach((block, i) => {
+    const oldAnimation = block.titel ? 1300 : 900;
+    assert.ok(plan.schritte[i].start <= oldStart / 2, 'At least twice as fast');
+    assert.ok(plan.schritte[i].animation <= oldAnimation / 2);
+    oldStart += oldAnimation + lesedauer(block.text) + 450;
+  });
+  const last = plan.schritte.at(-1);
+  assert.ok(plan.dauer - last.start - last.animation >= lesedauer(blocks.at(-1).text) + 8000);
 });
