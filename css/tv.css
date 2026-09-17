@@ -116,7 +116,9 @@
 /* ---------- Team ---------- */
 
 .koepfe { display: grid; grid-template-columns: repeat(3, 1fr); gap: 52px; }
-.kopf__bild { height: 470px; overflow: hidden; background: var(--surface-2); }
+/* 390 statt 470 px: darunter steht jetzt die Qualifikation, bei Manuela
+   zweizeilig. Größer läuft die Seite in die Fußzeile. */
+.kopf__bild { height: 390px; overflow: hidden; background: var(--surface-2); }
 /* Kopf statt Bildmitte: sonst läge der Zuschnitt auf Brusthöhe. */
 .kopf__bild img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
 .kopf__name { font-family: var(--serif); font-size: 52px; font-weight: 500; line-height: 1.1; margin-top: 24px; }
@@ -124,6 +126,15 @@
   font-family: var(--sans); font-size: var(--tv-klein); font-weight: 600;
   letter-spacing: .14em; color: var(--bronze); margin-top: 12px;
 }
+.kopf__quali {
+  font-family: var(--sans); font-size: 25px; line-height: 1.4; color: var(--text-mid);
+  margin-top: 8px; max-width: 30ch;
+}
+
+/* Zwei Assistenzärztinnen: Fotos hochkant, mittig nebeneinander. */
+.koepfe--zwei { grid-template-columns: repeat(2, 380px); justify-content: center; gap: 120px; }
+.koepfe--zwei .kopf__bild { height: 475px; }
+.koepfe--zwei .kopf__bild img { object-position: 50% 30%; }
 
 /* ---------- Leistungen ---------- */
 

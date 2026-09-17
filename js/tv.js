@@ -6,7 +6,7 @@
 // am Tresen.
 import {
   PRAXIS, TV_TEXTE, OEFFNUNGSZEITEN, AKUTSPRECHSTUNDE,
-  AERZTE, FACHKRAEFTE, LEISTUNGEN, RUHEVIDEOS, MUSIK,
+  AERZTE, FACHKRAEFTE, ASSISTENZAERZTINNEN, LEISTUNGEN, RUHEVIDEOS, MUSIK,
 } from './tv-data.js';
 import { leseplan } from './tv-timing.js';
 
@@ -116,6 +116,7 @@ function szenenNeuBauen() {
     [
       szene(14, 'papier', 'seitlich', () => szeneArzt(AERZTE[0], false)),
       szene(14, 'papier', 'seitlich', () => szeneArzt(AERZTE[1], true)),
+      szene(15, 'papier', 'hoch', szeneAssistenz),
       szene(17, 'tinte', 'hoch', () => szeneLeistungen(LEISTUNGEN[1])),
     ],
     [
@@ -277,7 +278,7 @@ function szeneArzt(p, gespiegelt) {
   return `<section class="szene szene--papier portrait${gespiegelt ? ' portrait--rechts' : ''}">
     <div class="portrait__foto"><img src="${esc(p.bild)}" alt="${esc(p.name)}"></div>
     <div class="portrait__text">
-      <p data-leseblock class="szene__rubrik">${esc(TV_TEXTE.aerzteRubrik)}</p>
+      <p data-leseblock class="szene__rubrik">${esc(p.rubrik)}</p>
       <h2 data-leseblock data-lese-titel class="portrait__name">${esc(p.name)}</h2>
       <p data-leseblock class="portrait__fach">${esc(p.fach)}</p>
       <p data-leseblock class="portrait__rolle ziffern">${esc(p.rolle)}</p>
@@ -290,6 +291,23 @@ function szeneTeam() {
     ${kopf(TV_TEXTE.teamRubrik, TV_TEXTE.teamTitel)}
     <div class="szene__inhalt">
       <div class="koepfe">${FACHKRAEFTE.map((p) => `
+        <figure data-leseblock class="kopf">
+          <div class="kopf__bild"><img src="${esc(p.bild)}" alt="${esc(p.name)}"></div>
+          <figcaption>
+            <h3 class="kopf__name">${esc(p.name)}</h3>
+            <p class="kopf__rolle">${esc(p.rolle)}</p>
+            ${p.qualifikation ? `<p class="kopf__quali">${esc(p.qualifikation)}</p>` : ''}
+          </figcaption>
+        </figure>`).join('')}</div>
+    </div>
+  </section>`;
+}
+
+function szeneAssistenz() {
+  return `<section class="szene szene--papier team assistenz">
+    ${kopf(TV_TEXTE.assistenzRubrik, TV_TEXTE.assistenzTitel)}
+    <div class="szene__inhalt">
+      <div class="koepfe koepfe--zwei">${ASSISTENZAERZTINNEN.map((p) => `
         <figure data-leseblock class="kopf">
           <div class="kopf__bild"><img src="${esc(p.bild)}" alt="${esc(p.name)}"></div>
           <figcaption>

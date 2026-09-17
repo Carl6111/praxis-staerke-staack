@@ -24,7 +24,8 @@ export const TV_TEXTE = {
   akutHinweis: 'Montag bis Freitag, ohne Voranmeldung',
   zeitenRubrik: 'Sprechzeiten',
   zeitenTitel: 'Wann wir für Sie da sind',
-  aerzteRubrik: 'Praxisinhaber',
+  assistenzRubrik: 'Ärztinnen',
+  assistenzTitel: 'Unsere Assistenzärztinnen',
   teamRubrik: 'Praxisteam',
   teamTitel: 'Unser Team',
   leistungenRubrik: 'Leistungen · Kassenleistung',
@@ -47,12 +48,14 @@ export const AKUTSPRECHSTUNDE = 'Montag bis Freitag 08:00 – 09:00 Uhr ohne Vor
 export const AERZTE = [
   {
     name: 'Franka Stärke',
+    rubrik: 'Praxisinhaberin',
     rolle: 'Praxisinhaberin seit Januar 2021',
     fach: 'Fachärztin für Allgemeinmedizin, Sportmedizin & Ernährungsmedizin',
     bild: 'images/team-2.jpg',
   },
   {
     name: 'Thorsten Staack',
+    rubrik: 'Praxisinhaber',
     rolle: 'Praxisinhaber seit April 2025',
     fach: 'Facharzt für Allgemeinmedizin & Notfallmedizin',
     bild: 'images/team-3.jpg',
@@ -60,9 +63,31 @@ export const AERZTE = [
 ];
 
 export const FACHKRAEFTE = [
-  { name: 'Schwester Manuela', rolle: 'Medizinische Fachangestellte', bild: 'images/team-4.jpg' },
-  { name: 'Schwester Franziska', rolle: 'Medizinische Fachangestellte', bild: 'images/team-foto-gruppe.jpg' },
-  { name: 'Schwester Claudia', rolle: 'Medizinische Fachangestellte', bild: 'images/team-5.jpg' },
+  {
+    name: 'Schwester Manuela',
+    rolle: 'Medizinische Fachangestellte',
+    qualifikation: 'Koordinatorin für Ernährungsberatung und Sporttauglichkeitsuntersuchung',
+    bild: 'images/team-4.jpg',
+  },
+  {
+    name: 'Schwester Franziska',
+    rolle: 'Medizinische Fachangestellte',
+    qualifikation: 'Zusatzqualifikation VERAH',
+    bild: 'images/team-foto-gruppe.jpg',
+  },
+  {
+    name: 'Schwester Claudia',
+    rolle: 'Medizinische Fachangestellte',
+    qualifikation: 'Zusatzqualifikation Praxismanagement',
+    bild: 'images/team-5.jpg',
+  },
+];
+
+// Eigene Seite, beide zusammen. Fotos aus praxis-mobile-bilder/, auf 1600 px
+// Höhe verkleinert — die Originale (bis 154 MB) zöge der Fire TV Stick nicht.
+export const ASSISTENZAERZTINNEN = [
+  { name: 'Dr. Nora Schwabe', rolle: 'Assistenzärztin', bild: 'images/team-schwabe.jpg' },
+  { name: 'Laura Steinhagen', rolle: 'Assistenzärztin', bild: 'images/team-steinhagen.jpg' },
 ];
 
 // Kassenleistungen, inhaltlich identisch zu leistungen.html.

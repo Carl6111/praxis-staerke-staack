@@ -237,3 +237,41 @@ test('exactly two clips speak, one per round', () => {
   app.run(`delete RUHEVIDEOS[${mitSatz[0].index}].leitsatz`);
   assert.doesNotMatch(app.run(`szeneRuhe(${mitSatz[0].index})`), /ruhe__text|ruhe__schleier/);
 });
+
+test('each owner page names the right role: Praxisinhaberin for Franka, Praxisinhaber for Thorsten', () => {
+  const app = harness();
+  app.run('szenenNeuBauen()');
+  const scenes = app.scenes();
+  const franka = scenes.find((scene) => scene.html.includes('Franka Stärke') && scene.html.includes('portrait'));
+  const thorsten = scenes.find((scene) => scene.html.includes('Thorsten Staack') && scene.html.includes('portrait'));
+  assert.match(franka.html, /class="szene__rubrik">Praxisinhaberin</);
+  assert.match(thorsten.html, /class="szene__rubrik">Praxisinhaber</);
+  assert.doesNotMatch(thorsten.html, /Praxisinhaberin/);
+});
+
+test('the team page shows each nurse with her qualification', () => {
+  const app = harness();
+  app.run('szenenNeuBauen()');
+  const team = app.scenes().find((scene) => scene.html.includes('Schwester Manuela'));
+  for (const quali of [
+    'Koordinatorin für Ernährungsberatung und Sporttauglichkeitsuntersuchung',
+    'Zusatzqualifikation VERAH',
+    'Zusatzqualifikation Praxismanagement',
+  ]) {
+    assert.ok(team.html.includes(quali), `Missing: ${quali}`);
+  }
+  assert.equal([...team.html.matchAll(/class="kopf__quali"/g)].length, 3);
+});
+
+test('both assistant doctors share one page, right after the owner portraits', () => {
+  const app = harness();
+  app.run('szenenNeuBauen()');
+  const scenes = app.scenes();
+  const pages = scenes.filter((scene) => scene.html.includes('Nora Schwabe') || scene.html.includes('Laura Steinhagen'));
+  assert.equal(pages.length, 1, 'Both on one page');
+  const [page] = pages;
+  assert.ok(page.html.includes('Dr. Nora Schwabe') && page.html.includes('Laura Steinhagen'));
+  assert.ok(page.html.includes('images/team-schwabe.jpg') && page.html.includes('images/team-steinhagen.jpg'));
+  const index = scenes.indexOf(page);
+  assert.ok(scenes[index - 1].html.includes('Thorsten Staack'), 'Directly after Thorsten');
+});
