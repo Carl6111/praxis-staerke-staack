@@ -32,7 +32,6 @@ export const TV_TEXTE = {
   kontaktRubrik: 'Weitere Informationen',
   kontaktTitel: 'Unsere Website',
   kontaktQr: 'Scannen Sie einen der QR-Codes in der Praxis.',
-  kontaktInfo: 'Dort finden Sie Öffnungszeiten, Leistungen und Kontakt.',
   beitragRubrik: 'Aus der Praxis',
   beitragTitel: 'Aktuelles aus der Praxis',
 };
@@ -49,14 +48,12 @@ export const AERZTE = [
   {
     name: 'Franka Stärke',
     rubrik: 'Praxisinhaberin',
-    rolle: 'Praxisinhaberin seit Januar 2021',
     fach: 'Fachärztin für Allgemeinmedizin, Sportmedizin & Ernährungsmedizin',
     bild: 'images/team-2.jpg',
   },
   {
     name: 'Thorsten Staack',
     rubrik: 'Praxisinhaber',
-    rolle: 'Praxisinhaber seit April 2025',
     fach: 'Facharzt für Allgemeinmedizin & Notfallmedizin',
     bild: 'images/team-3.jpg',
   },

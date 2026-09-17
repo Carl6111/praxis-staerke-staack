@@ -83,10 +83,9 @@
   max-width: 11ch; text-wrap: initial;
 }
 .portrait__fach {
-  font-family: var(--sans); font-size: 34px; line-height: 1.5; margin-top: 34px;
-  max-width: 28ch; color: var(--text-mid);
+  font-family: var(--sans); font-size: 37px; line-height: 1.45; margin-top: 34px;
+  max-width: 28ch; color: var(--text);
 }
-.portrait__rolle { font-family: var(--sans); font-size: 26px; margin-top: 26px; color: var(--text-dim); }
 .portrait--rechts { grid-template-columns: 1fr 760px; }
 .portrait--rechts .portrait__foto { grid-column: 2; grid-row: 1; }
 .portrait--rechts .portrait__text {
@@ -102,7 +101,7 @@
   padding: 11px 0; border-bottom: 1px solid var(--line);
 }
 .zeiten__tag, .zeiten__zeit { font-family: var(--sans); font-size: 34px; font-weight: 500; }
-.zeiten__reihe--zu .zeiten__zeit { font-weight: 400; color: var(--text-dim); }
+.zeiten__reihe--zu .zeiten__zeit { font-weight: 400; color: var(--text); }
 .akut {
   margin-top: 26px; padding: 24px 38px; border-left: 3px solid var(--bronze);
   background: var(--bronze-soft); max-width: 1300px;
@@ -123,12 +122,12 @@
 .kopf__bild img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
 .kopf__name { font-family: var(--serif); font-size: 52px; font-weight: 500; line-height: 1.1; margin-top: 24px; }
 .kopf__rolle {
-  font-family: var(--sans); font-size: var(--tv-klein); font-weight: 600;
-  letter-spacing: .14em; color: var(--bronze); margin-top: 12px;
+  font-family: var(--sans); font-size: 28px; font-weight: 600;
+  letter-spacing: .04em; color: var(--bronze); margin-top: 12px;
 }
 .kopf__quali {
-  font-family: var(--sans); font-size: 25px; line-height: 1.4; color: var(--text-mid);
-  margin-top: 8px; max-width: 30ch;
+  font-family: var(--sans); font-size: 28px; line-height: 1.35; color: var(--text);
+  margin-top: 10px;
 }
 
 /* Zwei Assistenzärztinnen: Fotos hochkant, mittig nebeneinander. */
@@ -143,14 +142,13 @@
 .leistung__titel { font-family: var(--sans); font-size: 42px; font-weight: 600; line-height: 1.25; }
 .leistung__text {
   font-family: var(--sans); font-size: 30px; line-height: 1.55;
-  margin-top: 14px; max-width: 42ch; color: rgba(244,240,229,.72);
+  margin-top: 14px; max-width: 42ch; color: rgba(244,240,229,.92);
 }
 
 /* ---------- Kontakt ---------- */
 
 .kontakt__website { font-family: var(--sans); font-size: 84px; line-height: 1.2; font-weight: 500; letter-spacing: -.025em; }
 .kontakt__qr { font-family: var(--sans); font-size: 44px; margin-top: 36px; }
-.kontakt__info { font-family: var(--sans); font-size: 32px; margin-top: 22px; color: rgba(244,240,229,.72); }
 
 /* ---------- Praxisnachrichten ---------- */
 
@@ -165,11 +163,11 @@
   max-width: 40ch; overflow-wrap: anywhere;
 }
 .meldung__text {
-  font-family: var(--sans); font-size: var(--tv-text); line-height: 1.55; margin-top: 12px;
-  max-width: 76ch; color: var(--text-mid); white-space: pre-line; overflow-wrap: anywhere;
+  font-family: var(--sans); font-size: 30px; line-height: 1.5; margin-top: 12px;
+  max-width: 76ch; color: var(--text); white-space: pre-line; overflow-wrap: anywhere;
 }
 .nachrichten--lang .meldung__titel { font-size: 34px; }
-.nachrichten--lang .meldung__text { font-size: 25px; }
+.nachrichten--lang .meldung__text { font-size: 27px; }
 
 /* ---------- Landschaft ---------- */
 

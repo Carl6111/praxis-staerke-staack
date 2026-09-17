@@ -318,7 +318,6 @@ function szeneArzt(p, gespiegelt) {
       <p data-leseblock class="szene__rubrik">${esc(p.rubrik)}</p>
       <h2 data-leseblock data-lese-titel class="portrait__name">${esc(p.name)}</h2>
       <p data-leseblock class="portrait__fach">${esc(p.fach)}</p>
-      <p data-leseblock class="portrait__rolle ziffern">${esc(p.rolle)}</p>
     </div>
   </section>`;
 }
@@ -375,7 +374,6 @@ function szeneKontakt() {
     <div class="szene__inhalt">
       <p data-leseblock data-lese-titel class="kontakt__website">${esc(PRAXIS.website)}</p>
       <p data-leseblock class="kontakt__qr">${esc(TV_TEXTE.kontaktQr)}</p>
-      <p data-leseblock class="kontakt__info">${esc(TV_TEXTE.kontaktInfo)}</p>
     </div>
   </section>`;
 }
