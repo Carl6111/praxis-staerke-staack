@@ -268,5 +268,15 @@
   font-family: var(--sans); font-size: 34px; text-align: center;
 }
 .tonstart[hidden] { display: none; }
+
+/* Nur sichtbar, solange Silk noch Adressleiste und Tabs zeigt. Klein genug, dass
+   es Wartende nicht stört, falls es einmal jemand vergisst. */
+.vollbild {
+  position: absolute; z-index: 15; top: 28px; right: var(--rand);
+  padding: 12px 22px; border-radius: 999px;
+  background: rgba(10,31,19,.88); color: var(--cream-on-green);
+  font-family: var(--sans); font-size: 22px; font-weight: 500;
+}
+.vollbild[hidden] { display: none; }
 .tonstart__inhalt { max-width: 34ch; line-height: 1.5; }
 .tonstart__titel { font-family: var(--serif); font-size: 62px; margin-bottom: 20px; }

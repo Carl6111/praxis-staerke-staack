@@ -38,6 +38,7 @@ function starten() {
   document.getElementById('fuss-praxis').textContent = PRAXIS.untertitel + ' ' + PRAXIS.name;
   uhrStarten();
   tonVorbereiten();
+  vollbildVorbereiten();
   // Die Praxis erscheint sofort, auch wenn das WLAN gerade ausfällt.
   szeneZeigen(0);
   beitraegeLaden();
@@ -97,6 +98,30 @@ function tonVorbereiten() {
   schild.hidden = false;
   document.addEventListener('keydown', freigeben);
   document.addEventListener('click', freigeben);
+}
+
+/* ---------- Vollbild ----------
+   Silk auf dem Fire TV zeigt Adressleiste und Tabs, bis die Seite in den
+   Vollbildmodus wechselt. Das darf eine Seite nur nach einer Eingabe — also
+   schaltet der erste Druck auf OK um. Bis dahin steht ein kleiner Hinweis oben
+   rechts, damit das Personal weiß, was zu tun ist. Nach dem Neuladen alle sechs
+   Stunden ist das Vollbild wieder weg; der Hinweis erscheint dann erneut. */
+
+function vollbildVorbereiten() {
+  const hinweis = document.getElementById('vollbild');
+  const wurzel = document.documentElement;
+  if (!wurzel?.requestFullscreen) { hinweis.hidden = true; return; }
+  const hinweisStellen = () => { hinweis.hidden = Boolean(document.fullscreenElement); };
+  const anfordern = () => {
+    if (document.fullscreenElement) return;
+    wurzel.requestFullscreen().catch(() => {
+      // Abgelehnt, etwa ohne echte Eingabe: der Hinweis bleibt stehen.
+    });
+  };
+  document.addEventListener('fullscreenchange', hinweisStellen);
+  document.addEventListener('keydown', anfordern);
+  document.addEventListener('click', anfordern);
+  hinweisStellen();
 }
 
 /* ---------- Folge: Information und Landschaft über die Runde verteilen ---------- */

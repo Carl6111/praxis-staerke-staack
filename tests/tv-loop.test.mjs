@@ -336,3 +336,42 @@ test('stretches between landscapes are similar in length and pauses stay short',
     }
   }
 });
+
+// ---- Vollbild ---------------------------------------------------------------
+
+function vollbildHarness(mitVollbild) {
+  const app = harness();
+  const handler = {};
+  const zustandVollbild = { anfragen: 0 };
+  const doc = app.run('document');
+  doc.addEventListener = (typ, fn) => { (handler[typ] ||= []).push(fn); };
+  doc.fullscreenElement = null;
+  doc.documentElement = mitVollbild ? {
+    requestFullscreen() {
+      zustandVollbild.anfragen += 1;
+      doc.fullscreenElement = this;
+      return Promise.resolve();
+    },
+  } : {};
+  app.run('vollbildVorbereiten()');
+  const ausloesen = (typ) => (handler[typ] || []).forEach((fn) => fn({ key: 'Enter' }));
+  return { hinweis: doc.getElementById('vollbild'), ausloesen, zustandVollbild };
+}
+
+test('the first remote key press switches to fullscreen, and the hint disappears', () => {
+  const { hinweis, ausloesen, zustandVollbild } = vollbildHarness(true);
+  assert.equal(hinweis.hidden, false, 'Hint shows while the browser chrome is still visible');
+
+  ausloesen('keydown');
+  assert.equal(zustandVollbild.anfragen, 1);
+  ausloesen('fullscreenchange');
+  assert.equal(hinweis.hidden, true, 'Hint must not stay on screen in fullscreen');
+
+  ausloesen('keydown');
+  assert.equal(zustandVollbild.anfragen, 1, 'No second request while already fullscreen');
+});
+
+test('without fullscreen support the page shows no hint it cannot fulfil', () => {
+  const { hinweis } = vollbildHarness(false);
+  assert.equal(hinweis.hidden, true);
+});
