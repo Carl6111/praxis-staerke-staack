@@ -99,7 +99,7 @@ test('both rounds give every block its reading time and preserve clip durations'
     for (const [i, scene] of app.scenes().entries()) {
       if (isLandscape(scene)) {
         const video = videos.find(v => scene.html.includes(v.datei));
-        assert.equal(scene.dauer, video.sekunden * 1000, 'Clip length stays unchanged');
+        assert.equal(scene.dauer, Math.min(video.sekunden * 1000, app.run('RUHE_MAX_MS')), 'Clip plays from the start, capped');
       }
       const blocks = app.room.children[i].querySelectorAll('[data-leseblock]');
       if (!blocks.length) { assert.ok(isLandscape(scene), 'Only a landscape can have no text'); continue; }
@@ -263,7 +263,7 @@ test('the team page shows each nurse with her qualification', () => {
   assert.equal([...team.html.matchAll(/class="kopf__quali"/g)].length, 3);
 });
 
-test('both assistant doctors share one page, right after the owner portraits', () => {
+test('both assistant doctors share one page', () => {
   const app = harness();
   app.run('szenenNeuBauen()');
   const scenes = app.scenes();
@@ -272,6 +272,67 @@ test('both assistant doctors share one page, right after the owner portraits', (
   const [page] = pages;
   assert.ok(page.html.includes('Dr. Nora Schwabe') && page.html.includes('Laura Steinhagen'));
   assert.ok(page.html.includes('images/team-schwabe.jpg') && page.html.includes('images/team-steinhagen.jpg'));
-  const index = scenes.indexOf(page);
-  assert.ok(scenes[index - 1].html.includes('Thorsten Staack'), 'Directly after Thorsten');
+});
+
+// ---- Gleichmäßige Verteilung -------------------------------------------------
+
+const art = (scene) => {
+  if (/<video\b/.test(scene.html)) return 'landschaft';
+  if (/\b(?:empfang|sprechzeiten|kontakt)\b/.test(scene.html.match(/class="([^"]+)"/)[1])) return 'auskunft';
+  if (/leistungsseite/.test(scene.html)) return 'leistung';
+  if (/\b(?:portrait|team)\b/.test(scene.html.match(/class="([^"]+)"/)[1])) return 'gesicht';
+  return 'sonstiges';
+};
+
+function strecken(scenes) {
+  const liste = [];
+  let aktuell = [];
+  for (const scene of scenes) {
+    if (art(scene) === 'landschaft') { liste.push(aktuell); aktuell = []; } else aktuell.push(scene);
+  }
+  if (aktuell.length) liste.push(aktuell);
+  return liste;
+}
+
+for (const [fall, beitraege] of [['without posts', '[]'], ['with a post', "[{ title: 'Praxisurlaub', content: 'Ab Montag wieder geöffnet.' }]"]]) {
+  test(`every stretch between landscapes carries practical info, a service page and a face (${fall})`, () => {
+    const app = harness();
+    app.run(`zustand.beitraege = ${beitraege}`);
+    for (let runde = 0; runde < 2; runde += 1) {
+      app.run('szenenNeuBauen()');
+      const teile = strecken(app.scenes());
+      assert.equal(teile.length, 3);
+      for (const [i, teil] of teile.entries()) {
+        const arten = teil.map(art);
+        assert.ok(arten.includes('auskunft'), `Stretch ${i + 1} lacks practical info: ${arten}`);
+        assert.equal(arten.filter((a) => a === 'leistung').length, 1, `Stretch ${i + 1}: ${arten}`);
+        assert.ok(arten.includes('gesicht'), `Stretch ${i + 1} lacks a face: ${arten}`);
+      }
+    }
+  });
+
+  test(`no two neighbouring scenes share a background (${fall})`, () => {
+    const app = harness();
+    app.run(`zustand.beitraege = ${beitraege}`);
+    app.run('szenenNeuBauen()');
+    const scenes = app.scenes();
+    for (let i = 0; i < scenes.length; i += 1) {
+      const next = scenes[(i + 1) % scenes.length];
+      assert.notEqual(scenes[i].ton, next.ton, `${art(scenes[i])} → ${art(next)} both ${scenes[i].ton} at ${i}`);
+    }
+  });
+}
+
+test('stretches between landscapes are similar in length and pauses stay short', () => {
+  const app = harness();
+  for (let runde = 0; runde < 2; runde += 1) {
+    app.run('szenenNeuBauen()');
+    const scenes = app.scenes();
+    const laengen = strecken(scenes).map((teil) => teil.reduce((summe, scene) => summe + scene.dauer, 0));
+    const spanne = Math.max(...laengen) - Math.min(...laengen);
+    assert.ok(spanne <= 20_000, `Stretches: ${laengen.map((l) => Math.round(l / 1000))} s`);
+    for (const scene of scenes.filter((s) => art(s) === 'landschaft')) {
+      assert.ok(scene.dauer <= 25_000, `Pause too long: ${scene.dauer / 1000} s`);
+    }
+  }
 });

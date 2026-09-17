@@ -12,6 +12,11 @@ import { leseplan } from './tv-timing.js';
 
 const POSTS_INTERVALL_MS = 10 * 60 * 1000;
 const NEUBAU_NACH_MS = 6 * 60 * 60 * 1000;
+// Längste Landschaftspause. Die Clips sind 20 bis 40 s lang; wer mitten in den
+// 40-Sekunden-Nebel hineinkommt, wartet sonst doppelt so lang auf die nächste
+// Auskunft wie jemand beim 20-Sekunden-Clip. Gekürzt wird nur das Ende, der Clip
+// springt nie zurück.
+const RUHE_MAX_MS = 25 * 1000;
 const WECHSEL_MS = 1600;
 
 const buehne = document.getElementById('buehne');
@@ -105,24 +110,32 @@ function szenenNeuBauen() {
   const meldungen = seiten.length
     ? seiten[zustand.beitragVersatz++ % seiten.length] : null;
 
-  // Reihenfolge nach dem, was Wartende zuerst brauchen: erst die Akutsprechstunde,
-  // dann die Sprechzeiten, dann Menschen und Leistungen im Wechsel.
+  // Der Loop hat keinen Anfang: Wartende kommen irgendwann dazu. Deshalb trägt
+  // jede Strecke zwischen zwei Landschaften dasselbe Paket — eine praktische
+  // Auskunft (Akutsprechstunde, Sprechzeiten, Website), eine Leistungsseite und
+  // mindestens ein Gesicht. Wer eine gute Minute hinschaut, hat von allem etwas.
+  // Hell und dunkel wechseln innerhalb jeder Strecke; zwei gleiche Untergründe
+  // hintereinander wirken auf dem Fernseher wie eine hängengebliebene Seite.
+  // Die Strecken sind auf ähnliche Länge verteilt: die Leistungsseiten brauchen
+  // die meiste Lesezeit und stehen deshalb je einmal pro Strecke.
   const bloecke = [
     [
+      szene(14, 'papier', 'seitlich', () => szeneArzt(AERZTE[0], false)),
       szene(13, 'bild', 'blende', szeneEmpfang),
-      szene(16, 'papier', 'hoch', szeneZeiten),
+      szene(14, 'papier', 'seitlich', () => szeneArzt(AERZTE[1], true)),
       szene(17, 'tinte', 'hoch', () => szeneLeistungen(LEISTUNGEN[0])),
     ],
     [
-      szene(14, 'papier', 'seitlich', () => szeneArzt(AERZTE[0], false)),
-      szene(14, 'papier', 'seitlich', () => szeneArzt(AERZTE[1], true)),
-      szene(15, 'papier', 'hoch', szeneAssistenz),
+      szene(16, 'papier', 'hoch', szeneZeiten),
       szene(17, 'tinte', 'hoch', () => szeneLeistungen(LEISTUNGEN[1])),
+      szene(15, 'papier', 'hoch', szeneTeam),
     ],
     [
-      szene(15, 'papier', 'hoch', szeneTeam),
-      szene(15, 'tinte', 'hoch', () => szeneLeistungen(LEISTUNGEN[2])),
       szene(14, 'tinte', 'blende', szeneKontakt),
+      szene(15, 'papier', 'hoch', szeneAssistenz),
+      szene(15, 'tinte', 'hoch', () => szeneLeistungen(LEISTUNGEN[2])),
+      // Praxismeldungen in die kürzeste Strecke, damit sie nicht die längste
+      // noch länger machen.
       ...(meldungen ? [szene(14, 'papier', 'hoch', () => szeneBeitraege(meldungen))] : []),
     ],
   ];
@@ -134,9 +147,8 @@ function szenenNeuBauen() {
     folge.push(...block);
     if (RUHEVIDEOS.length) {
       const platz = (zustand.ruheVersatz + i) % RUHEVIDEOS.length;
-      // Die Szene ist so lang wie der Clip: eine ruhige Kamerafahrt lässt sich
-      // nicht unsichtbar schleifen.
-      folge.push(szene(RUHEVIDEOS[platz].sekunden, 'bild', 'blende', () => szeneRuhe(platz)));
+      const dauer = Math.min(RUHEVIDEOS[platz].sekunden * 1000, RUHE_MAX_MS) / 1000;
+      folge.push(szene(dauer, 'bild', 'blende', () => szeneRuhe(platz)));
     }
   });
   zustand.ruheVersatz = (zustand.ruheVersatz + bloecke.length) % RUHEVIDEOS.length;
@@ -156,7 +168,7 @@ function szenenNeuBauen() {
       block.style.setProperty('--lese-start', plan.schritte[index].start + 'ms');
       block.style.setProperty('--lese-animation', plan.schritte[index].animation + 'ms');
     });
-    // Filmclips behalten ihre Länge. Ihre kurzen Hinweise passen in diese Zeit.
+    // Landschaften behalten ihre gedeckelte Cliplänge; ihr einer Satz passt hinein.
     if (!element.querySelector('video')) zustand.szenen[i].dauer = plan.dauer;
     element.style.setProperty('--dauer', zustand.szenen[i].dauer + 'ms');
   });
