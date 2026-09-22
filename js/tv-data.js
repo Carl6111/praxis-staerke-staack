@@ -17,7 +17,7 @@ export const PRAXIS = {
 };
 
 export const TV_TEXTE = {
-  empfangBild: 'images/tresenv6-2000.jpg',
+  empfangBild: 'images/tv/tresen.jpg',
   akutRubrik: 'Ohne Termin',
   akutTitel: 'Akutsprechstunde',
   akutZeit: '8 – 9 Uhr',
@@ -43,24 +43,25 @@ export const OEFFNUNGSZEITEN = [
 
 export const AKUTSPRECHSTUNDE = 'Montag bis Freitag 08:00 – 09:00 Uhr ohne Voranmeldung.';
 
+// Alle Fotos auf dem Bildschirm liegen unter images/tv/: mit Higgsfield
+// nachgeschärft (22.09.2026) und auf 1600 px Höhe verkleinert. Die beiden
+// Inhaberporträts sind auf Wunsch der Praxis zusätzlich dezent retuschiert.
+// Nur für den Bildschirm — die Website zeigt weiter die Originale unter images/.
 export const AERZTE = [
   {
     name: 'Franka Stärke',
     rubrik: 'Praxisinhaberin',
     fach: 'Fachärztin für Allgemeinmedizin, Sportmedizin & Ernährungsmedizin',
-    bild: 'images/team-2.jpg',
+    bild: 'images/tv/team-2.jpg',
   },
   {
     name: 'Thorsten Staack',
     rubrik: 'Praxisinhaber',
     fach: 'Facharzt für Allgemeinmedizin & Notfallmedizin',
-    bild: 'images/team-3.jpg',
+    bild: 'images/tv/team-3.jpg',
   },
 ];
 
-// Fotos unter images/tv/: mit Higgsfield nachgeschärft (22.09.2026) und auf
-// 1600 px Höhe verkleinert. Nur für den Bildschirm — die Website zeigt weiter
-// die Originale unter images/.
 export const FACHKRAEFTE = [
   {
     name: 'Schwester Manuela',
@@ -86,7 +87,7 @@ export const FACHKRAEFTE = [
 // Höhe verkleinert — die Originale (bis 154 MB) zöge der Fire TV Stick nicht.
 export const ASSISTENZAERZTINNEN = [
   { name: 'Dr. Nora Schwabe', rolle: 'Assistenzärztin', bild: 'images/tv/team-schwabe.jpg' },
-  { name: 'Laura Steinhagen', rolle: 'Assistenzärztin', bild: 'images/team-steinhagen.jpg' },
+  { name: 'Laura Steinhagen', rolle: 'Assistenzärztin', bild: 'images/tv/team-steinhagen.jpg' },
 ];
 
 // Leistungen der Praxis, Texte wie auf leistungen.html. Abweichend von der
