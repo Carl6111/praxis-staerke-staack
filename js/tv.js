@@ -1,12 +1,13 @@
 // Ablauf des Warteraum-Bildschirms. Feste Inhalte kommen aus tv-data.js.
 //
 // Der Bildschirm läuft ohne Bedienung: Seiten wechseln nach berechneter Lesezeit, neue
-// Beiträge aus dem Praxis-Admin erscheinen von allein. Preise stehen bewusst
-// nicht im Loop — der Bildschirm nennt die Leistungen, die Beträge die Liste
-// am Tresen.
+// Beiträge aus dem Praxis-Admin erscheinen von allein. Beträge stehen bewusst
+// nicht im Loop — der Bildschirm nennt Leistungen, auch einige Selbstzahler-
+// leistungen, die Beträge stehen auf der Liste am Tresen.
 import {
   PRAXIS, TV_TEXTE, OEFFNUNGSZEITEN, AKUTSPRECHSTUNDE,
-  AERZTE, FACHKRAEFTE, ASSISTENZAERZTINNEN, LEISTUNGEN, RUHEVIDEOS, MUSIK,
+  AERZTE, FACHKRAEFTE, ASSISTENZAERZTINNEN, LEISTUNGEN, SELBSTZAHLER,
+  SELBSTZAHLER_SEITE, RUHEVIDEOS, MUSIK,
 } from './tv-data.js';
 import { leseplan } from './tv-timing.js';
 
@@ -101,27 +102,22 @@ function tonVorbereiten() {
 }
 
 /* ---------- Vollbild ----------
-   Silk auf dem Fire TV zeigt Adressleiste und Tabs, bis die Seite in den
-   Vollbildmodus wechselt. Das darf eine Seite nur nach einer Eingabe — also
-   schaltet der erste Druck auf OK um. Bis dahin steht ein kleiner Hinweis oben
-   rechts, damit das Personal weiß, was zu tun ist. Nach dem Neuladen alle sechs
-   Stunden ist das Vollbild wieder weg; der Hinweis erscheint dann erneut. */
+   Fully Kiosk zeigt die Seite ohnehin im Vollbild. Falls der Stick sie doch
+   einmal im normalen Browser öffnet, schaltet der erste Tastendruck still um.
+   Einen Hinweis dazu gibt es nicht mehr — die Praxis wollte keine Meldung auf
+   dem Bildschirm (22.09.2026). */
 
 function vollbildVorbereiten() {
-  const hinweis = document.getElementById('vollbild');
   const wurzel = document.documentElement;
-  if (!wurzel?.requestFullscreen) { hinweis.hidden = true; return; }
-  const hinweisStellen = () => { hinweis.hidden = Boolean(document.fullscreenElement); };
+  if (!wurzel?.requestFullscreen) return;
   const anfordern = () => {
     if (document.fullscreenElement) return;
     wurzel.requestFullscreen().catch(() => {
-      // Abgelehnt, etwa ohne echte Eingabe: der Hinweis bleibt stehen.
+      // Abgelehnt, etwa ohne echte Eingabe: beim nächsten Tastendruck erneut.
     });
   };
-  document.addEventListener('fullscreenchange', hinweisStellen);
   document.addEventListener('keydown', anfordern);
   document.addEventListener('click', anfordern);
-  hinweisStellen();
 }
 
 /* ---------- Folge: Information und Landschaft über die Runde verteilen ---------- */
@@ -153,11 +149,16 @@ function szenenNeuBauen() {
     [
       szene(16, 'papier', 'hoch', szeneZeiten),
       szene(17, 'tinte', 'hoch', () => szeneLeistungen(LEISTUNGEN[1])),
-      szene(15, 'papier', 'hoch', szeneTeam),
+      szene(15, 'papier', 'hoch', szeneAssistenz),
+      // Durch die Assistenzärztinnen von der Diagnostikseite getrennt: die Praxis
+      // wollte die Leistungen verteilt, nicht als Block hintereinander. Team und
+      // Assistenz haben dafür die Blöcke getauscht — die längere Teamseite gleicht
+      // Block 3 aus, sonst läge Block 2 über der erlaubten Spanne.
+      szene(15, 'tinte', 'hoch', szeneSelbstzahler),
     ],
     [
       szene(14, 'tinte', 'blende', szeneKontakt),
-      szene(15, 'papier', 'hoch', szeneAssistenz),
+      szene(15, 'papier', 'hoch', szeneTeam),
       szene(15, 'tinte', 'hoch', () => szeneLeistungen(LEISTUNGEN[2])),
       // Praxismeldungen in die kürzeste Strecke, damit sie nicht die längste
       // noch länger machen.
@@ -357,12 +358,31 @@ function szeneAssistenz() {
 
 function szeneLeistungen(gruppe) {
   return `<section class="szene szene--tinte leistungsseite">
-    ${kopf(TV_TEXTE.leistungenRubrik, gruppe.gruppe)}
+    ${kopf(gruppe.rubrik, gruppe.gruppe)}
     <div class="szene__inhalt">
       <div class="leistungen">${gruppe.posten.map((l) => `
         <article data-leseblock class="leistung">
           <h3 class="leistung__titel">${esc(l.titel)}</h3>
           <p class="leistung__text">${esc(l.text)}</p>
+        </article>`).join('')}</div>
+    </div>
+  </section>`;
+}
+
+// Nur Name und, wo die gedruckte Liste eine hat, deren Erläuterung. `preis` und
+// `zusatz` werden hier absichtlich nie gelesen: Beträge gehören an den Tresen.
+function szeneSelbstzahler() {
+  const alle = SELBSTZAHLER.flatMap((gruppe) => gruppe.posten);
+  const posten = SELBSTZAHLER_SEITE.leistungen
+    .map((name) => alle.find((p) => p.leistung === name))
+    .filter(Boolean);
+  return `<section class="szene szene--tinte selbstzahlerseite">
+    ${kopf(SELBSTZAHLER_SEITE.rubrik, SELBSTZAHLER_SEITE.titel)}
+    <div class="szene__inhalt">
+      <div class="leistungen">${posten.map((p) => `
+        <article data-leseblock class="leistung">
+          <h3 class="leistung__titel">${esc(p.leistung)}</h3>
+          ${p.detail ? `<p class="leistung__text">${esc(p.detail)}</p>` : ''}
         </article>`).join('')}</div>
     </div>
   </section>`;

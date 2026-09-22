@@ -119,8 +119,34 @@ test('no prices appear anywhere in the loop', () => {
     app.run('szenenNeuBauen()');
     const content = app.scenes().map((scene) => scene.html).join('');
     assert.doesNotMatch(content, /\d+,\d{2}\s*€/, 'Amounts belong on the printed list, not on the screen');
-    assert.doesNotMatch(content, /preis__|Selbstzahler|Preisstand/);
+    // Seit 22.09.2026 gibt es eine Selbstzahlerseite, aber nur mit Namen.
+    assert.doesNotMatch(content, /preis__|Preisstand|zzgl\./);
   }
+});
+
+test('the self-pay page lists a few chosen services by name, never amounts', () => {
+  const app = harness();
+  app.run('szenenNeuBauen()');
+  const scenes = app.scenes().filter((scene) => scene.html.includes('selbstzahlerseite'));
+  assert.equal(scenes.length, 1, 'One self-pay page per round');
+  const seite = JSON.parse(app.run('JSON.stringify(SELBSTZAHLER_SEITE)'));
+  const titles = [...scenes[0].html.matchAll(/class="leistung__titel">([^<]+)</g)].map((match) => match[1]);
+  assert.deepEqual(titles, seite.leistungen, 'Every chosen name exists in SELBSTZAHLER');
+  assert.ok(titles.length >= 3 && titles.length <= 4, `Service count: ${titles.length}`);
+  assert.ok(scenes[0].html.includes('Gesundheit selbst'), 'Heading worded by the practice');
+  const all = app.scenes();
+  const index = all.indexOf(scenes[0]);
+  const neighbours = [all[index - 1], all[index + 1]].filter(Boolean);
+  assert.ok(neighbours.every((scene) => !scene.html.includes('leistungsseite')),
+    'Not placed directly next to another service page');
+});
+
+test('no COVID vaccination is advertised', () => {
+  const app = harness();
+  app.run('szenenNeuBauen()');
+  const content = app.scenes().map((scene) => scene.html).join('');
+  assert.doesNotMatch(content, /covid|corona/i);
+  assert.match(content, /Asthma und COPD/, 'DMP names all four programmes');
 });
 
 test('every service is shown with its name and an explanation', () => {
@@ -271,7 +297,8 @@ test('both assistant doctors share one page', () => {
   assert.equal(pages.length, 1, 'Both on one page');
   const [page] = pages;
   assert.ok(page.html.includes('Dr. Nora Schwabe') && page.html.includes('Laura Steinhagen'));
-  assert.ok(page.html.includes('images/team-schwabe.jpg') && page.html.includes('images/team-steinhagen.jpg'));
+  // Dateiname statt Pfad: die TV-Fassungen liegen seit 22.09.2026 unter images/tv/.
+  assert.ok(page.html.includes('team-schwabe.jpg') && page.html.includes('team-steinhagen.jpg'));
 });
 
 // ---- Gleichmäßige Verteilung -------------------------------------------------
@@ -355,23 +382,20 @@ function vollbildHarness(mitVollbild) {
   } : {};
   app.run('vollbildVorbereiten()');
   const ausloesen = (typ) => (handler[typ] || []).forEach((fn) => fn({ key: 'Enter' }));
-  return { hinweis: doc.getElementById('vollbild'), ausloesen, zustandVollbild };
+  return { ausloesen, zustandVollbild };
 }
 
-test('the first remote key press switches to fullscreen, and the hint disappears', () => {
-  const { hinweis, ausloesen, zustandVollbild } = vollbildHarness(true);
-  assert.equal(hinweis.hidden, false, 'Hint shows while the browser chrome is still visible');
-
+test('the first remote key press switches to fullscreen silently', () => {
+  const { ausloesen, zustandVollbild } = vollbildHarness(true);
   ausloesen('keydown');
   assert.equal(zustandVollbild.anfragen, 1);
   ausloesen('fullscreenchange');
-  assert.equal(hinweis.hidden, true, 'Hint must not stay on screen in fullscreen');
-
   ausloesen('keydown');
   assert.equal(zustandVollbild.anfragen, 1, 'No second request while already fullscreen');
 });
 
-test('without fullscreen support the page shows no hint it cannot fulfil', () => {
-  const { hinweis } = vollbildHarness(false);
-  assert.equal(hinweis.hidden, true);
+test('without fullscreen support nothing is requested and nothing breaks', () => {
+  const { ausloesen, zustandVollbild } = vollbildHarness(false);
+  ausloesen('keydown');
+  assert.equal(zustandVollbild.anfragen, 0);
 });

@@ -28,7 +28,6 @@ export const TV_TEXTE = {
   assistenzTitel: 'Unsere Assistenzärztinnen',
   teamRubrik: 'Praxisteam',
   teamTitel: 'Unser Team',
-  leistungenRubrik: 'Leistungen · Kassenleistung',
   kontaktRubrik: 'Weitere Informationen',
   kontaktTitel: 'Unsere Website',
   kontaktQr: 'Scannen Sie einen der QR-Codes in der Praxis.',
@@ -59,41 +58,49 @@ export const AERZTE = [
   },
 ];
 
+// Fotos unter images/tv/: mit Higgsfield nachgeschärft (22.09.2026) und auf
+// 1600 px Höhe verkleinert. Nur für den Bildschirm — die Website zeigt weiter
+// die Originale unter images/.
 export const FACHKRAEFTE = [
   {
     name: 'Schwester Manuela',
     rolle: 'Medizinische Fachangestellte',
     qualifikation: 'Koordinatorin für Ernährungsberatung und Sporttauglichkeitsuntersuchung',
-    bild: 'images/team-4.jpg',
+    bild: 'images/tv/team-4.jpg',
   },
   {
     name: 'Schwester Franziska',
     rolle: 'Medizinische Fachangestellte',
     qualifikation: 'Zusatzqualifikation VERAH',
-    bild: 'images/team-foto-gruppe.jpg',
+    bild: 'images/tv/team-foto-gruppe.jpg',
   },
   {
     name: 'Schwester Claudia',
     rolle: 'Medizinische Fachangestellte',
     qualifikation: 'Zusatzqualifikation Praxismanagement',
-    bild: 'images/team-5.jpg',
+    bild: 'images/tv/team-5.jpg',
   },
 ];
 
 // Eigene Seite, beide zusammen. Fotos aus praxis-mobile-bilder/, auf 1600 px
 // Höhe verkleinert — die Originale (bis 154 MB) zöge der Fire TV Stick nicht.
 export const ASSISTENZAERZTINNEN = [
-  { name: 'Dr. Nora Schwabe', rolle: 'Assistenzärztin', bild: 'images/team-schwabe.jpg' },
+  { name: 'Dr. Nora Schwabe', rolle: 'Assistenzärztin', bild: 'images/tv/team-schwabe.jpg' },
   { name: 'Laura Steinhagen', rolle: 'Assistenzärztin', bild: 'images/team-steinhagen.jpg' },
 ];
 
-// Kassenleistungen, inhaltlich identisch zu leistungen.html.
+// Leistungen der Praxis, Texte wie auf leistungen.html. Abweichend von der
+// Website steht die ABI-Messung auf dem Bildschirm als eigener Punkt unter
+// Diagnostik und die Bioimpedanzanalyse bei den Schwerpunkten (Wunsch der
+// Praxis, 22.09.2026). Jede Gruppe trägt ihre eigene Rubrik — „Kassenleistung"
+// stand vorher über allen dreien und passte nicht.
 //
 // In benannte Gruppen geteilt statt in gleich große Blöcke: jede Seite muss für
 // sich allein verständlich sein. Wer genau während Seite zwei hereinkommt, soll
 // an der Überschrift erkennen, worum es geht.
 export const LEISTUNGEN = [
   {
+    rubrik: 'Leistungen',
     gruppe: 'Versorgung und Vorsorge',
     posten: [
       {
@@ -106,15 +113,16 @@ export const LEISTUNGEN = [
       },
       {
         titel: 'Disease-Management-Programme',
-        text: 'Strukturierte Begleitung bei chronischer Erkrankung, etwa Diabetes mellitus Typ 2 und koronare Herzkrankheit.',
+        text: 'Strukturierte Begleitung bei Diabetes mellitus Typ 2, koronarer Herzkrankheit, Asthma und COPD.',
       },
       {
         titel: 'Impfungen',
-        text: 'Alle von der STIKO empfohlenen Impfungen: Grippe, COVID, Tetanus, Pneumokokken, Gürtelrose und weitere.',
+        text: 'Alle von der STIKO empfohlenen Impfungen: Grippe, Tetanus, Pneumokokken, Gürtelrose und weitere.',
       },
     ],
   },
   {
+    rubrik: 'Diagnostik',
     gruppe: 'Diagnostik in der Praxis',
     posten: [
       {
@@ -127,15 +135,16 @@ export const LEISTUNGEN = [
       },
       {
         titel: 'Lungenfunktion',
-        text: 'Spirometrie bei Verdacht auf Asthma oder COPD, Pulsoximetrie und ABI-Messung zur Durchblutungsprüfung.',
+        text: 'Spirometrie bei Verdacht auf Asthma oder COPD, dazu Pulsoximetrie.',
       },
       {
-        titel: 'Bioimpedanzanalyse',
-        text: 'Messung von Muskelmasse, Körperfett und Wasserhaushalt — für Gewichtsmanagement und Ernährungstherapie.',
+        titel: 'ABI-Messung',
+        text: 'Zum Ausschluss einer Durchblutungsstörung.',
       },
     ],
   },
   {
+    rubrik: 'Schwerpunkte',
     gruppe: 'Unsere Schwerpunkte',
     posten: [
       {
@@ -150,14 +159,18 @@ export const LEISTUNGEN = [
         titel: 'Psychosomatische Grundversorgung',
         text: 'Begleitung bei psychosomatischen Beschwerden, Erschöpfung und leichten Depressionen — ohne lange Wartezeit.',
       },
+      {
+        titel: 'Bioimpedanzanalyse',
+        text: 'Messung von Muskelmasse, Körperfett und Wasserhaushalt — für Gewichtsmanagement und Ernährungstherapie.',
+      },
     ],
   },
 ];
 
-// Selbstzahlerpreise. Stand 15.09.2026 bewusst NICHT im Loop: der Bildschirm
-// nennt die Leistungen, die Beträge stehen auf der Liste am Tresen und auf der
-// Website. Die Daten bleiben hier, damit eine spätere Preisseite nichts neu
-// erheben muss. `preis` in Euro, `zusatz` erscheint kleiner darunter.
+// Selbstzahlerleistungen. Beträge erscheinen NIE auf dem Bildschirm — sie
+// stehen auf der Liste am Tresen. Der Bildschirm zeigt nur eine Auswahl der
+// Leistungsnamen (SELBSTZAHLER_SEITE unten); `preis` und `zusatz` werden dort
+// nicht gelesen. `preis` in Euro, `zusatz` gehört zur gedruckten Liste.
 export const SELBSTZAHLER = [
   {
     gruppe: 'Diagnostik',
@@ -222,6 +235,23 @@ export const SELBSTZAHLER = [
     ],
   },
 ];
+
+// Seite „Selbstzahlerleistungen" im Loop. Titel wörtlich von der Praxis.
+// Bewusst nur einige, nicht die ganze Liste (Wunsch der Praxis, 22.09.2026).
+// Die Namen müssen exakt einem `leistung` in SELBSTZAHLER entsprechen; die
+// Erläuterung kommt aus dessen `detail`, sofern die Liste eine hat.
+// Sporttauglichkeit und Ernährungsberatung fehlen, weil sie schon bei den
+// Schwerpunkten stehen.
+export const SELBSTZAHLER_SEITE = {
+  rubrik: 'Selbstzahlerleistungen',
+  titel: 'Kümmern Sie sich um Ihre Gesundheit selbst!',
+  leistungen: [
+    'Kleiner Gesundheitscheck',
+    'Kleiner Vitamin-Check',
+    'Ganzkörper-Hautcheck',
+    'Reisemedizinische Beratung',
+  ],
+};
 
 // Drei Clips pro Runde, in der Folgerunde die anderen drei.
 // Alle lokal: 1920×1080, H.264, ohne Tonspur, 0,75-fache Geschwindigkeit.

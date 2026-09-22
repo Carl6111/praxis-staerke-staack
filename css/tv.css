@@ -201,8 +201,11 @@
 .buehne[data-ton="tinte"] .fuss { background: var(--green-deep); color: var(--cream-on-green); }
 .buehne[data-ton="bild"] .fuss { background: rgba(10,31,19,.9); color: var(--cream-on-green); }
 
+/* Auf der Oberkante der Fußzeile, also direkt über Praxisname und Uhrzeit —
+   nicht am unteren Bildrand darunter (Wunsch der Praxis, 22.09.2026). Die Höhe
+   der Fußzeile steht in .fuss. */
 .fortschritt {
-  position: absolute; z-index: 6; left: 0; right: 0; bottom: 0; height: 3px;
+  position: absolute; z-index: 6; left: 0; right: 0; bottom: 145px; height: 3px;
   background: rgba(184,132,58,.18);
 }
 .fortschritt__balken {
@@ -269,12 +272,5 @@
 
 /* Nur sichtbar, solange Silk noch Adressleiste und Tabs zeigt. Klein genug, dass
    es Wartende nicht stört, falls es einmal jemand vergisst. */
-.vollbild {
-  position: absolute; z-index: 15; top: 28px; right: var(--rand);
-  padding: 12px 22px; border-radius: 999px;
-  background: rgba(10,31,19,.88); color: var(--cream-on-green);
-  font-family: var(--sans); font-size: 22px; font-weight: 500;
-}
-.vollbild[hidden] { display: none; }
 .tonstart__inhalt { max-width: 34ch; line-height: 1.5; }
 .tonstart__titel { font-family: var(--serif); font-size: 62px; margin-bottom: 20px; }
