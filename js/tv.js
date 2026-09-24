@@ -19,6 +19,9 @@ const NEUBAU_NACH_MS = 6 * 60 * 60 * 1000;
 // springt nie zurück.
 const RUHE_MAX_MS = 25 * 1000;
 const WECHSEL_MS = 1600;
+// Muss vor starten() stehen: das baut die erste Runde sofort, und eine weiter
+// unten deklarierte Konstante wäre dann noch nicht initialisiert.
+const EURO = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' });
 
 const buehne = document.getElementById('buehne');
 const szenenRaum = document.getElementById('szenen');
@@ -370,8 +373,6 @@ function szeneLeistungen(gruppe) {
     </div>
   </section>`;
 }
-
-const EURO = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' });
 
 // Preis hinter dem Namen statt in eigener Spalte: eine rechtsbündige
 // Betragsspalte liest sich wie Rechnung oder Speisekarte. Das geschützte

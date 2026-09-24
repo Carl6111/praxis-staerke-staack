@@ -7,7 +7,7 @@ import vm from 'node:vm';
 
 const site = fileURLToPath(new URL('../', import.meta.url));
 
-function harness() {
+function harness({ mitStart = false } = {}) {
   const requests = [];
   const timers = [];
   const elements = new Map();
@@ -66,7 +66,7 @@ function harness() {
   const script = readFileSync(join(site, 'js/tv.js'), 'utf8')
     .replace(/import\s*\{[\s\S]*?\}\s*from\s*['"]\.\/tv-data\.js['"];?/, '')
     .replace("import { leseplan } from './tv-timing.js';", '')
-    .replace(/^starten\(\);?\s*$/m, '');
+    .replace(/^starten\(\);?\s*$/m, (aufruf) => mitStart ? aufruf : '');
   vm.runInContext(`${data}\n${timing}\n${script}`, context);
   return {
     room, requests, timers,
@@ -75,6 +75,14 @@ function harness() {
     scenes: () => JSON.parse(vm.runInContext('JSON.stringify(zustand.szenen)', context)),
   };
 }
+
+// Im Browser läuft starten() oben im Modul, bevor weiter unten stehende
+// Konstanten initialisiert sind. Ein Zugriff darauf wirft, und der Bildschirm
+// bleibt leer (so geschehen am 24.09.2026 mit `EURO`).
+test('the screen starts exactly as in the browser, with starten() at the top', () => {
+  const app = harness({ mitStart: true });
+  assert.ok(app.scenes().length > 0, 'Scenes are built on start');
+});
 
 const isLandscape = (scene) => /<video\b/.test(scene.html);
 const clips = (scenes) => scenes.filter(isLandscape).map((scene) => scene.html.match(/src="([^"]+)"/)[1]);
