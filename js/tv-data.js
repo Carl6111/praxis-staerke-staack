@@ -45,7 +45,9 @@ export const AKUTSPRECHSTUNDE = 'Montag bis Freitag 08:00 – 09:00 Uhr ohne Vor
 
 // Alle Fotos auf dem Bildschirm liegen unter images/tv/: mit Higgsfield
 // nachgeschärft (22.09.2026) und auf 1600 px Höhe verkleinert. Die beiden
-// Inhaberporträts sind auf Wunsch der Praxis zusätzlich dezent retuschiert.
+// Inhaberporträts sind auf Wunsch der Praxis verjüngt: seit 24.09.2026 ohne
+// Falten in Gesicht und an den Händen (Higgsfield, aus den Originalen;
+// Varianten in praxis-raw-assets/verjuengung-2026-09-24/).
 // Nur für den Bildschirm — die Website zeigt weiter die Originale unter images/.
 export const AERZTE = [
   {
