@@ -91,10 +91,10 @@ test('opening hours use three individually animated rows with unchanged times', 
   ]);
 });
 
-test('both rounds give every block its reading time and preserve clip durations', () => {
+test('every round gives every block its reading time and preserves clip durations', () => {
   const app = harness();
   const videos = JSON.parse(app.run('JSON.stringify(RUHEVIDEOS)'));
-  for (let round = 0; round < 2; round += 1) {
+  for (let round = 0; round < 6; round += 1) {
     app.run('szenenNeuBauen()');
     for (const [i, scene] of app.scenes().entries()) {
       if (isLandscape(scene)) {
@@ -113,32 +113,81 @@ test('both rounds give every block its reading time and preserve clip durations'
   }
 });
 
-test('no prices appear anywhere in the loop', () => {
-  const app = harness();
-  for (let round = 0; round < 2; round += 1) {
+// Seit 24.09.2026 zeigt der Bildschirm Selbstzahlerpreise, auf Wunsch der Praxis.
+// Mehrere Seiten à höchstens vier Posten, pro Runde eine: alles auf einer wäre
+// zu voll, und eine lange Seite sprengt die Streckenlänge.
+const betrag = (euro) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(euro);
+
+function selbstzahlerRunden(app) {
+  const runden = [];
+  const anzahl = app.run('SELBSTZAHLER_SEITEN.length');
+  for (let round = 0; round < anzahl; round += 1) {
     app.run('szenenNeuBauen()');
-    const content = app.scenes().map((scene) => scene.html).join('');
-    assert.doesNotMatch(content, /\d+,\d{2}\s*€/, 'Amounts belong on the printed list, not on the screen');
-    // Seit 22.09.2026 gibt es eine Selbstzahlerseite, aber nur mit Namen.
-    assert.doesNotMatch(content, /preis__|Preisstand|zzgl\./);
+    const all = app.scenes();
+    const scenes = all.filter((scene) => scene.html.includes('selbstzahlerseite'));
+    runden.push({ all, scenes });
+  }
+  return runden;
+}
+
+test('amounts appear only on the self-pay page', () => {
+  const app = harness();
+  for (const { all } of selbstzahlerRunden(app)) {
+    const others = all.filter((scene) => !scene.html.includes('selbstzahlerseite')).map((scene) => scene.html).join('');
+    assert.doesNotMatch(others, /\d+,\d{2}\s*€/, 'Amounts belong on the self-pay page only');
   }
 });
 
-test('the self-pay page lists a few chosen services by name, never amounts', () => {
+test('the self-pay pages rotate and together list the chosen services with prices', () => {
   const app = harness();
-  app.run('szenenNeuBauen()');
-  const scenes = app.scenes().filter((scene) => scene.html.includes('selbstzahlerseite'));
-  assert.equal(scenes.length, 1, 'One self-pay page per round');
-  const seite = JSON.parse(app.run('JSON.stringify(SELBSTZAHLER_SEITE)'));
-  const titles = [...scenes[0].html.matchAll(/class="leistung__titel">([^<]+)</g)].map((match) => match[1]);
-  assert.deepEqual(titles, seite.leistungen, 'Every chosen name exists in SELBSTZAHLER');
-  assert.ok(titles.length >= 3 && titles.length <= 4, `Service count: ${titles.length}`);
-  assert.ok(scenes[0].html.includes('Gesundheit selbst'), 'Heading worded by the practice');
-  const all = app.scenes();
-  const index = all.indexOf(scenes[0]);
-  const neighbours = [all[index - 1], all[index + 1]].filter(Boolean);
-  assert.ok(neighbours.every((scene) => !scene.html.includes('leistungsseite')),
-    'Not placed directly next to another service page');
+  const runden = selbstzahlerRunden(app);
+  for (const { scenes } of runden) assert.equal(scenes.length, 1, 'One self-pay page per round');
+  const htmls = runden.map(({ scenes }) => scenes[0].html);
+  assert.equal(new Set(htmls).size, htmls.length, 'Each round shows the next page');
+
+  const gruppen = JSON.parse(app.run('JSON.stringify(SELBSTZAHLER)'));
+  const alle = gruppen.flatMap((gruppe) => gruppe.posten);
+  // Diagnostik Nr. 2–14 der gedruckten Liste (Nr. 1 Ruhe-EKG nicht) plus die Faltenbehandlung.
+  const erwartet = gruppen.find((gruppe) => gruppe.gruppe === 'Diagnostik').posten
+    .map((p) => p.leistung).filter((name) => name !== 'Ruhe-EKG').concat('Faltenunterspritzung');
+  assert.equal(erwartet.length, 12);
+
+  const seiten = htmls.map((html) => [...html.matchAll(/<article data-leseblock class="leistung">([\s\S]*?)<\/article>/g)].map(([, inhalt]) => inhalt));
+  for (const posten of seiten) assert.ok(posten.length >= 3 && posten.length <= 4, `Services on one page: ${posten.length}`);
+  const namen = seiten.flat().map((inhalt) => inhalt.match(/class="leistung__titel">([^<]+)</)[1]);
+  assert.deepEqual([...namen].sort(), [...erwartet].sort());
+  for (const inhalt of seiten.flat()) {
+    const name = inhalt.match(/class="leistung__titel">([^<]+)</)[1];
+    const eintrag = alle.find((p) => p.leistung === name);
+    assert.ok(inhalt.includes(betrag(eintrag.preis)), `${name} shows ${betrag(eintrag.preis)}`);
+  }
+  assert.doesNotMatch(htmls.join(''), /Ruhe-EKG/);
+});
+
+test('self-pay headings and closing line are worded by the practice', () => {
+  const app = harness();
+  const htmls = selbstzahlerRunden(app).map(({ scenes }) => scenes[0].html);
+  assert.ok(htmls[0].includes('Gesundheit selbst in die Hand'));
+  assert.ok(htmls.at(-1).includes('Wir kümmern uns darum'));
+  assert.match(htmls.at(-1), /Vollblutanalysen[\s\S]*Ernährungsberatung[\s\S]*beraten Sie gerne/);
+});
+
+test('self-pay pages never sit next to another service page', () => {
+  const app = harness();
+  for (const { all, scenes } of selbstzahlerRunden(app)) {
+    const index = all.findIndex((scene) => scene.html === scenes[0].html);
+    const neighbours = [all[index - 1], all[index + 1]].filter(Boolean);
+    assert.ok(neighbours.every((scene) => !scene.html.includes('leistungsseite')),
+      'Not placed directly next to another service page');
+  }
+});
+
+// Botulinumtoxin ist verschreibungspflichtig; Werbung damit gegenüber Patienten
+// verbietet § 10 HWG. Die Seite nennt deshalb nur die Behandlung.
+test('no prescription drug is named on screen', () => {
+  const app = harness();
+  const content = selbstzahlerRunden(app).flatMap(({ all }) => all.map((scene) => scene.html)).join('');
+  assert.doesNotMatch(content, /botox|botulinum/i);
 });
 
 test('no COVID vaccination is advertised', () => {
@@ -352,7 +401,8 @@ for (const [fall, beitraege] of [['without posts', '[]'], ['with a post', "[{ ti
 
 test('stretches between landscapes are similar in length and pauses stay short', () => {
   const app = harness();
-  for (let runde = 0; runde < 2; runde += 1) {
+  // Sechs Runden: zwei Clip-Sätze mal drei Selbstzahlerseiten, jede Kombination einmal.
+  for (let runde = 0; runde < 6; runde += 1) {
     app.run('szenenNeuBauen()');
     const scenes = app.scenes();
     const laengen = strecken(scenes).map((teil) => teil.reduce((summe, scene) => summe + scene.dauer, 0));

@@ -168,24 +168,29 @@ export const LEISTUNGEN = [
   },
 ];
 
-// Selbstzahlerleistungen. Beträge erscheinen NIE auf dem Bildschirm — sie
-// stehen auf der Liste am Tresen. Der Bildschirm zeigt nur eine Auswahl der
-// Leistungsnamen (SELBSTZAHLER_SEITE unten); `preis` und `zusatz` werden dort
-// nicht gelesen. `preis` in Euro, `zusatz` gehört zur gedruckten Liste.
+// Selbstzahlerleistungen, Stand der gedruckten Liste vom September 2026
+// (Nr. 1–26; die reinen Laborpreise Nr. 27–38 fehlen hier). `preis` in Euro.
+// Seit 24.09.2026 zeigt der Bildschirm eine Auswahl mit Preis, auf Wunsch der
+// Praxis (SELBSTZAHLER_SEITEN unten). `zusatz` steht dort neben dem Preis.
 export const SELBSTZAHLER = [
   {
+    // Geschützte Leerzeichen und Worttrenner (\u2060) halten „18 – 24 Stunden"
+    // auf dem Bildschirm in einer Zeile.
     gruppe: 'Diagnostik',
     hinweis: 'Alle Untersuchungen einschließlich Auswertung.',
     posten: [
       { leistung: 'Ruhe-EKG', preis: 26.54 },
-      { leistung: 'Langzeit-EKG, 18 – 24 Stunden', preis: 53.95 },
-      { leistung: 'Langzeit-Blutdruckmessung, 18 – 24 Stunden', preis: 26.46 },
+      { leistung: 'Langzeit-EKG, 18\u00a0–\u2060\u00a024\u00a0Stunden', preis: 53.95 },
+      { leistung: 'Langzeit-Blutdruckmessung, 18\u00a0–\u2060\u00a024\u00a0Stunden', preis: 26.46 },
       { leistung: 'ABI-Messung', detail: 'Ausschluss einer Durchblutungsstörung', preis: 12.59 },
       { leistung: 'Bioimpedanzanalyse', detail: 'Fett- und Muskelmasse, Wasserhaushalt', preis: 37.26 },
       { leistung: 'Spirometrie', detail: 'Lungenfunktionstest', preis: 40.08 },
-      { leistung: 'Reisemedizinische Beratung', preis: 30.60, zusatz: 'zzgl. Impfungen, je 10,72 €' },
-      { leistung: 'Ganzkörper-Hautcheck', preis: 24.80 },
+      { leistung: 'Reisemedizinische Beratung', preis: 30.60, zusatz: 'zzgl. Impfungen' }, // je 10,72 €
+      { leistung: 'Ganzkörper-Hautcheck', preis: 35.20 },
       { leistung: 'Beratung zu Patientenverfügung und Vorsorgevollmacht', preis: 40.22 },
+      { leistung: 'Ultraschall der Schilddrüse', preis: 26.81 },
+      { leistung: 'Ultraschall des Bauches', detail: 'vier Organe', preis: 58.97 },
+      { leistung: 'Ultraschall der Bauchschlagader', detail: 'Ausschluss eines Aortenaneurysmas', preis: 37.53 },
     ],
   },
   {
@@ -193,9 +198,15 @@ export const SELBSTZAHLER = [
     hinweis: 'Laborkosten werden gesondert berechnet.',
     posten: [
       {
-        leistung: 'Kleiner Gesundheitscheck',
-        detail: 'Blutbild, Leber, Niere, Fette, Zucker, mit Beratung',
-        preis: 53.80,
+        leistung: 'Kleiner Blutcheck',
+        detail: 'Cholesterin und Blutzucker, mit Urin, EKG und Beratung',
+        preis: 93.08,
+        zusatz: 'zzgl. 10,72 € Labor',
+      },
+      {
+        leistung: 'Großer Blutcheck',
+        detail: 'Cholesterin, Niere, Salze, Leber, Blutbild, Schilddrüse, Langzeitzucker, mit Urin, EKG und Beratung',
+        preis: 93.08,
         zusatz: 'zzgl. 63,67 € Labor',
       },
       {
@@ -235,24 +246,59 @@ export const SELBSTZAHLER = [
       { leistung: 'Sporttauglichkeit', detail: 'Status, Anamnese, Urin, EKG', preis: 95.28 },
     ],
   },
+  {
+    // Nicht auf der gedruckten Liste. Preis aus Thorstens Beispielrechnung nach
+    // GOÄ (22.09.2026). Der Wirkstoff wird bewusst nicht genannt: Werbung für
+    // verschreibungspflichtige Arzneimittel gegenüber Patienten verbietet § 10 HWG.
+    gruppe: 'Faltenbehandlung',
+    posten: [
+      { leistung: 'Faltenunterspritzung', detail: 'Stirn und Zornesfalte', preis: 350 },
+    ],
+  },
 ];
 
-// Seite „Selbstzahlerleistungen" im Loop. Titel wörtlich von der Praxis.
-// Bewusst nur einige, nicht die ganze Liste (Wunsch der Praxis, 22.09.2026).
-// Die Namen müssen exakt einem `leistung` in SELBSTZAHLER entsprechen; die
-// Erläuterung kommt aus dessen `detail`, sofern die Liste eine hat.
-// Sporttauglichkeit und Ernährungsberatung fehlen, weil sie schon bei den
-// Schwerpunkten stehen.
-export const SELBSTZAHLER_SEITE = {
-  rubrik: 'Selbstzahlerleistungen',
-  titel: 'Kümmern Sie sich um Ihre Gesundheit selbst!',
-  leistungen: [
-    'Kleiner Gesundheitscheck',
-    'Kleiner Vitamin-Check',
-    'Ganzkörper-Hautcheck',
-    'Reisemedizinische Beratung',
-  ],
-};
+// Selbstzahlerseiten im Loop, pro Runde die nächste. Alles auf einer Seite war
+// der Praxis zu viel, und mehr als vier Posten machen die Seite so lang, dass
+// ihre Strecke die anderen um über 20 s überragt. Wer eine Viertelstunde
+// wartet, hat alle drei gesehen. Auswahl der Praxis (24.09.2026): Diagnostik
+// ohne Ruhe-EKG, dazu die Faltenbehandlung. Überschriften und Schlusssatz fast
+// wörtlich von der Praxis. Die Namen müssen exakt einem `leistung` in
+// SELBSTZAHLER entsprechen; Erläuterung, Preis und Zusatz kommen von dort.
+export const SELBSTZAHLER_SEITEN = [
+  {
+    rubrik: 'Selbstzahlerleistungen in unserer Praxis',
+    titel: 'Nehmen Sie Ihre Gesundheit selbst in die Hand.',
+    hinweis: 'Alle Untersuchungen einschließlich Auswertung.',
+    leistungen: [
+      'Langzeit-EKG, 18\u00a0–\u2060\u00a024\u00a0Stunden',
+      'Langzeit-Blutdruckmessung, 18\u00a0–\u2060\u00a024\u00a0Stunden',
+      'ABI-Messung',
+      'Spirometrie',
+    ],
+  },
+  {
+    rubrik: 'Selbstzahlerleistungen in unserer Praxis',
+    titel: 'Nehmen Sie Ihre Gesundheit selbst in die Hand.',
+    hinweis: 'Alle Untersuchungen einschließlich Auswertung.',
+    leistungen: [
+      'Bioimpedanzanalyse',
+      'Ultraschall der Schilddrüse',
+      'Ultraschall des Bauches',
+      'Ultraschall der Bauchschlagader',
+    ],
+  },
+  {
+    rubrik: 'Selbstzahlerleistungen in unserer Praxis',
+    titel: 'Wir kümmern uns darum.',
+    leistungen: [
+      'Ganzkörper-Hautcheck',
+      'Reisemedizinische Beratung',
+      'Beratung zu Patientenverfügung und Vorsorgevollmacht',
+      'Faltenunterspritzung',
+    ],
+    abschluss: 'Außerdem Blut-Check-ups, Vollblutanalysen und Ernährungsberatung. Wir beraten Sie gerne.',
+  },
+];
 
 // Drei Clips pro Runde, in der Folgerunde die anderen drei.
 // Alle lokal: 1920×1080, H.264, ohne Tonspur, 0,75-fache Geschwindigkeit.

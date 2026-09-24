@@ -1,13 +1,13 @@
 // Ablauf des Warteraum-Bildschirms. Feste Inhalte kommen aus tv-data.js.
 //
 // Der Bildschirm läuft ohne Bedienung: Seiten wechseln nach berechneter Lesezeit, neue
-// Beiträge aus dem Praxis-Admin erscheinen von allein. Beträge stehen bewusst
-// nicht im Loop — der Bildschirm nennt Leistungen, auch einige Selbstzahler-
-// leistungen, die Beträge stehen auf der Liste am Tresen.
+// Beiträge aus dem Praxis-Admin erscheinen von allein. Beträge stehen nur auf
+// der Selbstzahlerseite, auf Wunsch der Praxis; alles Übrige nennt Leistungen
+// ohne Preis.
 import {
   PRAXIS, TV_TEXTE, OEFFNUNGSZEITEN, AKUTSPRECHSTUNDE,
   AERZTE, FACHKRAEFTE, ASSISTENZAERZTINNEN, LEISTUNGEN, SELBSTZAHLER,
-  SELBSTZAHLER_SEITE, RUHEVIDEOS, MUSIK,
+  SELBSTZAHLER_SEITEN, RUHEVIDEOS, MUSIK,
 } from './tv-data.js';
 import { leseplan } from './tv-timing.js';
 
@@ -28,6 +28,7 @@ const datumFeld = document.getElementById('fuss-datum');
 
 const zustand = {
   beitraege: [], szenen: [], index: 0, ruheVersatz: 0, beitragVersatz: 0,
+  selbstzahlerVersatz: 0,
   timer: null, gestartet: Date.now(),
 };
 
@@ -130,6 +131,7 @@ function szenenNeuBauen() {
   const seiten = beitragsSeiten();
   const meldungen = seiten.length
     ? seiten[zustand.beitragVersatz++ % seiten.length] : null;
+  const selbstzahler = SELBSTZAHLER_SEITEN[zustand.selbstzahlerVersatz++ % SELBSTZAHLER_SEITEN.length];
 
   // Der Loop hat keinen Anfang: Wartende kommen irgendwann dazu. Deshalb trägt
   // jede Strecke zwischen zwei Landschaften dasselbe Paket — eine praktische
@@ -154,7 +156,7 @@ function szenenNeuBauen() {
       // wollte die Leistungen verteilt, nicht als Block hintereinander. Team und
       // Assistenz haben dafür die Blöcke getauscht — die längere Teamseite gleicht
       // Block 3 aus, sonst läge Block 2 über der erlaubten Spanne.
-      szene(15, 'tinte', 'hoch', szeneSelbstzahler),
+      szene(15, 'tinte', 'hoch', () => szeneSelbstzahler(selbstzahler)),
     ],
     [
       szene(14, 'tinte', 'blende', szeneKontakt),
@@ -369,21 +371,27 @@ function szeneLeistungen(gruppe) {
   </section>`;
 }
 
-// Nur Name und, wo die gedruckte Liste eine hat, deren Erläuterung. `preis` und
-// `zusatz` werden hier absichtlich nie gelesen: Beträge gehören an den Tresen.
-function szeneSelbstzahler() {
+const EURO = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' });
+
+// Preis hinter dem Namen statt in eigener Spalte: eine rechtsbündige
+// Betragsspalte liest sich wie Rechnung oder Speisekarte. Das geschützte
+// Leerzeichen hält ihn am letzten Wort, sonst stünde er allein in der Zeile.
+function szeneSelbstzahler(seite) {
   const alle = SELBSTZAHLER.flatMap((gruppe) => gruppe.posten);
-  const posten = SELBSTZAHLER_SEITE.leistungen
+  const posten = seite.leistungen
     .map((name) => alle.find((p) => p.leistung === name))
     .filter(Boolean);
   return `<section class="szene szene--tinte selbstzahlerseite">
-    ${kopf(SELBSTZAHLER_SEITE.rubrik, SELBSTZAHLER_SEITE.titel)}
+    ${kopf(seite.rubrik, seite.titel)}
     <div class="szene__inhalt">
       <div class="leistungen">${posten.map((p) => `
         <article data-leseblock class="leistung">
-          <h3 class="leistung__titel">${esc(p.leistung)}</h3>
+          <div class="leistung__kopf"><h3 class="leistung__titel">${esc(p.leistung)}</h3>&nbsp;<span class="leistung__preis ziffern">${esc(EURO.format(p.preis))}</span></div>
           ${p.detail ? `<p class="leistung__text">${esc(p.detail)}</p>` : ''}
+          ${p.zusatz ? `<p class="leistung__zusatz ziffern">${esc(p.zusatz)}</p>` : ''}
         </article>`).join('')}</div>
+      ${seite.hinweis ? `<p data-leseblock class="selbstzahler__satz">${esc(seite.hinweis)}</p>` : ''}
+      ${seite.abschluss ? `<p data-leseblock class="selbstzahler__satz">${esc(seite.abschluss)}</p>` : ''}
     </div>
   </section>`;
 }
