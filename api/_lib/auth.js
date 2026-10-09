@@ -2,6 +2,10 @@ import crypto from 'node:crypto';
 
 // HMAC beider Seiten erzwingt gleiche Länge, damit timingSafeEqual nicht wirft
 // und die Schlüssellänge nicht über die Laufzeit verraten wird.
+export function adminKeyConfigured() {
+  return Boolean((process.env.ADMIN_KEY || '').trim());
+}
+
 export function isValidAdminKey(key) {
   // Getrimmt, weil ein beim Kopieren mitgeschlepptes Leerzeichen in der
   // Vercel-Variable sonst zu dauerhaftem "Falscher Schlüssel" führt — bei

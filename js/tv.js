@@ -30,7 +30,7 @@ const uhrFeld = document.getElementById('fuss-zeit');
 const datumFeld = document.getElementById('fuss-datum');
 
 const zustand = {
-  beitraege: [], szenen: [], index: 0, ruheVersatz: 0, beitragVersatz: 0,
+  beitraege: [], dringend: [], dringendVersatz: 0, szenen: [], index: 0, ruheVersatz: 0, beitragVersatz: 0,
   selbstzahlerVersatz: 0,
   timer: null, gestartet: Date.now(),
 };
@@ -77,7 +77,11 @@ async function beitraegeLaden() {
     const antwort = await fetch('/api/posts');
     if (!antwort.ok) return;
     const daten = await antwort.json();
-    zustand.beitraege = (daten.posts || []).slice(0, 3);
+    // Die API sortiert schon: Dringendes zuerst. Höchstens drei je Sorte, sonst
+    // würde eine Runde mit Meldungen überladen.
+    const posts = daten.posts || [];
+    zustand.dringend = posts.filter((b) => b.prioritaet === 'dringend').slice(0, 3);
+    zustand.beitraege = posts.filter((b) => b.prioritaet !== 'dringend').slice(0, 3);
   } catch {
     // Ohne Netz bleiben die zuletzt geladenen Beiträge für die nächste Runde erhalten.
   }
@@ -131,9 +135,17 @@ function szenenNeuBauen() {
 
   // Eine Meldungsseite pro Runde. Weitere Beiträge und Fortsetzungen kommen in
   // den folgenden Runden dran, statt eine Seite zu überfüllen.
-  const seiten = beitragsSeiten();
+  const seiten = beitragsSeiten(aktiv(zustand.beitraege));
   const meldungen = seiten.length
     ? seiten[zustand.beitragVersatz++ % seiten.length] : null;
+  // Dringendes steht am Anfang jeder Strecke, nicht nur einmal pro Runde: wer
+  // irgendwann dazukommt, sieht es nach spätestens einer Landschaft.
+  const dringendSeiten = beitragsSeiten(aktiv(zustand.dringend));
+  const dringendSzene = () => {
+    if (!dringendSeiten.length) return [];
+    const seite = dringendSeiten[zustand.dringendVersatz++ % dringendSeiten.length];
+    return [szene(14, 'dringend', 'blende', () => szeneDringend(seite))];
+  };
   const selbstzahler = SELBSTZAHLER_SEITEN[zustand.selbstzahlerVersatz++ % SELBSTZAHLER_SEITEN.length];
 
   // Der Loop hat keinen Anfang: Wartende kommen irgendwann dazu. Deshalb trägt
@@ -175,7 +187,7 @@ function szenenNeuBauen() {
   // weiter, sonst liefen immer dieselben drei Clips und die hinteren nie.
   const folge = [];
   bloecke.forEach((block, i) => {
-    folge.push(...block);
+    folge.push(...dringendSzene(), ...block);
     if (RUHEVIDEOS.length) {
       const platz = (zustand.ruheVersatz + i) % RUHEVIDEOS.length;
       const dauer = Math.min(RUHEVIDEOS[platz].sekunden * 1000, RUHE_MAX_MS) / 1000;
@@ -412,14 +424,28 @@ function szeneBeitraege(meldungen) {
   return `<section class="szene szene--papier nachrichten${lang ? ' nachrichten--lang' : ''}">
     ${kopf(TV_TEXTE.beitragRubrik, TV_TEXTE.beitragTitel)}
     <div class="szene__inhalt">
-      <div class="meldungen">${meldungen.map((b) => `
-        <article data-leseblock class="meldung">
-          <p class="meldung__marke">${esc(beitragsart(b.type))}</p>
-          <h3 class="meldung__titel">${esc(b.titel)}</h3>
-          <p class="meldung__text">${esc(b.content)}</p>
-        </article>`).join('')}</div>
+      <div class="meldungen">${meldungen.map(meldungHtml).join('')}</div>
     </div>
   </section>`;
+}
+
+function szeneDringend(meldungen) {
+  return `<section class="szene szene--dringend nachrichten">
+    ${kopf(TV_TEXTE.dringendRubrik, TV_TEXTE.dringendTitel)}
+    <div class="szene__inhalt">
+      <div class="meldungen">${meldungen.map(meldungHtml).join('')}</div>
+    </div>
+  </section>`;
+}
+
+function meldungHtml(b) {
+  return `
+        <article data-leseblock class="meldung">
+          <p class="meldung__marke">${esc(beitragsart(b.type))}</p>
+          <h3 class="meldung__titel">${esc(b.titel)}</h3>${b.zeitraum ? `
+          <p class="meldung__zeitraum ziffern">${esc(b.zeitraum)}</p>` : ''}
+          <p class="meldung__text">${esc(b.content)}</p>
+        </article>`;
 }
 
 function szeneRuhe(index) {
@@ -452,13 +478,19 @@ function beitragsart(type) {
 // abgeschnitten — die Praxis schreibt hier Urlaubszeiten und Vertretungen hinein.
 const SEITEN_BUDGET = 430;
 
-function beitragsSeiten() {
+// Zwischen zwei Abrufen kann eine Meldung ablaufen. Dann verschwindet sie mit
+// dem nächsten Rundenbau, nicht erst mit dem nächsten Abruf.
+function aktiv(liste, jetzt = Date.now()) {
+  return liste.filter((b) => !b.bis || Date.parse(b.bis) >= jetzt);
+}
+
+function beitragsSeiten(liste = zustand.beitraege) {
   const seiten = [];
   let aktuell = [];
   let summe = 0;
-  for (const beitrag of zustand.beitraege) {
+  for (const beitrag of liste) {
     textSeiten(beitrag.content, SEITEN_BUDGET).forEach((text, teil) => {
-      const laenge = text.length + String(beitrag.title || '').length;
+      const laenge = text.length + String(beitrag.title || '').length + String(beitrag.zeitraum || '').length;
       if (aktuell.length && summe + laenge > SEITEN_BUDGET) {
         seiten.push(aktuell); aktuell = []; summe = 0;
       }

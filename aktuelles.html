@@ -167,7 +167,7 @@
 
       function formatDate(iso) {
         try {
-          return new Date(iso).toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+          return new Date(iso).toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin', day: '2-digit', month: 'long', year: 'numeric' });
         } catch (e) { return ''; }
       }
 
@@ -190,9 +190,17 @@
           badge.textContent = t.label;
           var date = document.createElement('span');
           date.className = 'post-card__date';
-          date.textContent = formatDate(post.created_at || post.createdAt || post.date);
+          date.textContent = post.zeitraum ? '' : formatDate(post.created_at || post.createdAt || post.date);
           meta.appendChild(badge);
           meta.appendChild(date);
+
+          if (post.prioritaet === 'dringend') {
+            card.className += ' post-card--dringend';
+            var prio = document.createElement('span');
+            prio.className = 'tag tag--dringend';
+            prio.textContent = 'Dringend';
+            meta.insertBefore(prio, badge);
+          }
 
           var h = document.createElement('h2');
           h.textContent = post.title || '';
@@ -201,12 +209,18 @@
 
           card.appendChild(meta);
           card.appendChild(h);
+          if (post.zeitraum) {
+            var zr = document.createElement('p');
+            zr.className = 'post-card__zeitraum';
+            zr.textContent = post.zeitraum;
+            card.appendChild(zr);
+          }
           card.appendChild(p);
           container.appendChild(card);
         });
       }
 
-      fetch(window.PRAXIS.API_BASE + '/api/posts')
+      fetch(window.PRAXIS.API_BASE + '/api/posts', { cache: 'no-store' })
         .then(function (res) {
           if (!res.ok) throw new Error('HTTP ' + res.status);
           return res.json();

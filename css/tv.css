@@ -34,6 +34,12 @@
 .szene--papier { background: var(--paper); color: var(--text); }
 .szene--tinte { background: var(--green-deep); color: var(--cream-on-green); }
 .szene--bild { background: var(--green-deep); color: var(--cream-on-green); }
+/* Dringende Praxismeldungen: eigener, warmroter Grund, damit sie sich von
+   Papier und Tinte abheben und nie mit einer Nachbarszene verschmelzen. */
+.szene--dringend { background: #8f2c23; color: #fff6ef; }
+.szene--dringend .szene__rubrik, .szene--dringend .meldung__marke { color: #ffd9c7; }
+.szene--dringend .meldung { border-top-color: rgba(255,246,239,.35); }
+.szene--dringend .meldung__text { color: #fff6ef; }
 .szene.ist-sichtbar { visibility: visible; z-index: 2; }
 .szene.ist-abgehend { z-index: 1; }
 
@@ -179,6 +185,9 @@
   font-family: var(--sans); font-size: 30px; line-height: 1.5; margin-top: 12px;
   max-width: 76ch; color: var(--text); white-space: pre-line; overflow-wrap: anywhere;
 }
+.meldung__zeitraum {
+  font-size: 34px; font-weight: 600; margin-top: 8px; line-height: 1.3;
+}
 .nachrichten--lang .meldung__titel { font-size: 34px; }
 .nachrichten--lang .meldung__text { font-size: 27px; }
 
@@ -212,6 +221,7 @@
 .fuss__rechts { display: flex; align-items: baseline; gap: 46px; }
 .fuss__zeit { font-size: 36px; min-width: 178px; }
 .buehne[data-ton="tinte"] .fuss { background: var(--green-deep); color: var(--cream-on-green); }
+.buehne[data-ton="dringend"] .fuss { background: #8f2c23; color: #fff6ef; }
 .buehne[data-ton="bild"] .fuss { background: rgba(10,31,19,.9); color: var(--cream-on-green); }
 
 /* Auf der Oberkante der Fußzeile, also direkt über Praxisname und Uhrzeit —

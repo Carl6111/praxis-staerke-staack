@@ -74,6 +74,22 @@
     .logout-btn { background: none; border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.7); padding: 0.5rem 1rem; border-radius: var(--radius); font-size: var(--text-sm); }
     .logout-btn:hover { border-color: var(--bronze); color: #fff; }
     .state { color: rgba(255,255,255,0.5); font-size: var(--text-sm); padding: 1rem 0; }
+    .zeile { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0 1rem; }
+    .zeitraum { border: 1px solid rgba(255,255,255,0.14); border-radius: var(--radius); padding: 1.1rem 1.25rem 0.6rem; margin: 0 0 1.5rem; }
+    .zeitraum legend { color: #fff; font-weight: 600; padding: 0 0.4rem; font-size: var(--text-sm); }
+    .hinweis { color: rgba(255,255,255,0.5); font-weight: 400; font-size: var(--text-xs); }
+    .zeitraum > .hinweis { margin: 0.6rem 0 0.4rem; min-height: 1em; }
+    .check { display: inline-flex; gap: 0.5rem; align-items: center; color: rgba(255,255,255,0.8); font-size: var(--text-sm); cursor: pointer; }
+    .check input { width: 1.05rem; height: 1.05rem; accent-color: var(--bronze); }
+    .panel input[type=date]::-webkit-calendar-picker-indicator, .panel input[type=time]::-webkit-calendar-picker-indicator { filter: invert(1); }
+    .aktionen { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+    .admin-post .zeit { font-size: var(--text-sm); color: #fff; margin-top: 0.4rem; }
+    .admin-post .knoepfe { display: flex; flex-direction: column; gap: 0.5rem; flex-shrink: 0; }
+    .btn-edit { background: none; border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.85); font-size: var(--text-xs); font-weight: 600; letter-spacing: 0.06em; padding: 0.5rem 0.9rem; border-radius: var(--radius); }
+    .btn-edit:hover { border-color: var(--bronze); color: #fff; }
+    .tag.prio-dringend { background: #a8352b; color: #fff; margin-left: 0.4rem; }
+    .admin-post.ist-bearbeitet { outline: 1px solid var(--bronze); outline-offset: 0.5rem; border-radius: 2px; }
+    @media (max-width: 560px) { .admin-post { flex-direction: column; } .admin-post .knoepfe { flex-direction: row; } }
   </style>
 </head>
 <body>
@@ -104,16 +120,25 @@
       </div>
     </div>
 
-    <section class="panel">
-      <h2>Neuen Beitrag erstellen</h2>
-      <form id="create-form">
-        <div class="field">
-          <label for="post-type">Typ</label>
-          <select id="post-type">
-            <option value="info">Info</option>
-            <option value="urlaub">Urlaub / Schließung</option>
-            <option value="neuigkeit">Neuigkeit</option>
-          </select>
+    <section class="panel" id="form-panel">
+      <h2 id="form-titel">Neue Meldung erstellen</h2>
+      <form id="create-form" novalidate>
+        <div class="zeile">
+          <div class="field">
+            <label for="post-type">Typ</label>
+            <select id="post-type">
+              <option value="info">Info</option>
+              <option value="urlaub">Urlaub / Schließung</option>
+              <option value="neuigkeit">Neuigkeit</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="post-prio">Priorität</label>
+            <select id="post-prio">
+              <option value="normal">Normal</option>
+              <option value="dringend">Dringend – auf dem TV zuerst</option>
+            </select>
+          </div>
         </div>
         <div class="field">
           <label for="post-title">Titel</label>
@@ -123,16 +148,44 @@
           <label for="post-content">Text</label>
           <textarea id="post-content" maxlength="5000" required></textarea>
         </div>
-        <button class="btn" type="submit" id="create-btn"><span>Veröffentlichen</span></button>
-        <div class="msg ok" id="create-success" role="status">Beitrag wurde veröffentlicht.</div>
+
+        <fieldset class="zeitraum">
+          <legend>Zeitraum <span class="hinweis">optional – ohne Enddatum bleibt die Meldung, bis Sie sie löschen</span></legend>
+          <div class="zeile">
+            <div class="field">
+              <label for="von-datum">Von</label>
+              <input type="date" id="von-datum">
+            </div>
+            <div class="field uhrzeit" hidden>
+              <label for="von-uhrzeit">Uhrzeit von</label>
+              <input type="time" id="von-uhrzeit" step="300">
+            </div>
+            <div class="field">
+              <label for="bis-datum">Bis</label>
+              <input type="date" id="bis-datum">
+            </div>
+            <div class="field uhrzeit" hidden>
+              <label for="bis-uhrzeit">Uhrzeit bis</label>
+              <input type="time" id="bis-uhrzeit" step="300">
+            </div>
+          </div>
+          <label class="check"><input type="checkbox" id="mit-uhrzeit"> Uhrzeit angeben</label>
+          <p class="hinweis" id="ablauf-hinweis"></p>
+        </fieldset>
+
+        <div class="aktionen">
+          <button class="btn" type="submit" id="create-btn"><span>Veröffentlichen</span></button>
+          <button class="logout-btn" type="button" id="cancel-edit" hidden>Abbrechen</button>
+        </div>
+        <div class="msg ok" id="create-success" role="status"></div>
         <div class="msg err" id="create-error" role="alert"></div>
       </form>
     </section>
 
     <section class="panel">
-      <h2>Alle Beiträge</h2>
+      <h2>Aktive Meldungen</h2>
       <p class="state" id="posts-loading">Beiträge werden geladen …</p>
-      <p class="state" id="posts-empty" hidden>Noch keine Beiträge vorhanden.</p>
+      <p class="state" id="posts-empty" hidden>Keine aktiven Meldungen.</p>
       <div id="posts-list"></div>
     </section>
   </div>
@@ -186,7 +239,9 @@
           } else if (res.status === 401) {
             throw new Error('Falscher Schlüssel. Bitte erneut versuchen.');
           } else {
-            throw new Error('Serverfehler (' + res.status + '). Bitte Carl informieren.');
+            // Der Server nennt bei Einrichtungsfehlern die fehlende Variable.
+            var info = await res.json().catch(function () { return {}; });
+            throw new Error('Serverfehler (' + res.status + '). ' + (info.error ? info.error + ' ' : '') + 'Bitte Carl informieren.');
           }
         } catch (err) {
           loginError.textContent = err.message || 'Verbindungsfehler.';
@@ -198,14 +253,87 @@
 
       document.getElementById('logout-btn').addEventListener('click', logout);
 
+      var bearbeiteId = null;
+      var el = function (id) { return document.getElementById(id); };
+
+      function heuteBerlin() {
+        return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' }).format(new Date());
+      }
+
+      function uhrzeitUmschalten() {
+        var an = el('mit-uhrzeit').checked;
+        document.querySelectorAll('.uhrzeit').forEach(function (f) { f.hidden = !an; });
+        ablaufHinweis();
+      }
+
+      function ablaufHinweis() {
+        var bis = el('bis-datum').value || (el('mit-uhrzeit').checked ? el('von-datum').value : '');
+        var h = el('ablauf-hinweis');
+        if (!bis) { h.textContent = 'Ohne Enddatum: bleibt sichtbar, bis Sie sie löschen.'; return; }
+        var [j, m, t] = bis.split('-');
+        var zeit = el('mit-uhrzeit').checked && el('bis-uhrzeit').value ? el('bis-uhrzeit').value + ' Uhr' : 'Tagesende';
+        h.textContent = 'Wird am ' + t + '.' + m + '.' + j + ' um ' + zeit + ' automatisch von Website und TV gelöscht.';
+      }
+
+      ['von-datum', 'bis-datum', 'bis-uhrzeit'].forEach(function (id) { el(id).addEventListener('input', ablaufHinweis); });
+      el('mit-uhrzeit').addEventListener('change', uhrzeitUmschalten);
+      // Wer nur "Von" setzt, meint meist einen einzelnen Tag: Bis vorbelegen.
+      el('von-datum').addEventListener('change', function () {
+        var von = el('von-datum').value;
+        if (von && (!el('bis-datum').value || el('bis-datum').value < von)) el('bis-datum').value = von;
+        el('bis-datum').min = von || heuteBerlin();
+        ablaufHinweis();
+      });
+      el('von-datum').min = heuteBerlin();
+      el('bis-datum').min = heuteBerlin();
+
+      function formularLeeren() {
+        bearbeiteId = null;
+        el('create-form').reset();
+        el('form-titel').textContent = 'Neue Meldung erstellen';
+        el('create-btn').querySelector('span').textContent = 'Veröffentlichen';
+        el('cancel-edit').hidden = true;
+        el('von-datum').min = heuteBerlin();
+        el('bis-datum').min = heuteBerlin();
+        document.querySelectorAll('.admin-post.ist-bearbeitet').forEach(function (r) { r.classList.remove('ist-bearbeitet'); });
+        uhrzeitUmschalten();
+      }
+
+      function bearbeiten(post, row) {
+        formularLeeren();
+        bearbeiteId = post.id;
+        row.classList.add('ist-bearbeitet');
+        el('post-type').value = TYPE_LABELS[post.type] ? post.type : 'info';
+        el('post-prio').value = post.prioritaet === 'dringend' ? 'dringend' : 'normal';
+        el('post-title').value = post.title || '';
+        el('post-content').value = post.content || '';
+        var f = post.formular || {};
+        // Ein bereits laufender Zeitraum darf seinen Start in der Vergangenheit behalten.
+        el('von-datum').min = '';
+        el('von-datum').value = f.von_datum || '';
+        el('bis-datum').value = f.bis_datum || '';
+        el('mit-uhrzeit').checked = Boolean(post.mit_uhrzeit);
+        el('von-uhrzeit').value = f.von_uhrzeit || '';
+        el('bis-uhrzeit').value = f.bis_uhrzeit || '';
+        el('form-titel').textContent = 'Meldung bearbeiten';
+        el('create-btn').querySelector('span').textContent = 'Änderungen speichern';
+        el('cancel-edit').hidden = false;
+        uhrzeitUmschalten();
+        el('form-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      el('cancel-edit').addEventListener('click', formularLeeren);
+
       async function loadPosts() {
-        var loading = document.getElementById('posts-loading');
-        var empty = document.getElementById('posts-empty');
-        var list = document.getElementById('posts-list');
+        var loading = el('posts-loading');
+        var empty = el('posts-empty');
+        var list = el('posts-list');
         loading.hidden = false;
         try {
-          var res = await fetch(BACKEND + '/api/posts');
-          if (!res.ok) throw new Error();
+          var res = await fetch(BACKEND + '/api/posts', { cache: 'no-store' });
+          if (!res.ok) {
+            var info = await res.json().catch(function () { return {}; });
+            throw new Error(info.error || ('HTTP ' + res.status));
+          }
           var data = await res.json();
           var posts = data.posts || [];
           loading.hidden = true;
@@ -220,23 +348,46 @@
             var badge = document.createElement('span');
             badge.className = 'tag type-' + type;
             badge.textContent = TYPE_LABELS[type];
+            info.appendChild(badge);
+            if (post.prioritaet === 'dringend') {
+              var prio = document.createElement('span');
+              prio.className = 'tag prio-dringend';
+              prio.textContent = 'Dringend';
+              info.appendChild(prio);
+            }
             var h = document.createElement('h3');
             h.textContent = post.title || '';
             var prev = document.createElement('p');
             prev.textContent = post.content || '';
+            info.appendChild(h); info.appendChild(prev);
+            if (post.zeitraum) {
+              var zeit = document.createElement('p');
+              zeit.className = 'zeit';
+              zeit.textContent = post.zeitraum;
+              info.appendChild(zeit);
+            }
             var date = document.createElement('p');
             date.className = 'date';
             try {
-              date.textContent = new Date(post.date || post.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+              var erstellt = new Date(post.date).toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin', day: '2-digit', month: 'long', year: 'numeric' });
+              date.textContent = 'Erstellt ' + erstellt + (post.bis ? ' · wird nach Ablauf automatisch gelöscht' : ' · bleibt bis zum manuellen Löschen');
             } catch (e) {}
-            info.appendChild(badge); info.appendChild(h); info.appendChild(prev); info.appendChild(date);
+            info.appendChild(date);
+
+            var knoepfe = document.createElement('div');
+            knoepfe.className = 'knoepfe';
+            var edit = document.createElement('button');
+            edit.className = 'btn-edit';
+            edit.type = 'button';
+            edit.textContent = 'Bearbeiten';
+            edit.addEventListener('click', function () { bearbeiten(post, row); });
 
             var del = document.createElement('button');
             del.className = 'btn-del';
             del.type = 'button';
             del.textContent = 'Löschen';
             del.addEventListener('click', async function () {
-              if (!confirm('Beitrag wirklich löschen?')) return;
+              if (!confirm('Meldung wirklich löschen? Sie verschwindet sofort von Website und TV.')) return;
               del.disabled = true;
               try {
                 var r = await fetch(BACKEND + '/api/posts/' + encodeURIComponent(post.id), {
@@ -245,6 +396,7 @@
                 });
                 if (r.status === 401) { logout(); return; }
                 if (!r.ok) throw new Error();
+                if (bearbeiteId === post.id) formularLeeren();
                 loadPosts();
               } catch (e) {
                 del.disabled = false;
@@ -252,42 +404,62 @@
               }
             });
 
+            knoepfe.appendChild(edit);
+            knoepfe.appendChild(del);
             row.appendChild(info);
-            row.appendChild(del);
+            row.appendChild(knoepfe);
+            if (post.id === bearbeiteId) row.classList.add('ist-bearbeitet');
             list.appendChild(row);
           });
         } catch (e) {
-          loading.textContent = 'Fehler beim Laden der Beiträge.';
+          loading.hidden = false;
+          loading.textContent = 'Fehler beim Laden der Meldungen. ' + (e.message || '');
         }
       }
 
-      document.getElementById('create-form').addEventListener('submit', async function (e) {
+      el('create-form').addEventListener('submit', async function (e) {
         e.preventDefault();
-        var type = document.getElementById('post-type').value;
-        var title = document.getElementById('post-title').value.trim();
-        var content = document.getElementById('post-content').value.trim();
-        var ok = document.getElementById('create-success');
-        var err = document.getElementById('create-error');
+        var ok = el('create-success');
+        var err = el('create-error');
         ok.classList.remove('is-visible');
         err.classList.remove('is-visible');
-        if (!title || !content) return;
+        var mitUhrzeit = el('mit-uhrzeit').checked;
+        var body = {
+          type: el('post-type').value,
+          prioritaet: el('post-prio').value,
+          title: el('post-title').value.trim(),
+          content: el('post-content').value.trim(),
+          von_datum: el('von-datum').value,
+          bis_datum: el('bis-datum').value,
+          mit_uhrzeit: mitUhrzeit,
+          von_uhrzeit: mitUhrzeit ? el('von-uhrzeit').value : '',
+          bis_uhrzeit: mitUhrzeit ? el('bis-uhrzeit').value : ''
+        };
+        if (!body.title || !body.content) {
+          err.textContent = 'Bitte Titel und Text ausfüllen.';
+          err.classList.add('is-visible');
+          return;
+        }
 
-        var btn = document.getElementById('create-btn');
+        var btn = el('create-btn');
+        var label = btn.querySelector('span').textContent;
         btn.disabled = true;
         btn.querySelector('span').textContent = 'Wird gespeichert …';
+        var warBearbeitung = Boolean(bearbeiteId);
         try {
-          var res = await fetch(BACKEND + '/api/posts', {
-            method: 'POST',
+          var res = await fetch(BACKEND + '/api/posts' + (bearbeiteId ? '/' + encodeURIComponent(bearbeiteId) : ''), {
+            method: bearbeiteId ? 'PUT' : 'POST',
             headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
-            body: JSON.stringify({ type: type, title: title, content: content })
+            body: JSON.stringify(body)
           });
           if (res.status === 401) { logout(); return; }
           if (!res.ok) {
             var data = await res.json().catch(function () { return {}; });
             throw new Error(data.error || 'Fehler beim Speichern. Bitte erneut versuchen.');
           }
-          document.getElementById('post-title').value = '';
-          document.getElementById('post-content').value = '';
+          formularLeeren();
+          label = el('create-btn').querySelector('span').textContent;
+          ok.textContent = warBearbeitung ? 'Änderungen gespeichert.' : 'Meldung veröffentlicht. Website sofort, TV innerhalb von 10 Minuten.';
           ok.classList.add('is-visible');
           loadPosts();
         } catch (e2) {
@@ -295,9 +467,11 @@
           err.classList.add('is-visible');
         } finally {
           btn.disabled = false;
-          btn.querySelector('span').textContent = 'Veröffentlichen';
+          btn.querySelector('span').textContent = label;
         }
       });
+
+      uhrzeitUmschalten();
 
       var saved = sessionStorage.getItem('ak');
       if (saved) {

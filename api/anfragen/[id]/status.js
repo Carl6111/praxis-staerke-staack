@@ -4,11 +4,14 @@ import { text, serverError } from '../../_lib/validate.js';
 
 const ALLOWED_ANFRAGE_STATUS = ['Neu', 'In Arbeit', 'Erledigt'];
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
   if (!(await guardAdmin(req, res))) return;
+  if (!UUID.test(String(req.query.id || ''))) return res.status(400).json({ success: false, error: 'Ungültige ID' });
 
   const status = text(req.body?.status);
   if (!ALLOWED_ANFRAGE_STATUS.includes(status)) {

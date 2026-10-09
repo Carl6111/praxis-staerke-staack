@@ -170,7 +170,9 @@
           } else if (res.status === 401) {
             throw new Error('Falscher Schlüssel. Bitte erneut versuchen.');
           } else {
-            throw new Error('Serverfehler (' + res.status + '). Bitte Carl informieren.');
+            // Der Server nennt bei Einrichtungsfehlern die fehlende Variable.
+            var info = await res.json().catch(function () { return {}; });
+            throw new Error('Serverfehler (' + res.status + '). ' + (info.error ? info.error + ' ' : '') + 'Bitte Carl informieren.');
           }
         } catch (err) {
           loginError.textContent = err.message || 'Verbindungsfehler.';

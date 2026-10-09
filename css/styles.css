@@ -1705,6 +1705,15 @@ html.is-loading .hero__fade-in { animation-play-state: paused; }
   margin-bottom: 0.9rem;
 }
 .post-card__date { font-size: var(--text-sm); color: var(--text-dim); }
+.post-card--dringend { border-left-color: #a8352b; border-left-width: 5px; background: #fbf3f1; }
+.tag--dringend { background: #a8352b; color: #fff; }
+.post-card .post-card__zeitraum {
+  display: inline-block;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.7rem;
+  white-space: normal;
+}
 .post-card h2 { font-size: var(--text-h3); margin-bottom: 0.6rem; }
 .post-card p { color: var(--text-mid); white-space: pre-line; }
 .posts-state {

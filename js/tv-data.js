@@ -33,6 +33,8 @@ export const TV_TEXTE = {
   kontaktQr: 'Scannen Sie einen der QR-Codes in der Praxis.',
   beitragRubrik: 'Aus der Praxis',
   beitragTitel: 'Aktuelles aus der Praxis',
+  dringendRubrik: 'Wichtiger Hinweis',
+  dringendTitel: 'Bitte beachten',
 };
 
 export const OEFFNUNGSZEITEN = [

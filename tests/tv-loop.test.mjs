@@ -457,3 +457,23 @@ test('without fullscreen support nothing is requested and nothing breaks', () =>
   ausloesen('keydown');
   assert.equal(zustandVollbild.anfragen, 0);
 });
+
+test('urgent posts open every stretch on their own background, and expired posts vanish', () => {
+  const app = harness();
+  const morgen = new Date(Date.now() + 86400000).toISOString();
+  const gestern = new Date(Date.now() - 86400000).toISOString();
+  app.run(`zustand.dringend = [{ title: 'Praxis heute geschlossen', content: 'Vertretung: Praxis Müller.', type: 'urlaub', prioritaet: 'dringend', zeitraum: 'Fr., 9. Oktober 2026', bis: '${morgen}' }]`);
+  app.run(`zustand.beitraege = [{ title: 'Grippeimpfung', content: 'Ab sofort.', type: 'info', bis: '${gestern}' }]`);
+  app.run('szenenNeuBauen()');
+  const scenes = app.scenes();
+  const teile = strecken(scenes);
+  assert.equal(teile.length, 3);
+  for (const teil of teile) {
+    assert.ok(teil[0].html.includes('szene--dringend'), 'Every stretch starts with the urgent page');
+    assert.ok(teil[0].html.includes('Fr., 9. Oktober 2026'), 'The date range is shown');
+  }
+  assert.ok(!scenes.some((s) => s.html.includes('Grippeimpfung')), 'Expired posts must not appear');
+  for (let i = 0; i < scenes.length; i += 1) {
+    assert.notEqual(scenes[i].ton, scenes[(i + 1) % scenes.length].ton);
+  }
+});
