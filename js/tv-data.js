@@ -37,6 +37,20 @@ export const TV_TEXTE = {
   dringendTitel: 'Bitte beachten',
 };
 
+// Feste Hinweise, die unabhängig von der Datenbank auf dem Bildschirm laufen.
+// `bis` ist UTC; nach diesem Zeitpunkt fallen sie beim nächsten Rundenbau raus.
+export const FESTE_HINWEISE = [
+  {
+    id: 'schliessung-2026-10-19',
+    type: 'info',
+    prioritaet: 'dringend',
+    title: 'Die Praxis ist geschlossen',
+    zeitraum: '19. – 23. Oktober 2026',
+    content: 'Vertretung übernimmt Tetschke/Schulze für akute Krankheitsfälle bis 9 Uhr.',
+    bis: '2026-10-23T21:59:59.000Z',
+  },
+];
+
 export const OEFFNUNGSZEITEN = [
   { tag: 'Montag', zeit: '08:00 – 12:00 · 16:00 – 18:00' },
   { tag: 'Dienstag – Freitag', zeit: '08:00 – 12:00' },

@@ -7,7 +7,7 @@
 import {
   PRAXIS, TV_TEXTE, OEFFNUNGSZEITEN, AKUTSPRECHSTUNDE,
   AERZTE, FACHKRAEFTE, ASSISTENZAERZTINNEN, LEISTUNGEN, SELBSTZAHLER,
-  SELBSTZAHLER_SEITEN, RUHEVIDEOS, MUSIK,
+  SELBSTZAHLER_SEITEN, RUHEVIDEOS, MUSIK, FESTE_HINWEISE,
 } from './tv-data.js';
 import { leseplan } from './tv-timing.js';
 
@@ -22,6 +22,8 @@ const WECHSEL_MS = 1600;
 // Muss vor starten() stehen: das baut die erste Runde sofort, und eine weiter
 // unten deklarierte Konstante wäre dann noch nicht initialisiert.
 const EURO = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' });
+// Zeichen je Meldungsseite, siehe beitragsSeiten().
+const SEITEN_BUDGET = 430;
 
 const buehne = document.getElementById('buehne');
 const szenenRaum = document.getElementById('szenen');
@@ -30,7 +32,7 @@ const uhrFeld = document.getElementById('fuss-zeit');
 const datumFeld = document.getElementById('fuss-datum');
 
 const zustand = {
-  beitraege: [], dringend: [], dringendVersatz: 0, szenen: [], index: 0, ruheVersatz: 0, beitragVersatz: 0,
+  beitraege: [], dringend: [...FESTE_HINWEISE], dringendVersatz: 0, szenen: [], index: 0, ruheVersatz: 0, beitragVersatz: 0,
   selbstzahlerVersatz: 0,
   timer: null, gestartet: Date.now(),
 };
@@ -80,7 +82,7 @@ async function beitraegeLaden() {
     // Die API sortiert schon: Dringendes zuerst. Höchstens drei je Sorte, sonst
     // würde eine Runde mit Meldungen überladen.
     const posts = daten.posts || [];
-    zustand.dringend = posts.filter((b) => b.prioritaet === 'dringend').slice(0, 3);
+    zustand.dringend = [...FESTE_HINWEISE, ...posts.filter((b) => b.prioritaet === 'dringend')].slice(0, 3);
     zustand.beitraege = posts.filter((b) => b.prioritaet !== 'dringend').slice(0, 3);
   } catch {
     // Ohne Netz bleiben die zuletzt geladenen Beiträge für die nächste Runde erhalten.
@@ -476,7 +478,6 @@ function beitragsart(type) {
 // Beiträge auf Seiten verteilen: kurze Meldungen stehen zu mehreren zusammen,
 // ein langer Beitrag bekommt so viele Seiten, wie sein Text braucht. Nichts wird
 // abgeschnitten — die Praxis schreibt hier Urlaubszeiten und Vertretungen hinein.
-const SEITEN_BUDGET = 430;
 
 // Zwischen zwei Abrufen kann eine Meldung ablaufen. Dann verschwindet sie mit
 // dem nächsten Rundenbau, nicht erst mit dem nächsten Abruf.
