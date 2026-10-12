@@ -140,8 +140,8 @@ function szenenNeuBauen() {
   const seiten = beitragsSeiten(aktiv(zustand.beitraege));
   const meldungen = seiten.length
     ? seiten[zustand.beitragVersatz++ % seiten.length] : null;
-  // Dringendes steht am Anfang jeder Strecke, nicht nur einmal pro Runde: wer
-  // irgendwann dazukommt, sieht es nach spätestens einer Landschaft.
+  // Dringendes steht am Anfang und in der Mitte jeder Strecke, nicht nur einmal
+  // pro Runde: wer irgendwann dazukommt, sieht es nach spätestens einer Minute.
   const dringendSeiten = beitragsSeiten(aktiv(zustand.dringend));
   const dringendSzene = () => {
     if (!dringendSeiten.length) return [];
@@ -189,7 +189,9 @@ function szenenNeuBauen() {
   // weiter, sonst liefen immer dieselben drei Clips und die hinteren nie.
   const folge = [];
   bloecke.forEach((block, i) => {
-    folge.push(...dringendSzene(), ...block);
+    // Vor dem Block und noch einmal in dessen Mitte: sechsmal pro Runde.
+    const mitte = Math.ceil(block.length / 2);
+    folge.push(...dringendSzene(), ...block.slice(0, mitte), ...dringendSzene(), ...block.slice(mitte));
     if (RUHEVIDEOS.length) {
       const platz = (zustand.ruheVersatz + i) % RUHEVIDEOS.length;
       const dauer = Math.min(RUHEVIDEOS[platz].sekunden * 1000, RUHE_MAX_MS) / 1000;

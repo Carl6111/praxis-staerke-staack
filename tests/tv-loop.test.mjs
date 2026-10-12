@@ -478,10 +478,10 @@ test('urgent posts open every stretch on their own background, and expired posts
   }
 });
 
-test('the closure notice runs ahead of every block, without the database', () => {
+test('the closure notice runs twice per block, without the database', () => {
   const app = harness({ mitStart: true });
   const notices = app.scenes().filter((scene) => scene.html.includes('Die Praxis ist geschlossen'));
-  assert.equal(notices.length, 3, 'once before each of the three blocks');
+  assert.equal(notices.length, 6, 'before and in the middle of each of the three blocks');
   assert.ok(notices.every((scene) => scene.html.includes('19. – 23. Oktober 2026')));
   assert.ok(notices.every((scene) => scene.html.includes('Tetschke/Schulze')));
 });
