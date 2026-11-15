@@ -1,13 +1,18 @@
 import { supabase, ANFRAGEN_TABLE } from './_lib/supabase.js';
+import { anfrageVerarbeiten } from './_lib/anfrage.js';
 import { guardPublic } from './_lib/ratelimit.js';
 import { text } from './_lib/validate.js';
 
-const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL || 'tafkac@icloud.com';
-const MAIL_FROM = process.env.MAIL_FROM || 'Praxis Stärke & Staack <onboarding@resend.dev>';
+// Kein Fallback mehr: fehlt eine Variable, schlägt der Mailweg laut fehl statt
+// still an eine falsche Adresse zu gehen.
+const env = n => (process.env[n] || '').trim();
 
 async function sendAnfrageMail(a) {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return;
+  const apiKey = env('RESEND_API_KEY');
+  const to = env('NOTIFY_EMAIL');
+  const from = env('MAIL_FROM');
+  const fehlt = [!apiKey && 'RESEND_API_KEY', !to && 'NOTIFY_EMAIL', !from && 'MAIL_FROM'].filter(Boolean);
+  if (fehlt.length) throw new Error(`Umgebungsvariable fehlt: ${fehlt.join(', ')}`);
 
   const body =
     `Neue Kontaktanfrage über die Website\n\n` +
@@ -21,14 +26,14 @@ async function sendAnfrageMail(a) {
     method: 'POST',
     headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from: MAIL_FROM,
-      to: [NOTIFY_EMAIL],
+      from,
+      to: [to],
       reply_to: a.email,
       subject: `Neue Anfrage: ${a.vorname} ${a.nachname}`,
       text: body,
     }),
   });
-  if (!r.ok) console.error('Resend error:', r.status, await r.text());
+  if (!r.ok) throw new Error(`Resend ${r.status}: ${await r.text()}`);
 }
 
 const stripTags = s => s.replace(/<[^>]*>/g, '').trim();
@@ -82,19 +87,17 @@ export default async function handler(req, res) {
     status: 'Neu',
   };
 
-  const { error } = await supabase.from(ANFRAGEN_TABLE).insert([row]);
-  if (error) {
-    console.error('Supabase insert error:', error.message);
+  // Beides muss awaited werden: Vercel friert die Function nach der Antwort ein.
+  const { angekommen } = await anfrageVerarbeiten(row, {
+    speichern: async r => {
+      if (!supabase) throw new Error('Supabase nicht konfiguriert');
+      const { error } = await supabase.from(ANFRAGEN_TABLE).insert([r]);
+      if (error) throw new Error(error.message);
+    },
+    mailen: sendAnfrageMail,
+  });
+  if (!angekommen) {
     return res.status(500).json({ error: 'Interner Fehler. Bitte versuche es später erneut.' });
-  }
-
-  // Muss awaited werden: Vercel friert die Function nach der Antwort ein, ein
-  // fire-and-forget Promise liefe nie zu Ende. Die Anfrage steht schon in der
-  // DB — ein Mail-Fehler darf den Patienten deshalb nicht erreichen.
-  try {
-    await sendAnfrageMail(row);
-  } catch (e) {
-    console.error('Mail send failed:', e.message);
   }
 
   res.json({ success: true });
